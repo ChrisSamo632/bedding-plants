@@ -31,14 +31,7 @@ import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 import com.poiji.option.PoijiOptions.PoijiOptionsBuilder;
 
-import uk.co.gmescouts.stmarys.beddingplants.data.model.Address;
-import uk.co.gmescouts.stmarys.beddingplants.data.model.Customer;
-import uk.co.gmescouts.stmarys.beddingplants.data.model.DeliveryDay;
-import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
-import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderItem;
-import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderType;
-import uk.co.gmescouts.stmarys.beddingplants.data.model.Plant;
-import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
+import uk.co.gmescouts.stmarys.beddingplants.data.model.*;
 import uk.co.gmescouts.stmarys.beddingplants.imports.configuration.ImportConfiguration;
 import uk.co.gmescouts.stmarys.beddingplants.imports.model.excel.ExcelOrder;
 import uk.co.gmescouts.stmarys.beddingplants.imports.model.excel.ExcelPlant;
@@ -238,9 +231,15 @@ public class ImportService {
 				? DeliveryDay.valueOf(StringUtils.capitalize(excelOrder.getDeliveryDay()))
 				: DeliveryDay.SATURDAY;
 
+		// determine CollectionSlot (default is Any if not present)
+		final CollectionSlot collectionSlot = StringUtils.isNotBlank(excelOrder.getCollectionSlot())
+				? CollectionSlot.valueOf(StringUtils.capitalize(excelOrder.getCollectionSlot()))
+				: CollectionSlot.ANY;
+
 		// create Order (without Customer or OrderItems)
 		final Order order = Order.builder().num(Integer.valueOf(excelOrder.getOrderNumber())).deliveryDay(deliveryDay)
-				.type(OrderType.valueOf(excelOrder.getCollectDeliver().toUpperCase().charAt(0))).build();
+				.collectionSlot(collectionSlot).type(OrderType.valueOf(excelOrder.getCollectDeliver().toUpperCase().charAt(0)))
+				.build();
 
 		// determine requested number of each plant and create OrderItems on the Order
 		for (final Plant plant : plants) {

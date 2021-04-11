@@ -115,6 +115,9 @@ public class Order implements PlantSummary {
 	@Enumerated(EnumType.STRING)
 	private DeliveryDay deliveryDay;
 
+	@Enumerated(EnumType.STRING)
+	private CollectionSlot collectionSlot;
+
 	@NonNull
 	@NotNull
 	@Enumerated(EnumType.STRING)

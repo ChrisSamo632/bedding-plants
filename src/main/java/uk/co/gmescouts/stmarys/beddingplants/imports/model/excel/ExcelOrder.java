@@ -27,6 +27,9 @@ public class ExcelOrder {
 	@ExcelCellName("Delivery Day")
 	private String deliveryDay;
 
+	@ExcelCellName("Preferred Collection Slot")
+	private String collectionSlot;
+
 	@ExcelCellName("c/o")
 	private String courtesyOf;
 
