@@ -1,15 +1,14 @@
 package uk.co.gmescouts.stmarys.beddingplants.imports.service;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.jupiter.api.Test;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SuppressWarnings("WeakerAccess")
-public class ImportServiceTest {
+class ImportServiceTest {
 	private final ImportService feature = new ImportService();
 
 	@Test
-	public final void testNormaliseTelephoneNumber() {
+	final void testNormaliseTelephoneNumber() {
 		assertEquals("0161 370 3070", feature.normaliseTelephoneNumber("0161 370 3070"));
 		assertEquals("0161 370 3070", feature.normaliseTelephoneNumber("3703070"));
 		assertEquals("0161 370 3070", feature.normaliseTelephoneNumber("1613703070"));
