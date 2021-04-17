@@ -198,8 +198,8 @@ public class ImportService {
 	private Plant createPlant(final ExcelPlant excelPlant) {
 		LOGGER.trace("Convert imported Plant: [{}]", excelPlant);
 
-		final Double price = StringUtils.isNotBlank(excelPlant.getPrice()) ? Double.valueOf(excelPlant.getPrice().replaceFirst("£", "")) : 0d;
-		final Double cost = StringUtils.isNotBlank(excelPlant.getCost()) ? Double.valueOf(excelPlant.getCost().replaceFirst("£", "")) : 0d;
+		final Double price = StringUtils.isNotBlank(excelPlant.getPrice()) ? Double.parseDouble(excelPlant.getPrice().replaceFirst("£", "")) : 0d;
+		final Double cost = StringUtils.isNotBlank(excelPlant.getCost()) ? Double.parseDouble(excelPlant.getCost().replaceFirst("£", "")) : 0d;
 
 		return Plant.builder().num(Integer.valueOf(excelPlant.getId())).name(excelPlant.getName()).variety(excelPlant.getVariety())
 				.details(excelPlant.getDetails()).price(price).cost(cost).build();
@@ -228,12 +228,12 @@ public class ImportService {
 	private Order createOrder(final ExcelOrder excelOrder, @NotNull @Size(min = 1) final Set<Plant> plants) {
 		// determine DeliveryDay (default is Saturday if not present)
 		final DeliveryDay deliveryDay = StringUtils.isNotBlank(excelOrder.getDeliveryDay())
-				? DeliveryDay.valueOf(StringUtils.capitalize(excelOrder.getDeliveryDay()))
+				? DeliveryDay.valueOf(StringUtils.upperCase(excelOrder.getDeliveryDay()))
 				: DeliveryDay.SATURDAY;
 
 		// determine CollectionSlot (default is Any if not present)
 		final CollectionSlot collectionSlot = StringUtils.isNotBlank(excelOrder.getCollectionSlot())
-				? CollectionSlot.valueOf(StringUtils.capitalize(excelOrder.getCollectionSlot()))
+				? CollectionSlot.valueOf(StringUtils.upperCase(excelOrder.getCollectionSlot()))
 				: CollectionSlot.ANY;
 
 		// create Order (without Customer or OrderItems)
@@ -248,7 +248,7 @@ public class ImportService {
 				// for each available (imported) Plant, check how many the imported order wants
 				final String plantCountStr = (String) excelOrder.getClass().getMethod(String.format("getNumberPlants%d", plantId)).invoke(excelOrder);
 
-				final Integer numPlants = StringUtils.isNotBlank(plantCountStr) ? Integer.valueOf(plantCountStr) : 0;
+				final int numPlants = StringUtils.isNotBlank(plantCountStr) ? Integer.parseInt(plantCountStr) : 0;
 
 				if (numPlants > 0) {
 					// add the OrderItem to the Order
@@ -322,7 +322,7 @@ public class ImportService {
 			address.setCity(StringUtils.defaultIfEmpty(excelOrder.getCity(), importConfiguration.getDefaultCity()));
 
 			// store Address (if new) for later re-use
-			if (!IMPORTED_ADDRESS_CACHE.keySet().contains(address)) {
+			if (!IMPORTED_ADDRESS_CACHE.containsKey(address)) {
 				IMPORTED_ADDRESS_CACHE.put(address, address);
 			}
 

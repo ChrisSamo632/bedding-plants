@@ -52,7 +52,7 @@ class Sales {
 	@Resource
 	private SalesService salesService;
 
-	@GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE, value = SALE_SUMMARY)
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = SALE_SUMMARY)
 	public Set<SaleSummary> geSaleSummary() {
 		LOGGER.info("Retrieving Sale summaries");
 
@@ -64,7 +64,7 @@ class Sales {
 		return saleSummaries;
 	}
 
-	@GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE, value = SALE_DETAIL)
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = SALE_DETAIL)
 	public Sale getSaleDetail(@RequestParam final Integer year) {
 		LOGGER.info("Finding details for Sale year [{}]", year);
 
@@ -75,7 +75,7 @@ class Sales {
 		return sale;
 	}
 
-	@GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE, value = SALE_DETAIL_ORDER)
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = SALE_DETAIL_ORDER)
 	public Order getSaleOrderDetail(@RequestParam final Integer year, @RequestParam final Integer orderNumber) {
 		LOGGER.info("Finding details for Order [{}] from Sale year [{}]", orderNumber, year);
 
@@ -86,7 +86,7 @@ class Sales {
 		return order;
 	}
 
-	@GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE, value = SALE_DETAIL_PLANT)
+	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = SALE_DETAIL_PLANT)
 	public Plant getSalePlantDetail(@RequestParam final Integer year, @RequestParam final Integer plantNumber) {
 		LOGGER.info("Finding details for Plant [{}] from Sale year [{}]", plantNumber, year);
 
@@ -97,7 +97,7 @@ class Sales {
 		return plant;
 	}
 
-	@DeleteMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE, value = DELETE_SALE)
+	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = DELETE_SALE)
 	public Boolean deleteSale(@RequestParam final Integer year) {
 		LOGGER.info("Deleting Sale [{}]", year);
 
@@ -108,7 +108,7 @@ class Sales {
 		return deleted;
 	}
 
-	@DeleteMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE, value = DELETE_ORDER)
+	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = DELETE_ORDER)
 	public Boolean deleteSaleOrder(@RequestParam final Integer orderNumber, @RequestParam final Integer year) {
 		LOGGER.info("Deleting Order [{}] from Sale [{}]", orderNumber, year);
 
@@ -119,7 +119,7 @@ class Sales {
 		return deleted;
 	}
 
-	@DeleteMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE, value = DELETE_PLANT)
+	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = DELETE_PLANT)
 	public Boolean deleteSalePlant(@RequestParam final Integer plantNumber, @RequestParam final Integer year) {
 		LOGGER.info("Deleting Plant [{}] from Sale [{}]", plantNumber, year);
 

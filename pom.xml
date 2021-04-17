@@ -16,7 +16,8 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.2.0.RELEASE</version>
+		<!-- TODO: 2.4.5 -->
+		<version>2.2.13.RELEASE</version>
 		<relativePath /> <!-- lookup parent from repository -->
 	</parent>
 
@@ -130,7 +131,8 @@
 		<dependency>
 			<groupId>org.springframework.security.oauth.boot</groupId>
 			<artifactId>spring-security-oauth2-autoconfigure</artifactId>
-			<version>2.2.0.RELEASE</version>
+			<!- - 2.4.5 - ->
+			<version>2.2.13.RELEASE</version>
 		</dependency>
 		<dependency>
 		   <groupId>org.springframework.security.oauth</groupId>
@@ -160,17 +162,17 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
-			<version>4.1.1</version>
+			<version>5.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
-			<version>4.1.1</version>
+			<version>5.0.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.ozlerhakan</groupId>
 			<artifactId>poiji</artifactId>
-			<version>1.22.0</version>
+			<version>3.0.3</version>
 		</dependency>
 
 		<!-- External Data (output) -->
@@ -178,32 +180,32 @@
 		<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>itext7-core</artifactId>
-			<version>7.1.8</version>
+			<version>7.1.15</version>
 			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>com.itextpdf</groupId>
 			<artifactId>html2pdf</artifactId>
-			<version>2.1.5</version>
+			<version>3.0.4</version>
 		</dependency>
 
 		<!-- Google Maps -->
 		<dependency>
 			<groupId>com.google.maps</groupId>
 			<artifactId>google-maps-services</artifactId>
-			<version>0.10.1</version>
+			<version>0.18.0</version>
 		</dependency>
 
 		<!--WebJars -->
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>bootstrap</artifactId>
-			<version>4.3.1</version>
+			<version>4.6.0-1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
 			<artifactId>jquery</artifactId>
-			<version>3.4.1</version>
+			<version>3.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.webjars</groupId>
@@ -214,6 +216,7 @@
 		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger2</artifactId>
+			<!-- TODO: 3.0.0 -->
 			<version>2.9.2</version>
 		</dependency>
 		<dependency>
@@ -274,7 +277,7 @@
 					<dependency>
 						<groupId>org.ow2.asm</groupId>
 						<artifactId>asm</artifactId>
-						<version>7.2</version> <!-- Use newer version of ASM -->
+						<version>9.1</version> <!-- Use newer version of ASM -->
 					</dependency>
 				</dependencies>
 			</plugin>
@@ -282,7 +285,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-project-info-reports-plugin</artifactId>
-				<version>3.0.0</version>
+				<version>3.1.1</version>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -352,7 +355,7 @@
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-surefire-report-plugin</artifactId>
-			<version>2.22.2</version>
+			<version>3.0.0-M3</version>
 		</plugin>
 	  </plugins>
 	</reporting>

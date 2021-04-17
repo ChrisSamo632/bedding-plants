@@ -56,7 +56,7 @@ class Import {
 	private SalesService salesService;
 
 	@PostMapping(consumes = { MEDIA_TYPE_XLS, MEDIA_TYPE_XLSX,
-			MediaType.MULTIPART_FORM_DATA_VALUE }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE, value = IMPORT_SALE_EXCEL)
+			MediaType.MULTIPART_FORM_DATA_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE, value = IMPORT_SALE_EXCEL)
 	public SaleSummary importSaleFromExcel(@RequestParam final MultipartFile file, @RequestParam(defaultValue = "20.0") final double vat,
 			@RequestParam(required = false) final Integer year, @RequestParam(required = false) final String orderImportsSheetName,
 			@RequestParam(required = false) final String plantImportsSheetName) throws InvalidFormatException, IOException {
@@ -87,7 +87,7 @@ class Import {
 	}
 
 	@PostMapping(consumes = { MEDIA_TYPE_XLS, MEDIA_TYPE_XLSX,
-			MediaType.MULTIPART_FORM_DATA_VALUE }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE, value = IMPORT_CUSTOMERS_EXCEL)
+			MediaType.MULTIPART_FORM_DATA_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE, value = IMPORT_CUSTOMERS_EXCEL)
 	public SaleSummary importCustomersFromExcel(@RequestParam final MultipartFile file, @RequestParam final Integer saleYear,
 			@RequestParam(required = false) final String orderImportsSheetName) throws InvalidFormatException, IOException {
 		// do the import
@@ -98,7 +98,7 @@ class Import {
 	}
 
 	@PostMapping(consumes = { MEDIA_TYPE_XLS, MEDIA_TYPE_XLSX,
-			MediaType.MULTIPART_FORM_DATA_VALUE }, produces = MediaType.APPLICATION_JSON_UTF8_VALUE, value = IMPORT_PLANTS_EXCEL)
+			MediaType.MULTIPART_FORM_DATA_VALUE }, produces = MediaType.APPLICATION_JSON_VALUE, value = IMPORT_PLANTS_EXCEL)
 	public SaleSummary importPlantsFromExcel(@RequestParam final MultipartFile file, @RequestParam final Integer saleYear,
 			@RequestParam(required = false) final String plantImportsSheetName) throws InvalidFormatException, IOException {
 		// do the import
