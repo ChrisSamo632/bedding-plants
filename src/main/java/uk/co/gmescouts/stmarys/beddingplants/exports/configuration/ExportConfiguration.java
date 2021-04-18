@@ -1,5 +1,7 @@
 package uk.co.gmescouts.stmarys.beddingplants.exports.configuration;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -7,9 +9,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
-
-import lombok.Getter;
-import lombok.Setter;
 
 @ConfigurationProperties(prefix = "beddingplants.export")
 @Configuration

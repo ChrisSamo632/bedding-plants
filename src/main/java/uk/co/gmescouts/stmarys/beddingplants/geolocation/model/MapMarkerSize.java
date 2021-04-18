@@ -2,7 +2,6 @@ package uk.co.gmescouts.stmarys.beddingplants.geolocation.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.google.maps.StaticMapsRequest.Markers.MarkersSize;
-
 import lombok.Getter;
 
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)

@@ -1,12 +1,10 @@
 package uk.co.gmescouts.stmarys.beddingplants.data;
 
-import java.util.Set;
+import org.springframework.data.jpa.repository.JpaRepository;
+import uk.co.gmescouts.stmarys.beddingplants.data.model.DeliveryRoute;
 
 import javax.persistence.OrderBy;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import uk.co.gmescouts.stmarys.beddingplants.data.model.DeliveryRoute;
+import java.util.Set;
 
 public interface DeliveryRouteRepository extends JpaRepository<DeliveryRoute, Long> {
 	@OrderBy("num")

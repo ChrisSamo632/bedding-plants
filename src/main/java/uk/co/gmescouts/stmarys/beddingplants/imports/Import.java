@@ -1,10 +1,5 @@
 package uk.co.gmescouts.stmarys.beddingplants.imports;
 
-import java.io.IOException;
-import java.util.Calendar;
-
-import javax.annotation.Resource;
-
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,11 +9,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
 import uk.co.gmescouts.stmarys.beddingplants.imports.service.ImportService;
 import uk.co.gmescouts.stmarys.beddingplants.sales.model.SaleSummary;
 import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
+
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.util.Calendar;
 
 @RestController
 @RequestMapping(value = "/import")

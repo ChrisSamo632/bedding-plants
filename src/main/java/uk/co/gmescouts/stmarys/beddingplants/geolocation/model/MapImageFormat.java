@@ -1,7 +1,6 @@
 package uk.co.gmescouts.stmarys.beddingplants.geolocation.model;
 
 import com.google.maps.StaticMapsRequest.ImageFormat;
-
 import lombok.Getter;
 
 public enum MapImageFormat {

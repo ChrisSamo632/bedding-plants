@@ -1,18 +1,9 @@
 package uk.co.gmescouts.stmarys.beddingplants.deliveries.service;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-import javax.validation.constraints.NotNull;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
 import uk.co.gmescouts.stmarys.beddingplants.data.DeliveryRouteRepository;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.DeliveryRoute;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
@@ -20,6 +11,13 @@ import uk.co.gmescouts.stmarys.beddingplants.data.model.PlantSummary;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
 import uk.co.gmescouts.stmarys.beddingplants.deliveries.configuration.DeliveriesConfiguration;
 import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
+
+import javax.annotation.Resource;
+import javax.validation.constraints.NotNull;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class DeliveriesService {

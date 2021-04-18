@@ -1,13 +1,10 @@
 package uk.co.gmescouts.stmarys.beddingplants.exports;
 
-import java.io.IOException;
-import java.util.Set;
-
-import javax.annotation.Resource;
-
+import com.google.maps.errors.ApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +14,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.google.maps.errors.ApiException;
-
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Address;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderType;
 import uk.co.gmescouts.stmarys.beddingplants.exports.service.ExportService;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapImageFormat;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapType;
+
+import javax.annotation.Resource;
+import java.io.IOException;
+import java.util.Set;
 
 @RestController
 @RequestMapping(value = "/export")
@@ -49,11 +47,15 @@ class Export {
 
 	@GetMapping(produces = MediaType.APPLICATION_PDF_VALUE, value = EXPORT_CUSTOMER_ORDERS_PDF)
 	public ResponseEntity<ByteArrayResource> exportSaleCustomerOrdersAsPdf(@PathVariable final Integer saleYear,
-			@RequestParam(required = false) final OrderType orderType) throws IOException {
+																		   @RequestParam(required = false) final OrderType orderType,
+																		   @RequestParam(defaultValue = "num") final String sortField,
+																		   @RequestParam(defaultValue = "ASC") final Sort.Direction sortDirection)
+			throws IOException {
+
 		LOGGER.info("Exporting (PDF) Order details for Sale [{}] with Order Type [{}]", saleYear, orderType);
 
 		// get the PDF content
-		final byte[] pdf = exportService.exportSaleCustomersToPdf(saleYear, orderType);
+		final byte[] pdf = exportService.exportSaleCustomersToPdf(saleYear, orderType, sortField, sortDirection);
 
 		if (pdf == null) {
 			return ResponseEntity.noContent().build();
@@ -65,11 +67,15 @@ class Export {
 
 	@GetMapping(produces = "text/csv", value = EXPORT_CUSTOMER_ORDERS_CSV)
 	public ResponseEntity<ByteArrayResource> exportSaleCustomerOrdersAsCsv(@PathVariable final Integer saleYear,
-																		   @RequestParam(required = false) final OrderType orderType) throws IOException {
+																		   @RequestParam(required = false) final OrderType orderType,
+																		   @RequestParam(defaultValue = "num") String sortField,
+																		   @RequestParam(defaultValue = "ASC") final Sort.Direction sortDirection)
+			throws IOException {
+
 		LOGGER.info("Exporting (CSV) Order details for Sale [{}] with Order Type [{}]", saleYear, orderType);
 
 		// get the CSV content
-		final byte[] csv = exportService.exportSaleCustomersToCsv(saleYear, orderType);
+		final byte[] csv = exportService.exportSaleCustomersToCsv(saleYear, orderType, sortField, sortDirection);
 
 		if (csv == null) {
 			return ResponseEntity.noContent().build();
@@ -80,8 +86,9 @@ class Export {
 	}
 
 	@GetMapping(EXPORT_CUSTOMER_ADDRESSES)
-	public Set<Address> exportSaleAddressesAsJson(@PathVariable final Integer saleYear, @RequestParam(required = false) final OrderType orderType,
-			@RequestParam(required = false, defaultValue = "false") final boolean geolocatedOnly) {
+	public Set<Address> exportSaleAddressesAsJson(@PathVariable final Integer saleYear,
+												  @RequestParam(required = false) final OrderType orderType,
+												  @RequestParam(required = false, defaultValue = "false") final boolean geolocatedOnly) {
 		LOGGER.info("Exporting (JSON); Addresses for Sale [{}] with Order Type [{}] and Geolocated [{}]", saleYear, orderType, geolocatedOnly);
 
 		// get the Addresses
@@ -89,10 +96,13 @@ class Export {
 	}
 
 	@GetMapping(EXPORT_CUSTOMER_ADDRESSES_IMG)
-	public ResponseEntity<ByteArrayResource> exportSaleAddressesAsImage(final Model model, @PathVariable final Integer saleYear,
-			@RequestParam(required = false) final OrderType orderType,
-			@RequestParam(defaultValue = "PNG") final MapImageFormat mapImageFormat,
-			@RequestParam(defaultValue = "ROADMAP") final MapType mapType) throws ApiException, InterruptedException, IOException {
+	public ResponseEntity<ByteArrayResource> exportSaleAddressesAsImage(final Model model,
+																		@PathVariable final Integer saleYear,
+																		@RequestParam(required = false) final OrderType orderType,
+																		@RequestParam(defaultValue = "PNG") final MapImageFormat mapImageFormat,
+																		@RequestParam(defaultValue = "ROADMAP") final MapType mapType)
+			throws ApiException, InterruptedException, IOException {
+
 		LOGGER.info("Exporting (IMG); Addresses for Sale [{}] with Order Type [{}]", saleYear, orderType);
 
 		// get the image

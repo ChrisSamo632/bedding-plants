@@ -1,13 +1,11 @@
 package uk.co.gmescouts.stmarys.beddingplants.geolocation.configuration;
 
+import com.google.maps.GeoApiContext;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
-import com.google.maps.GeoApiContext;
-
-import lombok.Getter;
-import lombok.Setter;
 
 @ConfigurationProperties(prefix = "beddingplants.geolocation")
 @Configuration

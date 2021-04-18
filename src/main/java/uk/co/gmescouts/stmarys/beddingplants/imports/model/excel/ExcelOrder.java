@@ -1,11 +1,9 @@
 package uk.co.gmescouts.stmarys.beddingplants.imports.model.excel;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.poiji.annotation.ExcelCellName;
 import com.poiji.annotation.ExcelRow;
-
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 
 @Data
 public class ExcelOrder {

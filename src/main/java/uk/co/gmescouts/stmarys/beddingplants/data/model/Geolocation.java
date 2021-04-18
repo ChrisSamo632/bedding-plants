@@ -1,10 +1,10 @@
 package uk.co.gmescouts.stmarys.beddingplants.data.model;
 
-import javax.persistence.Embeddable;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import javax.persistence.Embeddable;
 
 @Embeddable
 @Data

@@ -1,21 +1,11 @@
 package uk.co.gmescouts.stmarys.beddingplants.exports.service;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-import javax.validation.constraints.NotNull;
-
+import com.google.maps.errors.ApiException;
+import com.itextpdf.html2pdf.ConverterProperties;
+import com.itextpdf.html2pdf.HtmlConverter;
+import com.itextpdf.kernel.pdf.CompressionConstants;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.WriterProperties;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -23,16 +13,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import com.google.maps.errors.ApiException;
-import com.itextpdf.html2pdf.ConverterProperties;
-import com.itextpdf.html2pdf.HtmlConverter;
-import com.itextpdf.kernel.pdf.CompressionConstants;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.kernel.pdf.WriterProperties;
-
 import uk.co.gmescouts.stmarys.beddingplants.data.AddressRepository;
 import uk.co.gmescouts.stmarys.beddingplants.data.OrderRepository;
 import uk.co.gmescouts.stmarys.beddingplants.data.PlantRepository;
@@ -50,6 +33,21 @@ import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapMarkerColour;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapMarkerSize;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapType;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.service.GeolocationService;
+
+import javax.annotation.Resource;
+import javax.validation.constraints.NotNull;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ExportService {
@@ -89,14 +87,15 @@ public class ExportService {
 		return String.format("%s://%s:%d", httpsEnabled ? "https" : "http", hostname, port);
 	}
 
-	public Set<Order> getSaleCustomerOrders(@NotNull final Integer saleYear, final OrderType orderType) {
+	public Set<Order> getSaleCustomerOrders(@NotNull final Integer saleYear, final OrderType orderType,
+											final String sortField, final Sort.Direction sortDirection) {
 		LOGGER.info("Get Customer Orders for Sale [{}]", saleYear);
 
 		Set<Order> orders;
 		if (orderType == null) {
-			orders = orderRepository.findByCustomerSaleYear(saleYear);
+			orders = orderRepository.findByCustomerSaleYear(saleYear, Sort.by(sortDirection, sortField));
 		} else {
-			orders = orderRepository.findByTypeAndCustomerSaleYear(orderType, saleYear);
+			orders = orderRepository.findByTypeAndCustomerSaleYear(orderType, saleYear, Sort.by(sortDirection, sortField));
 		}
 
 		return orders;
@@ -108,13 +107,22 @@ public class ExportService {
 		return plantRepository.findBySaleYear(saleYear);
 	}
 
-	public byte[] exportSaleCustomersToPdf(@NotNull final Integer saleYear, final OrderType orderType) throws IOException {
+	public byte[] exportSaleCustomersToPdf(@NotNull final Integer saleYear, final OrderType orderType,
+										   @NotNull final String sortField, @NotNull final Sort.Direction sortDirection)
+			throws IOException {
+
 		LOGGER.info("Exporting Customer Orders for Sale [{}] and Order Type [{}]", saleYear, orderType);
 
 		// setup the URLs
 		final String exportHostUrl = getExportHostUrl();
+		final StringBuilder sb = new StringBuilder(100);
+		sb.append("sortField=").append(sortField).append("&sortDirection=").append(sortDirection);
+		if (orderType != null) {
+			sb.append("&orderType=").append(orderType);
+		}
+
 		final String exportHtmlUrl = String.format("%s%s%s?%s", exportHostUrl, baseUri, ExportHtml.EXPORT_CUSTOMER_ORDERS_HTML,
-				orderType == null ? "" : String.format("orderType=%s", orderType.toString()));
+				sb.toString());
 		LOGGER.debug("Calling HTML Export URL [{}]", exportHtmlUrl);
 
 		// get the HTML via external call
@@ -142,7 +150,8 @@ public class ExportService {
 		return pdf;
 	}
 
-	public byte[] exportSaleCustomersToCsv(@NotNull final Integer saleYear, final OrderType orderType) throws IOException {
+	public byte[] exportSaleCustomersToCsv(@NotNull final Integer saleYear, final OrderType orderType,
+										   final String sortField, final Sort.Direction sortDirection) throws IOException {
 		LOGGER.info("Exporting Customer Orders for Sale [{}] and Order Type [{}]", saleYear, orderType);
 
 		final byte[] csv;
@@ -150,7 +159,7 @@ public class ExportService {
 			 final CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(baos), CSVFormat.DEFAULT)) {
 
 			// get the orders
-			final Set<Order> orders = getSaleCustomerOrders(saleYear, orderType);
+			final Set<Order> orders = getSaleCustomerOrders(saleYear, orderType, sortField, sortDirection);
 
 			// get the plants
 			final Set<Plant> plants = getSalePlants(saleYear);

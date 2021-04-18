@@ -1,8 +1,11 @@
 package uk.co.gmescouts.stmarys.beddingplants.data.model;
 
-import java.util.Comparator;
-import java.util.Set;
-import java.util.TreeSet;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.NonNull;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -13,13 +16,9 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.TreeSet;
 
 @Entity
 @Table(name = "sales")

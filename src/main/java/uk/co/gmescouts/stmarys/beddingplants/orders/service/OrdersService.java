@@ -8,6 +8,7 @@ import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 @Service
 public class OrdersService {
@@ -38,13 +39,42 @@ public class OrdersService {
 		return deleted;
 	}
 
-	public Order updateOrder(final int saleYear, final Order order) {
-		LOGGER.info("Update Order [{}] for Sale [{}]", order.getNum(), saleYear);
+	public boolean updateOrder(@NotNull final Integer orderNumber, @NotNull final Integer year, @NotNull final Order order) {
+		LOGGER.info("Update Order [{}] for Sale [{}]", orderNumber, year);
+		LOGGER.debug("Order: [{}]", order);
 
-		final Order existingOrder = findOrderByNumAndSaleYear(order.getNum(), saleYear);
+		// check if there's a matching Order
+		final Order existingOrder = findOrderByNumAndSaleYear(orderNumber, year);
 
-		// TODO: update stuff
+		// update it
+		boolean updated = false;
+		if (existingOrder != null) {
+			existingOrder.setType(order.getType());
 
-		return existingOrder;
+			existingOrder.setCollectionSlot(order.getCollectionSlot());
+			existingOrder.setCollectionHour(order.getCollectionHour());
+
+			existingOrder.setDeliveryDay(order.getDeliveryDay());
+			existingOrder.setDeliveryRoute(order.getDeliveryRoute());
+
+			existingOrder.setCourtesyOfName(order.getCourtesyOfName());
+			existingOrder.setNotes(order.getNotes());
+			existingOrder.setPaid(order.getPaid());
+
+			existingOrder.setOrderItems(order.getOrderItems());
+
+			orderRepository.save(existingOrder);
+			updated = true;
+		}
+
+		return updated;
+	}
+
+	public static Double calculateOrdersCostTotal(@NotNull final Set<Order> orders) {
+		return orders.stream().mapToDouble(Order::getCost).sum();
+	}
+
+	public static Double calculateOrdersIncomeTotal(@NotNull final Set<Order> orders) {
+		return orders.stream().mapToDouble(Order::getPrice).sum();
 	}
 }

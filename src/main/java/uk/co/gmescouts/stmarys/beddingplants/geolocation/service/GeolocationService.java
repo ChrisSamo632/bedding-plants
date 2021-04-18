@@ -1,24 +1,5 @@
 package uk.co.gmescouts.stmarys.beddingplants.geolocation.service;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
-import javax.validation.constraints.NotNull;
-
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
 import com.google.maps.GeoApiContext;
 import com.google.maps.GeocodingApi;
 import com.google.maps.ImageResult;
@@ -30,7 +11,11 @@ import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LatLng;
 import com.google.maps.model.LocationType;
 import com.google.maps.model.Size;
-
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Geolocation;
 import uk.co.gmescouts.stmarys.beddingplants.exports.model.GeolocatedPoint;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.configuration.GeolocationConfiguration;
@@ -38,6 +23,18 @@ import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapImageFormat;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapMarkerColour;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapMarkerSize;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapType;
+
+import javax.annotation.Resource;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class GeolocationService {
