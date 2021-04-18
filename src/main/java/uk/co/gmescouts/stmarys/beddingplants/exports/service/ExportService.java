@@ -1,10 +1,15 @@
 package uk.co.gmescouts.stmarys.beddingplants.exports.service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -12,7 +17,8 @@ import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +37,10 @@ import uk.co.gmescouts.stmarys.beddingplants.data.AddressRepository;
 import uk.co.gmescouts.stmarys.beddingplants.data.OrderRepository;
 import uk.co.gmescouts.stmarys.beddingplants.data.PlantRepository;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Address;
+import uk.co.gmescouts.stmarys.beddingplants.data.model.Customer;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Geolocation;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
+import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderItem;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderType;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Plant;
 import uk.co.gmescouts.stmarys.beddingplants.exports.ExportHtml;
@@ -132,6 +140,51 @@ public class ExportService {
 
 		// return converted PDF (if any)
 		return pdf;
+	}
+
+	public byte[] exportSaleCustomersToCsv(@NotNull final Integer saleYear, final OrderType orderType) throws IOException {
+		LOGGER.info("Exporting Customer Orders for Sale [{}] and Order Type [{}]", saleYear, orderType);
+
+		final byte[] csv;
+		try (final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			 final CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(baos), CSVFormat.DEFAULT)) {
+
+			// get the orders
+			final Set<Order> orders = getSaleCustomerOrders(saleYear, orderType);
+
+			// get the plants
+			final Set<Plant> plants = getSalePlants(saleYear);
+
+			// output each Order to the CSV
+			for (final Order order : orders) {
+				final Customer customer = order.getCustomer();
+
+				final List<String> items = new ArrayList<>(List.of(
+						Integer.toString(order.getNum()),
+						customer.getName(),
+						StringUtils.capitalize(order.getType().toString()),
+						StringUtils.capitalize(order.getDeliveryDay().toString()),
+						StringUtils.capitalize(order.getCollectionSlot().toString()),
+						Integer.toString(order.getCollectionHour()),
+						customer.getAddress().getGeolocatableAddress(),
+						customer.getEmailAddress(),
+						customer.getTelephone()
+				));
+
+				plants.forEach(plant -> {
+					final Optional<OrderItem> orderItem = order.getOrderItems().stream().filter(i -> i.getPlant().equals(plant)).findFirst();
+					items.add(orderItem.map(item -> Integer.toString(item.getCount())).orElse("0"));
+				});
+
+				csvPrinter.printRecord(items);
+			}
+
+			csvPrinter.flush();
+			csv = baos.toByteArray();
+		}
+
+		// return CSV content
+		return csv;
 	}
 
 	public Set<GeolocatedPoint> getGeolocatedSaleAddressesAsPoints(@NotNull final Integer saleYear, final OrderType orderType) {

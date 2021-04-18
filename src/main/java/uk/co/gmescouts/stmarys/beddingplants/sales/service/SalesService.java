@@ -29,9 +29,6 @@ public class SalesService {
 	private SaleRepository saleRepository;
 
 	@Resource
-	private OrderRepository orderRepository;
-
-	@Resource
 	private PlantRepository plantRepository;
 
 	public Sale saveSale(final Sale sale) {
@@ -69,32 +66,10 @@ public class SalesService {
 		return new HashSet<>(saleRepository.findAll(Sort.by(Sort.Order.asc("year"))));
 	}
 
-	public Order findOrderByNumAndSaleYear(@NotNull final Integer orderNumber, @NotNull final Integer saleYear) {
-		LOGGER.info("Finding Order [{}] for Sale [{}]", orderNumber, saleYear);
-
-		return orderRepository.findByNumAndCustomerSaleYear(orderNumber, saleYear);
-	}
-
 	public Plant findPlantByNumAndSaleYear(@NotNull final Integer plantNumber, @NotNull final Integer saleYear) {
 		LOGGER.info("Finding Plant [{}] for Sale [{}]", plantNumber, saleYear);
 
 		return plantRepository.findByNumAndSaleYear(plantNumber, saleYear);
-	}
-
-	public Boolean deleteSaleOrder(@NotNull final Integer orderNumber, @NotNull final Integer year) {
-		LOGGER.info("Deleting Order [{}] from Sale [{}]", orderNumber, year);
-
-		// first check if there is a matching Order
-		final Order order = orderRepository.findByNumAndCustomerSaleYear(orderNumber, year);
-
-		// delete it
-		boolean deleted = false;
-		if (order != null) {
-			orderRepository.delete(order);
-			deleted = true;
-		}
-
-		return deleted;
 	}
 
 	public Boolean deleteSalePlant(@NotNull final Integer plantNumber, @NotNull final Integer year) {

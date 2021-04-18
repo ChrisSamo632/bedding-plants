@@ -129,6 +129,8 @@ public class Order implements PlantSummary {
 
 	private Float paid;
 
+	private int collectionHour;
+
 	@JsonIgnore
 	@Access(AccessType.FIELD)
 	@ManyToOne

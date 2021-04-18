@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Plant;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
+import uk.co.gmescouts.stmarys.beddingplants.orders.service.OrdersService;
 import uk.co.gmescouts.stmarys.beddingplants.sales.model.SaleSummary;
 import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
 
@@ -52,6 +53,9 @@ class Sales {
 	@Resource
 	private SalesService salesService;
 
+	@Resource
+	private OrdersService ordersService;
+
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = SALE_SUMMARY)
 	public Set<SaleSummary> geSaleSummary() {
 		LOGGER.info("Retrieving Sale summaries");
@@ -79,7 +83,7 @@ class Sales {
 	public Order getSaleOrderDetail(@RequestParam final Integer year, @RequestParam final Integer orderNumber) {
 		LOGGER.info("Finding details for Order [{}] from Sale year [{}]", orderNumber, year);
 
-		final Order order = salesService.findOrderByNumAndSaleYear(orderNumber, year);
+		final Order order = ordersService.findOrderByNumAndSaleYear(orderNumber, year);
 
 		LOGGER.debug("Order: [{}]", order);
 
@@ -112,7 +116,7 @@ class Sales {
 	public Boolean deleteSaleOrder(@RequestParam final Integer orderNumber, @RequestParam final Integer year) {
 		LOGGER.info("Deleting Order [{}] from Sale [{}]", orderNumber, year);
 
-		final boolean deleted = salesService.deleteSaleOrder(orderNumber, year);
+		final boolean deleted = ordersService.deleteSaleOrder(orderNumber, year);
 
 		LOGGER.debug("Order [{}] from Sale [{}] deleted [{}]", orderNumber, year, deleted);
 

@@ -191,6 +191,13 @@
 			<version>3.0.4</version>
 		</dependency>
 
+		<!-- CSV -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>1.8</version>
+		</dependency>
+
 		<!-- Google Maps -->
 		<dependency>
 			<groupId>com.google.maps</groupId>

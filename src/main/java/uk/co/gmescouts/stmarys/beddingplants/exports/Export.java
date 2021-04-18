@@ -36,6 +36,7 @@ class Export {
 	 */
 	private static final String EXPORT_CUSTOMER_ORDERS = "/orders/{saleYear}";
 	private static final String EXPORT_CUSTOMER_ORDERS_PDF = EXPORT_CUSTOMER_ORDERS + "/pdf";
+	private static final String EXPORT_CUSTOMER_ORDERS_CSV = EXPORT_CUSTOMER_ORDERS + "/csv";
 
 	/*
 	 * Addresses
@@ -60,6 +61,22 @@ class Export {
 
 		return ResponseEntity.ok().headers(getNoCacheHeaders(String.format("attachment; filename=\"sale_orders_%s.pdf\"", saleYear)))
 				.contentLength(pdf.length).contentType(MediaType.APPLICATION_OCTET_STREAM).body(new ByteArrayResource(pdf));
+	}
+
+	@GetMapping(produces = "text/csv", value = EXPORT_CUSTOMER_ORDERS_CSV)
+	public ResponseEntity<ByteArrayResource> exportSaleCustomerOrdersAsCsv(@PathVariable final Integer saleYear,
+																		   @RequestParam(required = false) final OrderType orderType) throws IOException {
+		LOGGER.info("Exporting (CSV) Order details for Sale [{}] with Order Type [{}]", saleYear, orderType);
+
+		// get the CSV content
+		final byte[] csv = exportService.exportSaleCustomersToCsv(saleYear, orderType);
+
+		if (csv == null) {
+			return ResponseEntity.noContent().build();
+		}
+
+		return ResponseEntity.ok().headers(getNoCacheHeaders(String.format("attachment; filename=\"sale_orders_%s.csv\"", saleYear)))
+				.contentLength(csv.length).contentType(MediaType.parseMediaType("text/csv")).body(new ByteArrayResource(csv));
 	}
 
 	@GetMapping(EXPORT_CUSTOMER_ADDRESSES)

@@ -26,8 +26,14 @@
 				</tr>
 				<tr>
 					<td class="label">Collect/Deliver</td><td th:text="${#strings.capitalize(#strings.toLowerCase(order.type))}" class="detail">[Collect/Deliver]</td>
-					<td class="label">Delivery Day</td><td th:text="${#strings.capitalize(#strings.toLowerCase(order.deliveryDay))}" class="detail">[Delivery Day]</td>
-					<td class="label">Preferred Collection Slot</td><td th:text="${#strings.capitalize(#strings.toLowerCase(order.collectionSlot))}" class="detail">[Preferred Collection Slot]</td>
+
+					<!-- collections -->
+					<td th:if="${#strings.toLowerCase(order.type) == 'collect'}" class="label">Collection Slot</td>
+					<td th:if="${#strings.toLowerCase(order.type) == 'collect'}" th:text="${#strings.capitalize(#strings.toLowerCase(order.collectionSlot))}" class="detail">[Collection Slot]</td>
+
+					<!-- deliveries -->
+					<td th:if="${#strings.toLowerCase(order.type) == 'deliver'}" class="label">Delivery Day</td>
+					<td th:if="${#strings.toLowerCase(order.type) == 'deliver'}" th:text="${#strings.capitalize(#strings.toLowerCase(order.deliveryDay))}" class="detail">[Delivery Day]</td>
 				</tr>
 				<tr>
 					<td class="label">Total Price</td><td th:text="${#numbers.formatCurrency(order.displayPrice)}" class="detail price">£ [Total Price]</td>
