@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,7 +47,7 @@ class Orders {
 
 	@SuppressWarnings("java:S4684")
 	@PutMapping
-	public boolean updateOrder(@RequestParam final Integer orderNumber, @RequestParam final int year, @RequestParam final Order order) {
+	public boolean updateOrder(@RequestParam final Integer orderNumber, @RequestParam final int year, @RequestBody final Order order) {
 		LOGGER.info("Updating Order [{}] from Sale [{}]", orderNumber, year);
 
 		final boolean updated = ordersService.updateOrder(orderNumber, year, order);
