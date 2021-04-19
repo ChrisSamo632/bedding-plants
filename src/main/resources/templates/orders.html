@@ -29,7 +29,7 @@
 
 					<!-- collections -->
 					<td th:if="${#strings.toLowerCase(order.type) == 'collect'}" class="label">Collection Slot</td>
-					<td th:if="${#strings.toLowerCase(order.type) == 'collect'}" th:text="${#strings.capitalize(#strings.toLowerCase(order.collectionSlot))}" class="detail">[Collection Slot]</td>
+					<td th:if="${#strings.toLowerCase(order.type) == 'collect'}" th:text="${#strings.capitalize(#strings.toLowerCase(order.collectionSlot))} (${#numbers.formatInteger(order.collectionHour,2)}:00)" class="detail">[Collection Slot]</td>
 
 					<!-- deliveries -->
 					<td th:if="${#strings.toLowerCase(order.type) == 'deliver'}" class="label">Delivery Day</td>

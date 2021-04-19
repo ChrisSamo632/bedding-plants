@@ -13,12 +13,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import uk.co.gmescouts.stmarys.beddingplants.data.AddressRepository;
-import uk.co.gmescouts.stmarys.beddingplants.data.OrderRepository;
-import uk.co.gmescouts.stmarys.beddingplants.data.PlantRepository;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Address;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Customer;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Geolocation;
@@ -33,6 +30,8 @@ import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapMarkerColour;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapMarkerSize;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapType;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.service.GeolocationService;
+import uk.co.gmescouts.stmarys.beddingplants.orders.service.OrdersService;
+import uk.co.gmescouts.stmarys.beddingplants.plants.service.PlantsService;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
@@ -57,10 +56,10 @@ public class ExportService {
 	private GeolocationService geolocationService;
 
 	@Resource
-	private OrderRepository orderRepository;
+	private OrdersService ordersService;
 
 	@Resource
-	private PlantRepository plantRepository;
+	private PlantsService plantsService;
 
 	@Resource
 	private AddressRepository addressRepository;
@@ -87,28 +86,7 @@ public class ExportService {
 		return String.format("%s://%s:%d", httpsEnabled ? "https" : "http", hostname, port);
 	}
 
-	public Set<Order> getSaleCustomerOrders(@NotNull final Integer saleYear, final OrderType orderType,
-											final String sortField, final Sort.Direction sortDirection) {
-		LOGGER.info("Get Customer Orders for Sale [{}]", saleYear);
-
-		Set<Order> orders;
-		if (orderType == null) {
-			orders = orderRepository.findByCustomerSaleYear(saleYear, Sort.by(sortDirection, sortField));
-		} else {
-			orders = orderRepository.findByTypeAndCustomerSaleYear(orderType, saleYear, Sort.by(sortDirection, sortField));
-		}
-
-		return orders;
-	}
-
-	public Set<Plant> getSalePlants(@NotNull final Integer saleYear) {
-		LOGGER.info("Get Plants for Sale [{}]", saleYear);
-
-		return plantRepository.findBySaleYear(saleYear);
-	}
-
-	public byte[] exportSaleCustomersToPdf(@NotNull final Integer saleYear, final OrderType orderType,
-										   @NotNull final String sortField, @NotNull final Sort.Direction sortDirection)
+	public byte[] exportSaleCustomersToPdf(@NotNull final Integer saleYear, final OrderType orderType, @NotNull final String sorts)
 			throws IOException {
 
 		LOGGER.info("Exporting Customer Orders for Sale [{}] and Order Type [{}]", saleYear, orderType);
@@ -116,13 +94,12 @@ public class ExportService {
 		// setup the URLs
 		final String exportHostUrl = getExportHostUrl();
 		final StringBuilder sb = new StringBuilder(100);
-		sb.append("sortField=").append(sortField).append("&sortDirection=").append(sortDirection);
+		sb.append("sorts=").append(sorts);
 		if (orderType != null) {
 			sb.append("&orderType=").append(orderType);
 		}
 
-		final String exportHtmlUrl = String.format("%s%s%s?%s", exportHostUrl, baseUri, ExportHtml.EXPORT_CUSTOMER_ORDERS_HTML,
-				sb.toString());
+		final String exportHtmlUrl = String.format("%s%s%s?%s", exportHostUrl, baseUri, ExportHtml.EXPORT_CUSTOMER_ORDERS_HTML, sb);
 		LOGGER.debug("Calling HTML Export URL [{}]", exportHtmlUrl);
 
 		// get the HTML via external call
@@ -150,8 +127,9 @@ public class ExportService {
 		return pdf;
 	}
 
-	public byte[] exportSaleCustomersToCsv(@NotNull final Integer saleYear, final OrderType orderType,
-										   final String sortField, final Sort.Direction sortDirection) throws IOException {
+	public byte[] exportSaleCustomersToCsv(@NotNull final Integer saleYear, final OrderType orderType, final String sorts)
+			throws IOException {
+
 		LOGGER.info("Exporting Customer Orders for Sale [{}] and Order Type [{}]", saleYear, orderType);
 
 		final byte[] csv;
@@ -159,10 +137,10 @@ public class ExportService {
 			 final CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(baos), CSVFormat.DEFAULT)) {
 
 			// get the orders
-			final Set<Order> orders = getSaleCustomerOrders(saleYear, orderType, sortField, sortDirection);
+			final Set<Order> orders = ordersService.getSaleCustomerOrders(saleYear, orderType, sorts);
 
 			// get the plants
-			final Set<Plant> plants = getSalePlants(saleYear);
+			final Set<Plant> plants = plantsService.getSalePlants(saleYear);
 
 			// output each Order to the CSV
 			for (final Order order : orders) {

@@ -127,7 +127,7 @@ public class Order implements PlantSummary {
 
 	private Float paid;
 
-	private int collectionHour;
+	private Integer collectionHour;
 
 	@JsonIgnore
 	@Access(AccessType.FIELD)

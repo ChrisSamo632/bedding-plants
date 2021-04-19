@@ -8,6 +8,7 @@ import uk.co.gmescouts.stmarys.beddingplants.data.model.Plant;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 @Service
 public class PlantsService {
@@ -15,6 +16,12 @@ public class PlantsService {
 
 	@Resource
 	private PlantRepository plantRepository;
+
+	public Set<Plant> getSalePlants(@NotNull final Integer saleYear) {
+		LOGGER.info("Get Plants for Sale [{}]", saleYear);
+
+		return plantRepository.findBySaleYear(saleYear);
+	}
 
 	public Plant findPlantByNumAndSaleYear(@NotNull final Integer plantNumber, @NotNull final Integer saleYear) {
 		LOGGER.info("Finding Plant [{}] for Sale [{}]", plantNumber, saleYear);

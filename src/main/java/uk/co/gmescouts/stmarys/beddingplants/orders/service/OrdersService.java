@@ -2,13 +2,17 @@ package uk.co.gmescouts.stmarys.beddingplants.orders.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import uk.co.gmescouts.stmarys.beddingplants.data.OrderRepository;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
+import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderType;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
+import java.util.Arrays;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class OrdersService {
@@ -16,6 +20,20 @@ public class OrdersService {
 	private OrderRepository orderRepository;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(OrdersService.class);
+
+	public Set<Order> getSaleCustomerOrders(@NotNull final Integer saleYear, final OrderType orderType, final String sorts) {
+		LOGGER.info("Get Customer Orders for Sale [{}]", saleYear);
+
+		final Sort sort = calculateSort(sorts, Sort.by(Sort.Direction.ASC, "num"));
+		Set<Order> orders;
+		if (orderType == null) {
+			orders = orderRepository.findByCustomerSaleYear(saleYear, sort);
+		} else {
+			orders = orderRepository.findByTypeAndCustomerSaleYear(orderType, saleYear, sort);
+		}
+
+		return orders;
+	}
 
 	public Order findOrderByNumAndSaleYear(@NotNull final Integer orderNumber, @NotNull final Integer saleYear) {
 		LOGGER.info("Finding Order [{}] for Sale [{}]", orderNumber, saleYear);
@@ -76,5 +94,12 @@ public class OrdersService {
 
 	public static Double calculateOrdersIncomeTotal(@NotNull final Set<Order> orders) {
 		return orders.stream().mapToDouble(Order::getPrice).sum();
+	}
+
+	private static Sort calculateSort(final String sorts, final Sort defaultSort) {
+		return Arrays.stream(sorts.split(","))
+				.map(s -> s.split(":"))
+				.map(s -> Sort.by(Sort.Direction.fromString(s[0]), s[1]))
+				.reduce(Sort::and).orElse(defaultSort);
 	}
 }

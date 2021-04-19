@@ -243,7 +243,9 @@ public class ImportService {
 
 		// create Order (without Customer or OrderItems)
 		final Order order = Order.builder().num(Integer.valueOf(excelOrder.getOrderNumber())).deliveryDay(deliveryDay)
-				.collectionSlot(collectionSlot).type(OrderType.valueOf(excelOrder.getCollectDeliver().toUpperCase().charAt(0)))
+				.collectionSlot(collectionSlot)
+				.collectionHour(StringUtils.isNotBlank(excelOrder.getCollectionHour()) ? Integer.parseInt(excelOrder.getCollectionHour()) : null)
+				.type(OrderType.valueOf(excelOrder.getCollectDeliver().toUpperCase().charAt(0)))
 				.build();
 
 		// determine requested number of each plant and create OrderItems on the Order

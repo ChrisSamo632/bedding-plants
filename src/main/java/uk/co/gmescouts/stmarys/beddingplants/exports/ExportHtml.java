@@ -3,7 +3,6 @@ package uk.co.gmescouts.stmarys.beddingplants.exports;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +17,8 @@ import uk.co.gmescouts.stmarys.beddingplants.geolocation.configuration.Geolocati
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapMarkerColour;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapMarkerSize;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapType;
+import uk.co.gmescouts.stmarys.beddingplants.orders.service.OrdersService;
+import uk.co.gmescouts.stmarys.beddingplants.plants.service.PlantsService;
 
 import javax.annotation.Resource;
 import java.util.Set;
@@ -52,19 +53,24 @@ public class ExportHtml {
 	@Resource
 	private ExportService exportService;
 
+	@Resource
+	private OrdersService ordersService;
+
+	@Resource
+	private PlantsService plantsService;
+
 	@SuppressWarnings("SameReturnValue")
 	@GetMapping(EXPORT_CUSTOMER_ORDERS_HTML)
 	public String exportSaleCustomerOrdersAsHtml(final Model model, @PathVariable final Integer saleYear,
 												 @RequestParam(required = false) final OrderType orderType,
-												 @RequestParam(defaultValue = "num") String sortField,
-												 @RequestParam(defaultValue = "ASC") final Sort.Direction sortDirection) {
+												 @RequestParam(defaultValue = "num:ASC") String sorts) {
 		LOGGER.info("Exporting (HTML) Order details for Sale [{}] with Order Type [{}]", saleYear, orderType);
 
 		// get the Plants
-		final Set<Plant> plants = exportService.getSalePlants(saleYear);
+		final Set<Plant> plants = plantsService.getSalePlants(saleYear);
 
 		// get the Orders
-		final Set<Order> orders = exportService.getSaleCustomerOrders(saleYear, orderType, sortField, sortDirection);
+		final Set<Order> orders = ordersService.getSaleCustomerOrders(saleYear, orderType, sorts);
 
 		// add data attributes to template Model
 		addCommonModelAttributes(model);

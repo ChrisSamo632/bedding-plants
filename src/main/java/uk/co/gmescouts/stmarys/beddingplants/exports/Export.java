@@ -4,7 +4,6 @@ import com.google.maps.errors.ApiException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -48,14 +47,13 @@ class Export {
 	@GetMapping(produces = MediaType.APPLICATION_PDF_VALUE, value = EXPORT_CUSTOMER_ORDERS_PDF)
 	public ResponseEntity<ByteArrayResource> exportSaleCustomerOrdersAsPdf(@PathVariable final Integer saleYear,
 																		   @RequestParam(required = false) final OrderType orderType,
-																		   @RequestParam(defaultValue = "num") final String sortField,
-																		   @RequestParam(defaultValue = "ASC") final Sort.Direction sortDirection)
+																		   @RequestParam(defaultValue = "num:ASC") final String sorts)
 			throws IOException {
 
 		LOGGER.info("Exporting (PDF) Order details for Sale [{}] with Order Type [{}]", saleYear, orderType);
 
 		// get the PDF content
-		final byte[] pdf = exportService.exportSaleCustomersToPdf(saleYear, orderType, sortField, sortDirection);
+		final byte[] pdf = exportService.exportSaleCustomersToPdf(saleYear, orderType, sorts);
 
 		if (pdf == null) {
 			return ResponseEntity.noContent().build();
@@ -68,14 +66,13 @@ class Export {
 	@GetMapping(produces = "text/csv", value = EXPORT_CUSTOMER_ORDERS_CSV)
 	public ResponseEntity<ByteArrayResource> exportSaleCustomerOrdersAsCsv(@PathVariable final Integer saleYear,
 																		   @RequestParam(required = false) final OrderType orderType,
-																		   @RequestParam(defaultValue = "num") String sortField,
-																		   @RequestParam(defaultValue = "ASC") final Sort.Direction sortDirection)
+																		   @RequestParam(defaultValue = "num:ASC") String sorts)
 			throws IOException {
 
 		LOGGER.info("Exporting (CSV) Order details for Sale [{}] with Order Type [{}]", saleYear, orderType);
 
 		// get the CSV content
-		final byte[] csv = exportService.exportSaleCustomersToCsv(saleYear, orderType, sortField, sortDirection);
+		final byte[] csv = exportService.exportSaleCustomersToCsv(saleYear, orderType, sorts);
 
 		if (csv == null) {
 			return ResponseEntity.noContent().build();

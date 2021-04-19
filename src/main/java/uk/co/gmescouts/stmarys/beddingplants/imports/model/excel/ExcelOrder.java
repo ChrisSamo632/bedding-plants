@@ -28,6 +28,9 @@ public class ExcelOrder {
 	@ExcelCellName("Preferred Collection Slot")
 	private String collectionSlot;
 
+	@ExcelCellName("Collection Hour")
+	private String collectionHour;
+
 	@ExcelCellName("c/o")
 	private String courtesyOf;
 

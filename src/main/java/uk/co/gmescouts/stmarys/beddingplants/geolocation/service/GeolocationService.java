@@ -28,7 +28,6 @@ import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -61,14 +60,14 @@ public class GeolocationService {
 			// set Marker Size to be whatever appears most frequently in the Geolocated Points
 			final Map<MapMarkerSize, Long> sizeCounts = points.stream().map(GeolocatedPoint::getMapMarkerSize)
 					.collect(Collectors.groupingBy(s -> s, Collectors.counting()));
-			final Optional<Entry<MapMarkerSize, Long>> mapMarkerSize = sizeCounts.entrySet().stream().max(Comparator.comparing(Entry::getValue));
+			final Optional<Entry<MapMarkerSize, Long>> mapMarkerSize = sizeCounts.entrySet().stream().max(Entry.comparingByValue());
 			mapMarkerSize.ifPresent(mapMarkerSizeLongEntry -> markers.size(mapMarkerSizeLongEntry.getKey().getGoogleStaticMapsMarkerSize()));
 
 			// set Marker Colour to be whatever appears most frequently in the Geolocated Points
 			final Map<MapMarkerColour, Long> colourCounts = points.stream().map(GeolocatedPoint::getMapMarkerColour)
 					.collect(Collectors.groupingBy(c -> c, Collectors.counting()));
 			final Optional<Entry<MapMarkerColour, Long>> mapMarkerColour = colourCounts.entrySet().stream()
-					.max(Comparator.comparing(Entry::getValue));
+					.max(Entry.comparingByValue());
 			mapMarkerColour.ifPresent(mapMarkerColourLongEntry -> markers.color(mapMarkerColourLongEntry.getKey().toString()));
 
 			// add point locations
@@ -108,12 +107,12 @@ public class GeolocationService {
 						.filter(r -> r.geometry != null && LocationType.ROOFTOP.equals(r.geometry.locationType)).findFirst();
 
 				// then look for non-partial matches
-				if (!result.isPresent()) {
+				if (result.isEmpty()) {
 					result = Arrays.stream(results).filter(r -> !r.partialMatch).findFirst();
 				}
 
 				// fall back to the first entry in the result list
-				if (!result.isPresent()) {
+				if (result.isEmpty()) {
 					result = Optional.of(results[0]);
 				}
 
