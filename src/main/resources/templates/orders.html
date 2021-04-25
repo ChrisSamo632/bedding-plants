@@ -24,16 +24,15 @@
 					<td class="label">Telephone</td><td th:text="${order.customer.telephone}" class="detail">[Telephone]</td>
 					<td class="label">Email</td><td th:text="${order.customer.emailAddress}" class="detail">[Email]</td>
 				</tr>
-				<tr>
-					<td class="label">Collect/Deliver</td><td th:text="${#strings.capitalize(#strings.toLowerCase(order.type))}" class="detail">[Collect/Deliver]</td>
-
+				<tr th:if="${#strings.toLowerCase(order.type) == 'collect'}">
 					<!-- collections -->
-					<td th:if="${#strings.toLowerCase(order.type) == 'collect'}" class="label">Collection Slot</td>
-					<td th:if="${#strings.toLowerCase(order.type) == 'collect'}" th:text="${#strings.capitalize(#strings.toLowerCase(order.collectionSlot))} (${#numbers.formatInteger(order.collectionHour,2)}:00)" class="detail">[Collection Slot]</td>
+					<td class="label">Collection Slot</td><td th:text="${#strings.capitalize(#strings.toLowerCase(order.collectionSlot))}" class="detail">[Collection Slot]</td>
 
+					<td class="label">Collection Hour</td><td th:text="${order.collectionHourFormatted}" class="detail">[Collection Hour]</td>
+				</tr>
+				<tr th:if="${#strings.toLowerCase(order.type) == 'deliver'}">
 					<!-- deliveries -->
-					<td th:if="${#strings.toLowerCase(order.type) == 'deliver'}" class="label">Delivery Day</td>
-					<td th:if="${#strings.toLowerCase(order.type) == 'deliver'}" th:text="${#strings.capitalize(#strings.toLowerCase(order.deliveryDay))}" class="detail">[Delivery Day]</td>
+					<td class="label">Delivery Day</td><td colspan="3" th:text="${#strings.capitalize(#strings.toLowerCase(order.deliveryDay))}" class="detail">[Delivery Day]</td>
 				</tr>
 				<tr>
 					<td class="label">Total Price</td><td th:text="${#numbers.formatCurrency(order.displayPrice)}" class="detail price">£ [Total Price]</td>

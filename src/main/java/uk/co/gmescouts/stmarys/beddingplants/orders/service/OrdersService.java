@@ -99,7 +99,7 @@ public class OrdersService {
 	private static Sort calculateSort(final String sorts, final Sort defaultSort) {
 		return Arrays.stream(sorts.split(","))
 				.map(s -> s.split(":"))
-				.map(s -> Sort.by(Sort.Direction.fromString(s[0]), s[1]))
+				.map(s -> Sort.by(Sort.Direction.fromString(s[1]), s[0]))
 				.reduce(Sort::and).orElse(defaultSort);
 	}
 }

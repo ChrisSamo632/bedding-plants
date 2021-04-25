@@ -130,6 +130,12 @@ public class Order implements PlantSummary {
 	private Integer collectionHour;
 
 	@JsonIgnore
+	@Transient
+	public String getCollectionHourFormatted() {
+		return collectionHour != null ? String.format("%02d:00", collectionHour) : null;
+	}
+
+	@JsonIgnore
 	@Access(AccessType.FIELD)
 	@ManyToOne
 	private DeliveryRoute deliveryRoute;
