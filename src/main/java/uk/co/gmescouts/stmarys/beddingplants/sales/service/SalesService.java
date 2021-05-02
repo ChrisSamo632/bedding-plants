@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import uk.co.gmescouts.stmarys.beddingplants.data.SaleRepository;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Customer;
+import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
 import uk.co.gmescouts.stmarys.beddingplants.orders.service.OrdersService;
 import uk.co.gmescouts.stmarys.beddingplants.sales.model.SaleSummary;
@@ -14,6 +15,7 @@ import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Stream;
 
 @Service
 public class SalesService {
@@ -70,8 +72,9 @@ public class SalesService {
 		// rounded to 2 d.p.
 		final double orderIncomeTotal = Math.round(
 				sale.getCustomers().stream().map(Customer::getOrders).mapToDouble(OrdersService::calculateOrdersIncomeTotal).sum() * 100.0) / 100.0;
+		final int orderPlantTotal = sale.getCustomers().stream().map(Customer::getOrders).flatMapToInt(orders -> orders.stream().mapToInt(Order::getCount)).sum();
 
 		return SaleSummary.builder().year(sale.getYear()).vat(sale.getVat()).plantCount(plantCount).customerCount(customerCount)
-				.orderCount(orderCount).orderCostTotal(orderCostTotal).orderIncomeTotal(orderIncomeTotal).build();
+				.orderCount(orderCount).orderCostTotal(orderCostTotal).orderIncomeTotal(orderIncomeTotal).orderPlantTotal(orderPlantTotal).build();
 	}
 }

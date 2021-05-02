@@ -27,4 +27,7 @@ public class SaleSummary {
 
 	@NonNull
 	private Double orderIncomeTotal;
+
+	@NonNull
+	private Integer orderPlantTotal;
 }
