@@ -116,6 +116,8 @@ public class Order implements PlantSummary {
 	@Enumerated(EnumType.STRING)
 	private CollectionSlot collectionSlot;
 
+	private Integer collectionHour;
+
 	@NonNull
 	@NotNull
 	@Enumerated(EnumType.STRING)
@@ -127,7 +129,7 @@ public class Order implements PlantSummary {
 
 	private Float paid;
 
-	private Integer collectionHour;
+	private Float discount;
 
 	@JsonIgnore
 	@Transient
