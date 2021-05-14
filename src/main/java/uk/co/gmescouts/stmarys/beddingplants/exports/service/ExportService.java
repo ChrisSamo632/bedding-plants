@@ -40,6 +40,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -51,6 +53,10 @@ import java.util.stream.Collectors;
 @Service
 public class ExportService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExportService.class);
+
+	private static final Charset CSV_CHARSET = StandardCharsets.UTF_8;
+	private static final byte[] CSV_BOM = new byte[] {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
+	private static final char POUND_SIGN = '\u00A3';
 
 	@Resource
 	private GeolocationService geolocationService;
@@ -89,7 +95,7 @@ public class ExportService {
 	public byte[] exportSaleCustomersToPdf(@NotNull final Integer saleYear, final OrderType orderType, @NotNull final String sorts)
 			throws IOException {
 
-		LOGGER.info("Exporting Customer Orders for Sale [{}] and Order Type [{}]", saleYear, orderType);
+		LOGGER.info("Exporting Customer Orders for Sale [{}] and Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
 
 		// setup the URLs
 		final String exportHostUrl = getExportHostUrl();
@@ -127,20 +133,28 @@ public class ExportService {
 		return pdf;
 	}
 
-	public byte[] exportSaleCustomersToCsv(@NotNull final Integer saleYear, final OrderType orderType, final String sorts)
+	public byte[] exportSaleCustomersToCsv(@NotNull final Integer saleYear, final OrderType orderType, @NotNull final String sorts)
 			throws IOException {
 
-		LOGGER.info("Exporting Customer Orders for Sale [{}] and Order Type [{}]", saleYear, orderType);
+		LOGGER.info("Exporting Customer Orders for Sale [{}] and Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+
+		// get the plants
+		final Set<Plant> plants = plantsService.getSalePlants(saleYear);
+
+		final List<String> headers = new ArrayList<>(List.of(
+				"#", "Name", "c/o", "Order Type", "Delivery Day", "Collection Slot", "Collection Hour", "Address", "Email Address", "Telephone"
+		));
+		plants.forEach(plant -> headers.add(plant.getName()));
+		headers.add("# Plants");
+		headers.add(String.format("Total / %c", POUND_SIGN));
 
 		final byte[] csv;
-		try (final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			 final CSVPrinter csvPrinter = new CSVPrinter(new PrintWriter(baos), CSVFormat.DEFAULT)) {
+		try (final ByteArrayOutputStream baos = prepareCsvOutputStream();
+			 final PrintWriter pw = new PrintWriter(baos, false, CSV_CHARSET);
+			 final CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.withHeader(headers.toArray(new String[0])))) {
 
 			// get the orders
 			final Set<Order> orders = ordersService.getSaleCustomerOrders(saleYear, orderType, sorts);
-
-			// get the plants
-			final Set<Plant> plants = plantsService.getSalePlants(saleYear);
 
 			// output each Order to the CSV
 			for (final Order order : orders) {
@@ -149,19 +163,23 @@ public class ExportService {
 				final List<String> items = new ArrayList<>(List.of(
 						Integer.toString(order.getNum()),
 						customer.getName(),
-						StringUtils.capitalize(order.getType().toString()),
-						StringUtils.capitalize(order.getDeliveryDay().toString()),
-						StringUtils.capitalize(order.getCollectionSlot().toString()),
-						Integer.toString(order.getCollectionHour()),
-						customer.getAddress().getGeolocatableAddress(),
-						customer.getEmailAddress(),
-						customer.getTelephone()
+						order.getCourtesyOfName() == null ? "" : order.getCourtesyOfName(),
+						StringUtils.capitalize(order.getType().toString().toLowerCase()),
+						StringUtils.capitalize(order.getDeliveryDay().toString().toLowerCase()),
+						order.getCollectionSlot() == null ? "" : StringUtils.capitalize(order.getCollectionSlot().toString().toLowerCase()),
+						order.getCollectionHour() == null ? "" : Integer.toString(order.getCollectionHour()),
+						customer.getAddress() == null ? "" : customer.getAddress().getGeolocatableAddress(),
+						customer.getEmailAddress() == null ? "" : customer.getEmailAddress(),
+						customer.getTelephone() == null ? "" : customer.getTelephone()
 				));
 
 				plants.forEach(plant -> {
 					final Optional<OrderItem> orderItem = order.getOrderItems().stream().filter(i -> i.getPlant().equals(plant)).findFirst();
 					items.add(orderItem.map(item -> Integer.toString(item.getCount())).orElse("0"));
 				});
+
+				items.add(Integer.toString(order.getCount()));
+				items.add(String.format("%.2f", order.getDisplayPrice()));
 
 				csvPrinter.printRecord(items);
 			}
@@ -172,6 +190,58 @@ public class ExportService {
 
 		// return CSV content
 		return csv;
+	}
+
+	public byte[] exportSaleCustomerPaymentsToCsv(@NotNull final Integer saleYear, final OrderType orderType, @NotNull final String sorts)
+			throws IOException {
+
+		LOGGER.info("Exporting Customer Order Payments for Sale [{}] and Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+
+		final byte[] csv;
+		try (final ByteArrayOutputStream baos = prepareCsvOutputStream();
+			 final PrintWriter pw = new PrintWriter(baos, false, CSV_CHARSET);
+			 final CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.withHeader(
+					 "#", "Name", "c/o", "Type", "Day", "Hour / Address", "Email Address", "Telephone", "# Plants", String.format("Total / %c", POUND_SIGN)
+			 ))) {
+
+			// get the orders
+			final Set<Order> orders = ordersService.getSaleCustomerOrders(saleYear, orderType, sorts);
+
+			// output each Order to the CSV
+			for (final Order order : orders) {
+				final Customer customer = order.getCustomer();
+
+				csvPrinter.printRecord(List.of(
+						Integer.toString(order.getNum()),
+						customer.getName(),
+						order.getCourtesyOfName() == null ? "" : order.getCourtesyOfName(),
+						StringUtils.capitalize(order.getType().toString().toLowerCase()),
+						StringUtils.capitalize(order.getDeliveryDay().toString().toLowerCase()),
+						order.getType() == OrderType.COLLECT
+								? (order.getCollectionHour() == null ? "" : Integer.toString(order.getCollectionHour()))
+								: (customer.getAddress() == null ? "" : customer.getAddress().getGeolocatableAddress()),
+						customer.getEmailAddress() == null ? "" : customer.getEmailAddress(),
+						customer.getTelephone() == null ? "" : customer.getTelephone(),
+						Integer.toString(order.getCount()),
+						String.format("%.2f", order.getDisplayPrice())
+				));
+			}
+
+			csvPrinter.flush();
+			csv = baos.toByteArray();
+		}
+
+		// return CSV content
+		return csv;
+	}
+
+	private ByteArrayOutputStream prepareCsvOutputStream() throws IOException {
+		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+		// write bom to prevent miscoding
+		baos.write(CSV_BOM);
+
+		return baos;
 	}
 
 	public Set<GeolocatedPoint> getGeolocatedSaleAddressesAsPoints(@NotNull final Integer saleYear, final OrderType orderType) {

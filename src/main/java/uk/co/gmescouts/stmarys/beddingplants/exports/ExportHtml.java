@@ -63,8 +63,8 @@ public class ExportHtml {
 	@GetMapping(EXPORT_CUSTOMER_ORDERS_HTML)
 	public String exportSaleCustomerOrdersAsHtml(final Model model, @PathVariable final Integer saleYear,
 												 @RequestParam(required = false) final OrderType orderType,
-												 @RequestParam(defaultValue = "num:ASC") String sorts) {
-		LOGGER.info("Exporting (HTML) Order details for Sale [{}] with Order Type [{}]", saleYear, orderType);
+												 @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,collectionHour:ASC,num:ASC") String sorts) {
+		LOGGER.info("Exporting (HTML) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
 
 		// get the Plants
 		final Set<Plant> plants = plantsService.getSalePlants(saleYear);

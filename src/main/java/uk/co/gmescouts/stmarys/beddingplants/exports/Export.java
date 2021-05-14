@@ -35,6 +35,13 @@ class Export {
 	private static final String EXPORT_CUSTOMER_ORDERS_PDF = EXPORT_CUSTOMER_ORDERS + "/pdf";
 	private static final String EXPORT_CUSTOMER_ORDERS_CSV = EXPORT_CUSTOMER_ORDERS + "/csv";
 
+
+	/*
+     * Payments
+	 */
+	private static final String EXPORT_CUSTOMER_ORDER_PAYMENTS = "/payments/{saleYear}";
+	private static final String EXPORT_CUSTOMER_ORDER_PAYMENTS_CSV = EXPORT_CUSTOMER_ORDER_PAYMENTS + "/csv";
+
 	/*
 	 * Addresses
 	 */
@@ -47,10 +54,10 @@ class Export {
 	@GetMapping(produces = MediaType.APPLICATION_PDF_VALUE, value = EXPORT_CUSTOMER_ORDERS_PDF)
 	public ResponseEntity<ByteArrayResource> exportSaleCustomerOrdersAsPdf(@PathVariable final Integer saleYear,
 																		   @RequestParam(required = false) final OrderType orderType,
-																		   @RequestParam(defaultValue = "num:ASC") final String sorts)
+																		   @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,collectionHour:ASC,num:ASC") final String sorts)
 			throws IOException {
 
-		LOGGER.info("Exporting (PDF) Order details for Sale [{}] with Order Type [{}]", saleYear, orderType);
+		LOGGER.info("Exporting (PDF) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
 
 		// get the PDF content
 		final byte[] pdf = exportService.exportSaleCustomersToPdf(saleYear, orderType, sorts);
@@ -66,10 +73,10 @@ class Export {
 	@GetMapping(produces = "text/csv", value = EXPORT_CUSTOMER_ORDERS_CSV)
 	public ResponseEntity<ByteArrayResource> exportSaleCustomerOrdersAsCsv(@PathVariable final Integer saleYear,
 																		   @RequestParam(required = false) final OrderType orderType,
-																		   @RequestParam(defaultValue = "num:ASC") String sorts)
+																		   @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,collectionHour:ASC,num:ASC") String sorts)
 			throws IOException {
 
-		LOGGER.info("Exporting (CSV) Order details for Sale [{}] with Order Type [{}]", saleYear, orderType);
+		LOGGER.info("Exporting (CSV) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
 
 		// get the CSV content
 		final byte[] csv = exportService.exportSaleCustomersToCsv(saleYear, orderType, sorts);
@@ -79,6 +86,25 @@ class Export {
 		}
 
 		return ResponseEntity.ok().headers(getNoCacheHeaders(String.format("attachment; filename=\"sale_orders_%s.csv\"", saleYear)))
+				.contentLength(csv.length).contentType(MediaType.parseMediaType("text/csv")).body(new ByteArrayResource(csv));
+	}
+
+	@GetMapping(produces = "text/csv", value = EXPORT_CUSTOMER_ORDER_PAYMENTS_CSV)
+	public ResponseEntity<ByteArrayResource> exportSaleCustomerPaymentsToCsv(@PathVariable final Integer saleYear,
+																		     @RequestParam(required = false) final OrderType orderType,
+																		     @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,collectionHour:ASC,num:ASC") String sorts)
+			throws IOException {
+
+		LOGGER.info("Exporting (CSV) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+
+		// get the CSV content
+		final byte[] csv = exportService.exportSaleCustomerPaymentsToCsv(saleYear, orderType, sorts);
+
+		if (csv == null) {
+			return ResponseEntity.noContent().build();
+		}
+
+		return ResponseEntity.ok().headers(getNoCacheHeaders(String.format("attachment; filename=\"sale_order_payments_%s.csv\"", saleYear)))
 				.contentLength(csv.length).contentType(MediaType.parseMediaType("text/csv")).body(new ByteArrayResource(csv));
 	}
 
