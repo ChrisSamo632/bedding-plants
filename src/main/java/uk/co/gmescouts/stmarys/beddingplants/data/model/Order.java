@@ -73,21 +73,21 @@ public class Order implements PlantSummary {
 		return amount;
 	}
 
-	/**
-	 * @return {@link #getPrice()} rounded to 2d.p. (for display)
-	 */
-	@JsonIgnore
-	@Transient
-	public Double getDisplayPrice() {
-		return Math.round(this.getPrice() * 100.0) / 100.0;
-	}
-
 	@Override
 	@JsonIgnore
 	@Transient
 	public Double getPrice() {
 		// sum of all OrderItem prices
 		return orderItems.stream().mapToDouble(OrderItem::getPrice).sum();
+	}
+
+	/**
+	 * @return {@link #getPrice()} rounded to 2d.p. (for display)
+	 */
+	@JsonIgnore
+	@Transient
+	public Double getDisplayPrice() {
+		return toCurrencyDisplay(this.getPrice());
 	}
 
 	@Override
@@ -127,9 +127,45 @@ public class Order implements PlantSummary {
 
 	private String notes;
 
-	private Float paid;
+	private Double discount;
 
-	private Float discount;
+	/**
+	 * @return {@link #getDiscount()} rounded to 2d.p. (for display)
+	 */
+	@JsonIgnore
+	@Transient
+	public Double getDisplayDiscount() {
+		return toCurrencyDisplay(this.getDiscount());
+	}
+
+	private Double paid;
+
+	/**
+	 * @return {@link #getPaid()} rounded to 2d.p. (for display)
+	 */
+	@JsonIgnore
+	@Transient
+	public Double getDisplayPaid() {
+		return toCurrencyDisplay(this.getPaid());
+	}
+
+	/**
+	 * @return Max of 0.0 or ({@link #getPrice()} - ({@link #getDiscount()} + {@link #getPaid()}))
+	 */
+	@JsonIgnore
+	@Transient
+	public Double getToPay() {
+		return Math.max(this.getPrice() - ((this.getDiscount() == null ? 0 : this.getDiscount()) + (this.getPaid() == null ? 0 : this.getPaid())), 0.0);
+	}
+
+	/**
+	 * @return {@link #getToPay()} rounded to 2d.p. (for display)
+	 */
+	@JsonIgnore
+	@Transient
+	public Double getDisplayToPay() {
+		return toCurrencyDisplay(this.getToPay());
+	}
 
 	@JsonIgnore
 	@Transient
@@ -157,5 +193,9 @@ public class Order implements PlantSummary {
 			// replace existing OrderItem, if present
 			orderItems.add(orderItem);
 		}
+	}
+
+	private Double toCurrencyDisplay(final Double amount) {
+		return amount == null || amount == 0 ? null : Math.round(amount * 100.0) / 100.0;
 	}
 }

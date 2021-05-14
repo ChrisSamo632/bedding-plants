@@ -146,7 +146,10 @@ public class ExportService {
 		));
 		plants.forEach(plant -> headers.add(plant.getName()));
 		headers.add("# Plants");
-		headers.add(String.format("Total / %c", POUND_SIGN));
+		headers.add(String.format("Plant Price / %c", POUND_SIGN));
+		headers.add(String.format("Discount / %c", POUND_SIGN));
+		headers.add(String.format("Paid / %c", POUND_SIGN));
+		headers.add(String.format("To Pay / %c", POUND_SIGN));
 
 		final byte[] csv;
 		try (final ByteArrayOutputStream baos = prepareCsvOutputStream();
@@ -180,6 +183,9 @@ public class ExportService {
 
 				items.add(Integer.toString(order.getCount()));
 				items.add(String.format("%.2f", order.getDisplayPrice()));
+				items.add(order.getDiscount() == null ? "" : String.format("%.2f", order.getDisplayDiscount()));
+				items.add(order.getPaid() == null ? "" : String.format("%.2f", order.getDisplayPaid()));
+				items.add(order.getToPay() == 0 ? "0.00" : String.format("%.2f", order.getDisplayToPay()));
 
 				csvPrinter.printRecord(items);
 			}
@@ -201,7 +207,9 @@ public class ExportService {
 		try (final ByteArrayOutputStream baos = prepareCsvOutputStream();
 			 final PrintWriter pw = new PrintWriter(baos, false, CSV_CHARSET);
 			 final CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.withHeader(
-					 "#", "Name", "c/o", "Type", "Day", "Hour / Address", "Email Address", "Telephone", "# Plants", String.format("Total / %c", POUND_SIGN)
+					 "#", "Name", "c/o", "Type", "Day", "Hour / Address", "Email Address", "Telephone", "# Plants",
+					 String.format("Plant Price / %c", POUND_SIGN), String.format("Discount / %c", POUND_SIGN),
+					 String.format("Paid / %c", POUND_SIGN), String.format("To Pay / %c", POUND_SIGN)
 			 ))) {
 
 			// get the orders
@@ -223,7 +231,10 @@ public class ExportService {
 						customer.getEmailAddress() == null ? "" : customer.getEmailAddress(),
 						customer.getTelephone() == null ? "" : customer.getTelephone(),
 						Integer.toString(order.getCount()),
-						String.format("%.2f", order.getDisplayPrice())
+						String.format("%.2f", order.getDisplayPrice()),
+						order.getDiscount() == null ? "" : String.format("%.2f", order.getDisplayDiscount()),
+						order.getPaid() == null ? "" : String.format("%.2f", order.getDisplayPaid()),
+						order.getToPay() == 0 ? "0.00" : String.format("%.2f", order.getDisplayToPay())
 				));
 			}
 

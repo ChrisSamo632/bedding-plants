@@ -18,25 +18,27 @@
 					<td class="label">C/O</td><td th:text="${order.courtesyOfName}" class="detail">[C/O]</td>
 				</tr>
 				<tr>
-					<td class="label">Address</td><td colspan="3" th:text="*{order.customer.address != null}? ${order.customer.address.geolocatableAddress} : ''" class="detail">[Address]</td>
-				</tr>
-				<tr>
 					<td class="label">Telephone</td><td th:text="${order.customer.telephone}" class="detail">[Telephone]</td>
 					<td class="label">Email</td><td th:text="${order.customer.emailAddress}" class="detail">[Email]</td>
 				</tr>
 				<tr th:if="${#strings.toLowerCase(order.type) == 'collect'}">
 					<!-- collections -->
-					<td class="label">Collection Slot</td><td th:text="${#strings.capitalize(#strings.toLowerCase(order.collectionSlot))}" class="detail">[Collection Slot]</td>
-
-					<td class="label">Collection Hour</td><td th:text="${order.collectionHourFormatted}" class="detail">[Collection Hour]</td>
+					<td class="label">Collection Hour</td><td colspan="3" th:text="${order.collectionHourFormatted}" class="detail">[Collection Hour]</td>
+				</tr>
+				<tr th:if="${#strings.toLowerCase(order.type) == 'deliver'}">
+					<td class="label">Address</td><td colspan="3" th:text="*{order.customer.address != null}? ${order.customer.address.geolocatableAddress} : ''" class="detail">[Address]</td>
 				</tr>
 				<tr th:if="${#strings.toLowerCase(order.type) == 'deliver'}">
 					<!-- deliveries -->
 					<td class="label">Delivery Day</td><td colspan="3" th:text="${#strings.capitalize(#strings.toLowerCase(order.deliveryDay))}" class="detail">[Delivery Day]</td>
 				</tr>
 				<tr>
-					<td class="label">Total Price</td><td th:text="${#numbers.formatCurrency(order.displayPrice)}" class="detail price">£ [Total Price]</td>
-					<td class="label">Already Paid</td><td th:text="${#numbers.formatCurrency(order.paid)}" class="detail">£ [Already Paid]</td>
+					<td class="label">Plants Price</td><td th:text="${#numbers.formatCurrency(order.displayPrice)}" class="detail">£ [Total Price]</td>
+					<td class="label">Discount</td><td th:text="${#numbers.formatCurrency(order.displayDiscount)}" class="detail">£ [Discount]</td>
+				</tr>
+				<tr>
+					<td class="label">Already Paid</td><td th:text="${#numbers.formatCurrency(order.displayPaid)}" class="detail">£ [Already Paid]</td>
+					<td class="label">To Pay</td><td th:text="${#numbers.formatCurrency(order.displayToPay)}?: '&#163;0.00'" class="detail price">£ [To Pay]</td>
 				</tr>
 			</table>
 			<table class="plants">

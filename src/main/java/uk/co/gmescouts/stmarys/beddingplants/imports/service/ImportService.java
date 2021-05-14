@@ -249,8 +249,8 @@ public class ImportService {
 				.collectionSlot(collectionSlot)
 				.collectionHour(StringUtils.isNotBlank(excelOrder.getCollectionHour()) ? Integer.parseInt(excelOrder.getCollectionHour()) : null)
 				.courtesyOfName(excelOrder.getCourtesyOf())
-				.paid(StringUtils.isNotBlank(excelOrder.getPaid()) ? Float.valueOf(excelOrder.getPaid()) : null)
-				.discount(StringUtils.isNotBlank(excelOrder.getDiscount()) ? Float.valueOf(excelOrder.getDiscount()) : null)
+				.paid(StringUtils.isNotBlank(excelOrder.getPaid()) ? Double.valueOf(excelOrder.getPaid()) : null)
+				.discount(StringUtils.isNotBlank(excelOrder.getDiscount()) ? Double.valueOf(excelOrder.getDiscount()) : null)
 				.build();
 
 		// determine requested number of each plant and create OrderItems on the Order
