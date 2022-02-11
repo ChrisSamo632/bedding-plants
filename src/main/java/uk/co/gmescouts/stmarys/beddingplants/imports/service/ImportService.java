@@ -4,7 +4,6 @@ import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 import com.poiji.option.PoijiOptions.PoijiOptionsBuilder;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
@@ -40,6 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -82,7 +82,7 @@ public class ImportService {
 	private static final Map<Address, Address> IMPORTED_ADDRESS_CACHE = new HashMap<>(500, 1);
 
 	public Sale importSaleFromExcelFile(final MultipartFile file, final Integer saleYear, final Double vat, final String orderImportsSheetName,
-			final String plantImportsSheetName) throws InvalidFormatException, IOException {
+			final String plantImportsSheetName) throws IOException {
 		LOGGER.info("Importing Sale from file [{}] for Order Year [{}] with VAT [{}]", file.getOriginalFilename(), saleYear, vat);
 
 		// check for existing Sale for the specified year
@@ -103,7 +103,7 @@ public class ImportService {
 	}
 
 	public Sale importCustomersFromExcel(final MultipartFile file, final String orderImportsSheetName, @NotNull final Integer saleYear)
-			throws InvalidFormatException, IOException {
+			throws IOException {
 		// get the Sale using the Year
 		final Sale sale = salesService.findSaleByYear(saleYear);
 
@@ -111,7 +111,7 @@ public class ImportService {
 	}
 
 	public Sale importPlantsFromExcel(final MultipartFile file, final String plantImportsSheetName, @NotNull final Integer saleYear)
-			throws InvalidFormatException, IOException {
+			throws IOException {
 		// get the Sale using the Year
 		final Sale sale = salesService.findSaleByYear(saleYear);
 
@@ -120,7 +120,7 @@ public class ImportService {
 	}
 
 	private Sale updateSaleWithImportedCustomersFromExcel(final MultipartFile file, final String orderImportsSheetName, @NotNull Sale sale)
-			throws InvalidFormatException, IOException {
+			throws IOException {
 		LOGGER.info("Importing Orders from file [{}] for Sale [{}]", file.getOriginalFilename(), sale.getYear());
 
 		// check the Sale contains some Plants
@@ -176,7 +176,7 @@ public class ImportService {
 	}
 
 	private Sale updateSaleWithImportedPlantsFromExcel(final MultipartFile file, final String plantImportsSheetName, @NotNull Sale sale)
-			throws InvalidFormatException, IOException {
+			throws IOException {
 		LOGGER.info("Importing Plants from file [{}] for Sale [{}]", file.getOriginalFilename(), sale.getYear());
 
 		// get Workbook from file (ensure we can read it and determine the type)
@@ -345,9 +345,13 @@ public class ImportService {
 		return null;
 	}
 
-	private String normaliseField(final String field) {
+	String normaliseField(final String field) {
 		// convert blank strings to nulls
 		String normalised = null;
+
+		if (!StringUtils.isAsciiPrintable(field)) {
+			throw new IllegalArgumentException("Field value must be ASCII printable");
+		}
 
 		// trim multiple spaces (anywhere in a String)
 		if (StringUtils.isNotBlank(field)) {
@@ -375,11 +379,14 @@ public class ImportService {
 	}
 
 	private <T> void normaliseImportedFields(final T imported) {
+		final AtomicInteger row = new AtomicInteger(1);
+
 		Arrays.stream(imported.getClass().getDeclaredMethods())
 				// find the getter methods on the import object (public accessible returning Strings)
 				.filter(method -> method.getName().startsWith("get") && method.canAccess(imported) && String.class.equals(method.getReturnType()))
 				// normalise the value and set back on the object
 				.forEach(getter -> {
+					final int r = row.getAndIncrement();
 					try {
 						// get original value
 						final String str = (String) getter.invoke(imported);
@@ -392,14 +399,13 @@ public class ImportService {
 
 						setter.invoke(imported, normalised);
 					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-						throw new IllegalStateException(String.format("Unable to normalise field value [%s] for imported object [%s]: %s",
-								getter.getName().replaceFirst("^get", ""), imported.getClass().getSimpleName(), e.getMessage()), e);
+						throw new IllegalStateException(String.format("Unable to normalise field value [%s] for imported object [%s], row [%d]: %s",
+								getter.getName().replaceFirst("^get", ""), imported.getClass().getSimpleName(), r, e.getMessage()), e);
 					}
 				});
 	}
 
-	private <T> List<T> readDataFromExcelFile(final InputStream inputStream, final Workbook workbook, final String sheetName, final Class<T> dataType)
-			throws InvalidFormatException {
+	private <T> List<T> readDataFromExcelFile(final InputStream inputStream, final Workbook workbook, final String sheetName, final Class<T> dataType) {
 		// determine Excel Type (if valid)
 		final PoijiExcelType excelType = getPoijiExcelType(workbook);
 
@@ -416,20 +422,14 @@ public class ImportService {
 		return data;
 	}
 
-	private PoijiExcelType getPoijiExcelType(final Workbook workbook) throws InvalidFormatException {
+	private PoijiExcelType getPoijiExcelType(final Workbook workbook) {
 		PoijiExcelType poijiExcelType;
 
 		final SpreadsheetVersion sv = workbook.getSpreadsheetVersion();
-		switch (sv) {
-		case EXCEL2007:
-			poijiExcelType = PoijiExcelType.XLSX;
-			break;
-		case EXCEL97:
-			poijiExcelType = PoijiExcelType.XLS;
-			break;
-		default:
-			throw new InvalidFormatException(String.format("Unable to determine ExcelType from Spreadsheet Version %s", sv));
-		}
+		poijiExcelType = switch (sv) {
+			case EXCEL2007 -> PoijiExcelType.XLSX;
+			case EXCEL97 -> PoijiExcelType.XLS;
+		};
 		LOGGER.debug("Workbook POI Excel Type [{}]", poijiExcelType);
 
 		return poijiExcelType;

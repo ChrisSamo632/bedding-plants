@@ -3,6 +3,8 @@ package uk.co.gmescouts.stmarys.beddingplants.imports.service;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ImportServiceTest {
 	private final ImportService feature = new ImportService();
@@ -20,5 +22,17 @@ class ImportServiceTest {
 		assertEquals("0786 712 3456", feature.normaliseTelephoneNumber("07867123456"));
 
 		assertEquals("07867 12345", feature.normaliseTelephoneNumber("0786712345"));
+	}
+
+	@Test
+	final void testNormaliseField() {
+		assertNull(feature.normaliseField(""));
+		assertNull(feature.normaliseField(" "));
+
+		assertEquals(" 123 ", feature.normaliseField(" 123  "));
+		assertEquals(" 1 2 3 ", feature.normaliseField("  1 2  3 "));
+
+		final IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> feature.normaliseField("123-456-" + Character.toString(30)));
+		assertEquals("Field value must be ASCII printable", iae.getMessage());
 	}
 }
