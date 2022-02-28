@@ -26,6 +26,11 @@
 					<td class="label">Collection Hour</td><td colspan="3" th:text="${order.collectionHourFormatted}" class="detail">[Collection Hour]</td>
 				</tr>
 				<tr th:if="${#strings.toLowerCase(order.type) == 'deliver'}">
+					<!-- deliveries -->
+					<td class="label">Delivery Charge</td><td colspan="3" th:text="${#numbers.formatCurrency(sale.deliveryCharge)}?: '&#163;0.00'" class="detail">£ [Delivery Charge]</td>
+				</tr>
+				<tr th:if="${#strings.toLowerCase(order.type) == 'deliver'}">
+					<!-- deliveries -->
 					<td class="label">Address</td><td colspan="3" th:text="*{order.customer.address != null}? ${order.customer.address.geolocatableAddress} : ''" class="detail">[Address]</td>
 				</tr>
 				<tr th:if="${#strings.toLowerCase(order.type) == 'deliver'}">
@@ -56,7 +61,7 @@
 					</th:block>
 				</tbody>
 				<tfoot>
-					<tr><td colspan="2" class="total">Total</td><td th:text="${order.count}">£ [Total]</td></tr>
+					<tr><td colspan="2" class="total">Total</td><td th:text="${order.count}">[Total]</td></tr>
 				</tfoot>
 			</table>
 		</div>
