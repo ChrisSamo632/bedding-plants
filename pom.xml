@@ -63,7 +63,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
-				<activatedProfiles>dev</activatedProfiles>
+				<activatedProfiles>dev,map</activatedProfiles>
 				<jvm.args>${jvm.memory.args} -Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=31681</jvm.args>
 			</properties>
 			<dependencies>
@@ -77,7 +77,7 @@
 		<profile>
 			<id>release</id>
 			<properties>
-				<activatedProfiles>release</activatedProfiles>
+				<activatedProfiles>release,map</activatedProfiles>
 				<jvm.args>${jvm.memory.args}</jvm.args>
 			</properties>
 		</profile>
