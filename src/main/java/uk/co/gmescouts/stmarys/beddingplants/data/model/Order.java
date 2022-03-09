@@ -77,8 +77,8 @@ public class Order implements PlantSummary {
 	@JsonIgnore
 	@Transient
 	public Double getPrice() {
-		// sum of all OrderItem prices
-		return orderItems.stream().mapToDouble(OrderItem::getPrice).sum();
+		// sum of all OrderItem prices + any Delivery Charge
+		return orderItems.stream().mapToDouble(OrderItem::getPrice).sum() + (type == OrderType.DELIVER ? customer.getSale().getDeliveryCharge() : 0.0);
 	}
 
 	/**

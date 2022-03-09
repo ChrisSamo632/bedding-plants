@@ -14,6 +14,9 @@ public class SaleSummary {
 	private Double vat;
 
 	@NonNull
+	private Double deliveryCharge;
+
+	@NonNull
 	private Integer plantCount;
 
 	@NonNull

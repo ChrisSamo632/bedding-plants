@@ -3,6 +3,8 @@
 /data/
 !.mvn/wrapper/maven-wrapper.jar
 
+application-map.properties
+
 ### STS ###
 .classpath
 .factorypath

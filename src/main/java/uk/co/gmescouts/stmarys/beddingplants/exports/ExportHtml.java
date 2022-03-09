@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderType;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Plant;
+import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
 import uk.co.gmescouts.stmarys.beddingplants.exports.configuration.ExportConfiguration;
 import uk.co.gmescouts.stmarys.beddingplants.exports.service.ExportService;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.configuration.GeolocationConfiguration;
@@ -19,6 +20,7 @@ import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapMarkerSize;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapType;
 import uk.co.gmescouts.stmarys.beddingplants.orders.service.OrdersService;
 import uk.co.gmescouts.stmarys.beddingplants.plants.service.PlantsService;
+import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
 
 import javax.annotation.Resource;
 import java.util.Set;
@@ -54,6 +56,9 @@ public class ExportHtml {
 	private ExportService exportService;
 
 	@Resource
+	private SalesService salesService;
+
+	@Resource
 	private OrdersService ordersService;
 
 	@Resource
@@ -66,6 +71,9 @@ public class ExportHtml {
 												 @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,collectionHour:ASC,num:ASC") String sorts) {
 		LOGGER.info("Exporting (HTML) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
 
+		// get the Salve
+		final Sale sale = salesService.findSaleByYear(saleYear);
+
 		// get the Plants
 		final Set<Plant> plants = plantsService.getSalePlants(saleYear);
 
@@ -75,6 +83,7 @@ public class ExportHtml {
 		// add data attributes to template Model
 		addCommonModelAttributes(model);
 		model.addAttribute("saleYear", saleYear);
+		model.addAttribute("sale", sale);
 		model.addAttribute("orders", orders);
 		model.addAttribute("plants", plants);
 

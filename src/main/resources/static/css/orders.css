@@ -7,6 +7,18 @@
 	}
 }
 
+@media all {
+    caption {
+        display: none;
+    }
+
+    @page {
+        @bottom-right {
+            content: "Page " counter(page) " of " counter(pages);
+        }
+    }
+}
+
 /*
 * Order Page
 */
@@ -38,7 +50,7 @@ table td, table th {
 /*
 * Header
 */
-div.header {
+th.header {
 	text-align: center;
 	vertical-align: middle;
 	margin-bottom: 10pt;

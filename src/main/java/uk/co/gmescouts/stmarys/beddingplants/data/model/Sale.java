@@ -40,6 +40,11 @@ public class Sale {
 	private Double vat;
 
 	@NonNull
+	@Min(0)
+	@NotNull
+	private Double deliveryCharge;
+
+	@NonNull
 	@Builder.Default
 	@OrderBy("num")
 	@OneToMany(cascade = { CascadeType.ALL }, mappedBy = "sale")

@@ -2,6 +2,7 @@ package uk.co.gmescouts.stmarys.beddingplants.imports.model.excel;
 
 import com.poiji.annotation.ExcelCellName;
 import com.poiji.annotation.ExcelRow;
+import com.poiji.annotation.ExcelUnknownCells;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -19,16 +20,16 @@ public class ExcelOrder {
 	@ExcelCellName("Surname")
 	private String surname;
 
-	@ExcelCellName("Collect (C)/Deliver (D)")
+	@ExcelCellName(value = "Collect (C)/Deliver (D)", mandatory = false)
 	private String collectDeliver;
 
-	@ExcelCellName("Delivery Day")
+	@ExcelCellName(value = "Delivery Day", mandatory = false)
 	private String deliveryDay;
 
-	@ExcelCellName("Preferred Collection Slot")
+	@ExcelCellName(value = "Preferred Collection Slot", mandatory = false)
 	private String collectionSlot;
 
-	@ExcelCellName("Collection Hour")
+	@ExcelCellName(value = "Collection Hour", mandatory = false)
 	private String collectionHour;
 
 	@ExcelCellName("c/o")
@@ -43,7 +44,7 @@ public class ExcelOrder {
 	@ExcelCellName("Town")
 	private String town;
 
-	@ExcelCellName("City")
+	@ExcelCellName(value = "City", mandatory = false)
 	private String city;
 
 	@ExcelCellName("Postcode")
@@ -61,97 +62,97 @@ public class ExcelOrder {
 	@ExcelCellName("1")
 	private String numberPlants1;
 
-	@ExcelCellName("2")
+	@ExcelCellName(value = "2", mandatory = false)
 	private String numberPlants2;
 
-	@ExcelCellName("3")
+	@ExcelCellName(value = "3", mandatory = false)
 	private String numberPlants3;
 
-	@ExcelCellName("4")
+	@ExcelCellName(value = "4", mandatory = false)
 	private String numberPlants4;
 
-	@ExcelCellName("5")
+	@ExcelCellName(value = "5", mandatory = false)
 	private String numberPlants5;
 
-	@ExcelCellName("6")
+	@ExcelCellName(value = "6", mandatory = false)
 	private String numberPlants6;
 
-	@ExcelCellName("7")
+	@ExcelCellName(value = "7", mandatory = false)
 	private String numberPlants7;
 
-	@ExcelCellName("8")
+	@ExcelCellName(value = "8", mandatory = false)
 	private String numberPlants8;
 
-	@ExcelCellName("9")
+	@ExcelCellName(value = "9", mandatory = false)
 	private String numberPlants9;
 
-	@ExcelCellName("10")
+	@ExcelCellName(value = "10", mandatory = false)
 	private String numberPlants10;
 
-	@ExcelCellName("11")
+	@ExcelCellName(value = "11", mandatory = false)
 	private String numberPlants11;
 
-	@ExcelCellName("12")
+	@ExcelCellName(value = "12", mandatory = false)
 	private String numberPlants12;
 
-	@ExcelCellName("13")
+	@ExcelCellName(value = "13", mandatory = false)
 	private String numberPlants13;
 
-	@ExcelCellName("14")
+	@ExcelCellName(value = "14", mandatory = false)
 	private String numberPlants14;
 
-	@ExcelCellName("15")
+	@ExcelCellName(value = "15", mandatory = false)
 	private String numberPlants15;
 
-	@ExcelCellName("16")
+	@ExcelCellName(value = "16", mandatory = false)
 	private String numberPlants16;
 
-	@ExcelCellName("17")
+	@ExcelCellName(value = "17", mandatory = false)
 	private String numberPlants17;
 
-	@ExcelCellName("18")
+	@ExcelCellName(value = "18", mandatory = false)
 	private String numberPlants18;
 
-	@ExcelCellName("19")
+	@ExcelCellName(value = "19", mandatory = false)
 	private String numberPlants19;
 
-	@ExcelCellName("20")
+	@ExcelCellName(value = "20", mandatory = false)
 	private String numberPlants20;
 
-	@ExcelCellName("21")
+	@ExcelCellName(value = "21", mandatory = false)
 	private String numberPlants21;
 
-	@ExcelCellName("22")
+	@ExcelCellName(value = "22", mandatory = false)
 	private String numberPlants22;
 
-	@ExcelCellName("23")
+	@ExcelCellName(value = "23", mandatory = false)
 	private String numberPlants23;
 
-	@ExcelCellName("24")
+	@ExcelCellName(value = "24", mandatory = false)
 	private String numberPlants24;
 
-	@ExcelCellName("25")
+	@ExcelCellName(value = "25", mandatory = false)
 	private String numberPlants25;
 
-	@ExcelCellName("26")
+	@ExcelCellName(value = "26", mandatory = false)
 	private String numberPlants26;
 
-	@ExcelCellName("27")
+	@ExcelCellName(value = "27", mandatory = false)
 	private String numberPlants27;
 
-	@ExcelCellName("28")
+	@ExcelCellName(value = "28", mandatory = false)
 	private String numberPlants28;
 
-	@ExcelCellName("29")
+	@ExcelCellName(value = "29", mandatory = false)
 	private String numberPlants29;
 
-	@ExcelCellName("30")
+	@ExcelCellName(value = "30", mandatory = false)
 	private String numberPlants30;
 
-	@ExcelCellName("Paid")
+	@ExcelCellName(value = "Paid", mandatory = false)
 	private String paid;
 
-	@ExcelCellName("Discount")
+	@ExcelCellName(value = "Discount", mandatory = false)
 	private String discount;
 
 	public boolean isValid() {

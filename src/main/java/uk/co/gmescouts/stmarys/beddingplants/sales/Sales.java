@@ -46,7 +46,7 @@ class Sales {
 	private OrdersService ordersService;
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = SALE_SUMMARY)
-	public Set<SaleSummary> geSaleSummary() {
+	public Set<SaleSummary> getSaleSummary() {
 		LOGGER.info("Retrieving Sale summaries");
 
 		final Set<SaleSummary> saleSummaries = salesService.findAllSales().stream().map(salesService::summariseSale)

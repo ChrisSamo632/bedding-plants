@@ -25,7 +25,7 @@ public class ExcelPlant {
 	@ExcelCellName("Price inc VAT")
 	private String price;
 
-	@ExcelCellName("Cost ex VAT")
+	@ExcelCellName(value = "Cost ex VAT", mandatory = false)
 	private String cost;
 
 	public boolean isValid() {

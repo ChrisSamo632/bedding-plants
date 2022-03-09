@@ -74,7 +74,7 @@ public class SalesService {
 				sale.getCustomers().stream().map(Customer::getOrders).mapToDouble(OrdersService::calculateOrdersIncomeTotal).sum() * 100.0) / 100.0;
 		final int orderPlantTotal = sale.getCustomers().stream().map(Customer::getOrders).flatMapToInt(orders -> orders.stream().mapToInt(Order::getCount)).sum();
 
-		return SaleSummary.builder().year(sale.getYear()).vat(sale.getVat()).plantCount(plantCount).customerCount(customerCount)
+		return SaleSummary.builder().year(sale.getYear()).vat(sale.getVat()).deliveryCharge(sale.getDeliveryCharge()).plantCount(plantCount).customerCount(customerCount)
 				.orderCount(orderCount).orderCostTotal(orderCostTotal).orderIncomeTotal(orderIncomeTotal).orderPlantTotal(orderPlantTotal).build();
 	}
 }

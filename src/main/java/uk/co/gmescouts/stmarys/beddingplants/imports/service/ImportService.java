@@ -81,15 +81,15 @@ public class ImportService {
 
 	private static final Map<Address, Address> IMPORTED_ADDRESS_CACHE = new HashMap<>(500, 1);
 
-	public Sale importSaleFromExcelFile(final MultipartFile file, final Integer saleYear, final Double vat, final String orderImportsSheetName,
-			final String plantImportsSheetName) throws IOException {
-		LOGGER.info("Importing Sale from file [{}] for Order Year [{}] with VAT [{}]", file.getOriginalFilename(), saleYear, vat);
+	public Sale importSaleFromExcelFile(final MultipartFile file, final Integer saleYear, final Double vat, final Double deliveryCharge,
+										final String orderImportsSheetName, final String plantImportsSheetName) throws IOException {
+		LOGGER.info("Importing Sale from file [{}] for Order Year [{}] with VAT [{}] and Delivery Charge [{}]", file.getOriginalFilename(), saleYear, vat, deliveryCharge);
 
 		// check for existing Sale for the specified year
 		Sale sale = salesService.findSaleByYear(saleYear);
 		if (sale == null) {
-			// create new Sale if doesn't exist and persist
-			sale = salesService.saveSale(Sale.builder().year(saleYear).vat(vat).build());
+			// create new Sale if it doesn't exist
+			sale = salesService.saveSale(Sale.builder().year(saleYear).vat(vat).deliveryCharge(deliveryCharge).build());
 		}
 
 		// import Plants (and add to Sale)
@@ -349,8 +349,8 @@ public class ImportService {
 		// convert blank strings to nulls
 		String normalised = null;
 
-		if (!StringUtils.isAsciiPrintable(field)) {
-			throw new IllegalArgumentException("Field value must be ASCII printable");
+		if (StringUtils.isNotBlank(field) && !(StringUtils.isAsciiPrintable(StringUtils.replace(field, "£", "")))) {
+			throw new IllegalArgumentException("Field value must be ASCII printable " + field);
 		}
 
 		// trim multiple spaces (anywhere in a String)
