@@ -1,52 +1,63 @@
 <!DOCTYPE html>
 <!--suppress HtmlUnknownAttribute -->
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 	<head lang="en" th:replace="fragments/base :: common_header(~{::link})">
 		<link href="../static/css/orders.css" th:href="@{/css/orders.css}" rel="stylesheet" />
+		<title>Bedding Plant Orders</title>
 	</head>
 	<body>
 		<div th:each="order,orderStat : ${orders}" th:class="${orderStat.index &gt; 0} ? 'order break' : 'order'">
-			<div class="header">
-				<h1>
-					<img src="../static/images/logo.jpg" th:src="@{/images/logo.jpg}" alt="Scouts"/>
-					<span th:text="${saleYear}">[Sale Year]</span> Bedding Plant Order Form <span th:text="${order.num}">[Order Number]</span>
-				</h1>
-			</div>
 			<table class="customer">
-				<tr>
-					<td class="label">Name</td><td th:text="${order.customer.name}" class="detail">[Name]</td>
-					<td class="label">C/O</td><td th:text="${order.courtesyOfName}" class="detail">[C/O]</td>
-				</tr>
-				<tr>
-					<td class="label">Telephone</td><td th:text="${order.customer.telephone}" class="detail">[Telephone]</td>
-					<td class="label">Email</td><td th:text="${order.customer.emailAddress}" class="detail">[Email]</td>
-				</tr>
-				<tr th:if="${#strings.toLowerCase(order.type) == 'collect'}">
-					<!-- collections -->
-					<td class="label">Collection Hour</td><td colspan="3" th:text="${order.collectionHourFormatted}" class="detail">[Collection Hour]</td>
-				</tr>
-				<tr th:if="${#strings.toLowerCase(order.type) == 'deliver'}">
-					<!-- deliveries -->
-					<td class="label">Delivery Charge</td><td colspan="3" th:text="${#numbers.formatCurrency(sale.deliveryCharge)}?: '&#163;0.00'" class="detail">£ [Delivery Charge]</td>
-				</tr>
-				<tr th:if="${#strings.toLowerCase(order.type) == 'deliver'}">
-					<!-- deliveries -->
-					<td class="label">Address</td><td colspan="3" th:text="*{order.customer.address != null}? ${order.customer.address.geolocatableAddress} : ''" class="detail">[Address]</td>
-				</tr>
-				<tr th:if="${#strings.toLowerCase(order.type) == 'deliver'}">
-					<!-- deliveries -->
-					<td class="label">Delivery Day</td><td colspan="3" th:text="${#strings.capitalize(#strings.toLowerCase(order.deliveryDay))}" class="detail">[Delivery Day]</td>
-				</tr>
-				<tr>
-					<td class="label">Plants Price</td><td th:text="${#numbers.formatCurrency(order.displayPrice)}" class="detail">£ [Total Price]</td>
-					<td class="label">Discount</td><td th:text="${#numbers.formatCurrency(order.displayDiscount)}" class="detail">£ [Discount]</td>
-				</tr>
-				<tr>
-					<td class="label">Already Paid</td><td th:text="${#numbers.formatCurrency(order.displayPaid)}" class="detail">£ [Already Paid]</td>
-					<td class="label">To Pay</td><td th:text="${#numbers.formatCurrency(order.displayToPay)}?: '&#163;0.00'" class="detail price">£ [To Pay]</td>
-				</tr>
+				<caption>Order Details</caption>
+				<thead>
+					<tr>
+						<th colspan="4" class="header">
+							<h1>
+								<img src="../static/images/logo.jpg" th:src="@{/images/logo.jpg}" alt="Scouts"/>
+								<span th:text="${saleYear}">[Sale Year]</span> Bedding Plant Order Form <span th:text="${order.num}">[Order Number]</span>
+							</h1>
+						</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td class="label">Name</td><td th:text="${order.customer.name}" class="detail">[Name]</td>
+						<td class="label">C/O</td><td th:text="${order.courtesyOfName}" class="detail">[C/O]</td>
+					</tr>
+					<tr>
+						<td class="label">Telephone</td><td th:text="${order.customer.telephone}" class="detail">[Telephone]</td>
+						<td class="label">Email</td><td th:text="${order.customer.emailAddress}" class="detail">[Email]</td>
+					</tr>
+					<tr th:if="${#strings.toLowerCase(order.type) == 'collect'}">
+						<!-- collections -->
+						<td class="label">Collection Hour</td><td colspan="3" th:text="${order.collectionHourFormatted}" class="detail">[Collection Hour]</td>
+					</tr>
+					<tr th:if="${#strings.toLowerCase(order.type) == 'deliver'}">
+						<!-- deliveries -->
+						<td class="label">Delivery Charge</td><td colspan="3" th:text="${#numbers.formatCurrency(sale.deliveryCharge)}?: '&#163;0.00'" class="detail">£ [Delivery Charge]</td>
+					</tr>
+					<tr th:if="${#strings.toLowerCase(order.type) == 'deliver'}">
+						<!-- deliveries -->
+						<td class="label">Address</td><td colspan="3" th:text="*{order.customer.address != null}? ${order.customer.address.geolocatableAddress} : ''" class="detail">[Address]</td>
+					</tr>
+					<tr th:if="${#strings.toLowerCase(order.type) == 'deliver'}">
+						<!-- deliveries -->
+						<td class="label">Delivery Day</td><td colspan="3" th:text="${#strings.capitalize(#strings.toLowerCase(order.deliveryDay))}" class="detail">[Delivery Day]</td>
+					</tr>
+					<tr>
+						<td class="label">Order Total</td><td th:text="${#numbers.formatCurrency(order.displayPrice)}" class="detail">£ [Order Total]</td>
+						<td class="label">Discount</td><td th:text="${#numbers.formatCurrency(order.displayDiscount)}" class="detail">£ [Discount]</td>
+					</tr>
+				</tbody>
+				<tfoot>
+					<tr>
+						<td class="label">Already Paid</td><td th:text="${#numbers.formatCurrency(order.displayPaid)}" class="detail">£ [Already Paid]</td>
+						<td class="label">To Pay</td><td th:text="${#numbers.formatCurrency(order.displayToPay)}?: '&#163;0.00'" class="detail price">£ [To Pay]</td>
+					</tr>
+				</tfoot>
 			</table>
 			<table class="plants">
+				<caption>Plant Details</caption>
 				<thead>
 					<tr><th>#</th><th>Name</th><th>Amount</th></tr>
 				</thead>
@@ -61,7 +72,7 @@
 					</th:block>
 				</tbody>
 				<tfoot>
-					<tr><td colspan="2" class="total">Total</td><td th:text="${order.count}">[Total]</td></tr>
+					<tr><td colspan="2" class="total">Total Number of Plants</td><td th:text="${order.count}">[Total]</td></tr>
 				</tfoot>
 			</table>
 		</div>

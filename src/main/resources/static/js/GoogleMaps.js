@@ -7,7 +7,7 @@ function mapLoadViewer(mapDivId, mapType, north, south, east, west, onTilesLoade
     var ne = new google.maps.LatLng(north, east);
 
     // setup the Viewer bounds
-    var bounds = new google.maps.LatLngBounds(sw, ne);
+    bounds = new google.maps.LatLngBounds(sw, ne);
 
     // setup the Map (using the ROADMAP as default)
     var mapOptions = {
@@ -35,7 +35,7 @@ function mapLoadViewer(mapDivId, mapType, north, south, east, west, onTilesLoade
 function addCircleToMap(lat, lon, r, colour, desc) {
     if (map != null) {
     	console.log("Adding circle for " + desc);
-    	
+
         // setup lat/lon point
         var point = new google.maps.LatLng(lat, lon);
 

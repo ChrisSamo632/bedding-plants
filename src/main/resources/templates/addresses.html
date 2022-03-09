@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <!--suppress HtmlUnknownAttribute -->
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 	<head lang="en" th:replace="fragments/base :: common_header(~{::link})">
 		<link href="../static/css/addresses.css" th:href="@{/css/addresses.css}" rel="stylesheet" />
+		<title>Bedding Plant Addresses</title>
 	</head>
 	<body>
 		<div id="map"></div>
@@ -12,7 +13,7 @@
 			var scoutHutLat = /*[[${scoutHutLat}]]*/ 53.48;
 			var scoutHutLng = /*[[${scoutHutLng}]]*/ -2.14;
 			var defaultZoom = /*[[${defaultZoom}]]*/ 15;
-			
+
 			var viewportMaxLat = /*[[${viewportMaxLat}]]*/ 54;
 			var viewportMinLat = /*[[${viewportMinLat}]]*/ 53;
 			var viewportMaxLng = /*[[${viewportMaxLng}]]*/ -3;
@@ -27,7 +28,7 @@
 
 			function loadMapPoints() {
 				console.log("Loading map points");
-				
+
 				// check we have addresses to plot, otherwise finish
 				if (geolocatedPoints == null) {
 					return;
