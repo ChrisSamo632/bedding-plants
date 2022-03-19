@@ -45,8 +45,11 @@ class Export {
 	/*
 	 * Addresses
 	 */
-	private static final String EXPORT_CUSTOMER_ADDRESSES = "/addresses/{saleYear}";
+	private static final String EXPORT_CUSTOMER_ADDRESSES = "/addresses";
+	private static final String EXPORT_CUSTOMER_ADDRESSES_YEAR = "/addresses/{saleYear}";
 	private static final String EXPORT_CUSTOMER_ADDRESSES_IMG = EXPORT_CUSTOMER_ADDRESSES + "/img";
+
+	private static final MediaType MEDIA_TYPE_TEXT_CSV = MediaType.parseMediaType("text/csv");
 
 	@Resource
 	private ExportService exportService;
@@ -86,7 +89,7 @@ class Export {
 		}
 
 		return ResponseEntity.ok().headers(getNoCacheHeaders(String.format("attachment; filename=\"sale_orders_%s.csv\"", saleYear)))
-				.contentLength(csv.length).contentType(MediaType.parseMediaType("text/csv")).body(new ByteArrayResource(csv));
+				.contentLength(csv.length).contentType(MEDIA_TYPE_TEXT_CSV).body(new ByteArrayResource(csv));
 	}
 
 	@GetMapping(produces = "text/csv", value = EXPORT_CUSTOMER_ORDER_PAYMENTS_CSV)
@@ -105,10 +108,10 @@ class Export {
 		}
 
 		return ResponseEntity.ok().headers(getNoCacheHeaders(String.format("attachment; filename=\"sale_order_payments_%s.csv\"", saleYear)))
-				.contentLength(csv.length).contentType(MediaType.parseMediaType("text/csv")).body(new ByteArrayResource(csv));
+				.contentLength(csv.length).contentType(MEDIA_TYPE_TEXT_CSV).body(new ByteArrayResource(csv));
 	}
 
-	@GetMapping(EXPORT_CUSTOMER_ADDRESSES)
+	@GetMapping(EXPORT_CUSTOMER_ADDRESSES_YEAR)
 	public Set<Address> exportSaleAddressesAsJson(@PathVariable final Integer saleYear,
 												  @RequestParam(required = false) final OrderType orderType,
 												  @RequestParam(required = false, defaultValue = "false") final boolean geolocatedOnly) {
@@ -116,6 +119,21 @@ class Export {
 
 		// get the Addresses
 		return exportService.getSaleAddresses(saleYear, orderType, geolocatedOnly);
+	}
+
+	@GetMapping(EXPORT_CUSTOMER_ADDRESSES)
+	public ResponseEntity<ByteArrayResource> exportAddresses() throws IOException {
+		LOGGER.info("Exporting (CSV); Addresses with last Sale Year");
+
+		// get the Addresses
+		final byte[] csv = exportService.exportAddressesToCsv();
+
+		if (csv == null) {
+			return ResponseEntity.noContent().build();
+		}
+
+		return ResponseEntity.ok().headers(getNoCacheHeaders("attachment; filename=\"address_sales.csv\""))
+				.contentLength(csv.length).contentType(MEDIA_TYPE_TEXT_CSV).body(new ByteArrayResource(csv));
 	}
 
 	@GetMapping(EXPORT_CUSTOMER_ADDRESSES_IMG)

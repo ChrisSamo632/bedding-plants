@@ -23,6 +23,7 @@ import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderItem;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderType;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Plant;
+import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
 import uk.co.gmescouts.stmarys.beddingplants.exports.ExportHtml;
 import uk.co.gmescouts.stmarys.beddingplants.exports.model.GeolocatedPoint;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapImageFormat;
@@ -32,6 +33,7 @@ import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapType;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.service.GeolocationService;
 import uk.co.gmescouts.stmarys.beddingplants.orders.service.OrdersService;
 import uk.co.gmescouts.stmarys.beddingplants.plants.service.PlantsService;
+import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
@@ -44,10 +46,15 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,6 +73,9 @@ public class ExportService {
 
 	@Resource
 	private PlantsService plantsService;
+
+	@Resource
+	private SalesService salesService;
 
 	@Resource
 	private AddressRepository addressRepository;
@@ -90,6 +100,10 @@ public class ExportService {
 
 	private String getExportHostUrl() {
 		return String.format("%s://%s:%d", httpsEnabled ? "https" : "http", hostname, port);
+	}
+
+	public String valueOrEmpty(final String value) {
+		return value == null ? "" : value;
 	}
 
 	public byte[] exportSaleCustomersToPdf(@NotNull final Integer saleYear, final OrderType orderType, @NotNull final String sorts)
@@ -133,6 +147,31 @@ public class ExportService {
 		return pdf;
 	}
 
+	private void addPlantAndPaymentDetails(final List<String> items, final Set<Plant> plants, final Order order) {
+		plants.forEach(plant -> {
+			final Optional<OrderItem> orderItem = order.getOrderItems().stream().filter(i -> i.getPlant().equals(plant)).findFirst();
+			items.add(orderItem.map(item -> Integer.toString(item.getCount())).orElse("0"));
+		});
+
+		items.add(Integer.toString(order.getCount()));
+		items.add(String.format("%.2f", order.getDisplayPrice()));
+		items.add(order.getDiscount() == null ? "" : String.format("%.2f", order.getDisplayDiscount()));
+		items.add(order.getPaid() == null ? "" : String.format("%.2f", order.getDisplayPaid()));
+		items.add(order.getToPay() == 0 ? "0.00" : String.format("%.2f", order.getDisplayToPay()));
+	}
+
+	private String getCollectionHour(final Order order) {
+		return order.getCollectionHour() == null ? "" : Integer.toString(order.getCollectionHour());
+	}
+
+	private String getAddress(final Customer customer) {
+		return customer.getAddress() == null ? "" : customer.getAddress().getGeolocatableAddress();
+	}
+
+	private String getHourOrAddress(final Order order, final Customer customer) {
+		return order.getType() == OrderType.COLLECT ? getCollectionHour(order) : getAddress(customer);
+	}
+
 	public byte[] exportSaleCustomersToCsv(@NotNull final Integer saleYear, final OrderType orderType, @NotNull final String sorts)
 			throws IOException {
 
@@ -154,7 +193,7 @@ public class ExportService {
 		final byte[] csv;
 		try (final ByteArrayOutputStream baos = prepareCsvOutputStream();
 			 final PrintWriter pw = new PrintWriter(baos, false, CSV_CHARSET);
-			 final CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.withHeader(headers.toArray(new String[0])))) {
+			 final CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.builder().setHeader(headers.toArray(new String[0])).build())) {
 
 			// get the orders
 			final Set<Order> orders = ordersService.getSaleCustomerOrders(saleYear, orderType, sorts);
@@ -166,26 +205,17 @@ public class ExportService {
 				final List<String> items = new ArrayList<>(List.of(
 						Integer.toString(order.getNum()),
 						customer.getName(),
-						order.getCourtesyOfName() == null ? "" : order.getCourtesyOfName(),
+						valueOrEmpty(order.getCourtesyOfName()),
 						StringUtils.capitalize(order.getType().toString().toLowerCase()),
 						StringUtils.capitalize(order.getDeliveryDay().toString().toLowerCase()),
 						order.getCollectionSlot() == null ? "" : StringUtils.capitalize(order.getCollectionSlot().toString().toLowerCase()),
-						order.getCollectionHour() == null ? "" : Integer.toString(order.getCollectionHour()),
-						customer.getAddress() == null ? "" : customer.getAddress().getGeolocatableAddress(),
-						customer.getEmailAddress() == null ? "" : customer.getEmailAddress(),
-						customer.getTelephone() == null ? "" : customer.getTelephone()
+						getCollectionHour(order),
+						getAddress(customer),
+						valueOrEmpty(customer.getEmailAddress()),
+						valueOrEmpty(customer.getTelephone())
 				));
 
-				plants.forEach(plant -> {
-					final Optional<OrderItem> orderItem = order.getOrderItems().stream().filter(i -> i.getPlant().equals(plant)).findFirst();
-					items.add(orderItem.map(item -> Integer.toString(item.getCount())).orElse("0"));
-				});
-
-				items.add(Integer.toString(order.getCount()));
-				items.add(String.format("%.2f", order.getDisplayPrice()));
-				items.add(order.getDiscount() == null ? "" : String.format("%.2f", order.getDisplayDiscount()));
-				items.add(order.getPaid() == null ? "" : String.format("%.2f", order.getDisplayPaid()));
-				items.add(order.getToPay() == 0 ? "0.00" : String.format("%.2f", order.getDisplayToPay()));
+				addPlantAndPaymentDetails(items, plants, order);
 
 				csvPrinter.printRecord(items);
 			}
@@ -206,11 +236,11 @@ public class ExportService {
 		final byte[] csv;
 		try (final ByteArrayOutputStream baos = prepareCsvOutputStream();
 			 final PrintWriter pw = new PrintWriter(baos, false, CSV_CHARSET);
-			 final CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.withHeader(
+			 final CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.builder().setHeader(
 					 "#", "Name", "c/o", "Type", "Day", "Hour / Address", "Email Address", "Telephone", "# Plants",
 					 String.format("Plant Price / %c", POUND_SIGN), String.format("Discount / %c", POUND_SIGN),
 					 String.format("Paid / %c", POUND_SIGN), String.format("To Pay / %c", POUND_SIGN)
-			 ))) {
+			 ).build())) {
 
 			// get the orders
 			final Set<Order> orders = ordersService.getSaleCustomerOrders(saleYear, orderType, sorts);
@@ -222,14 +252,12 @@ public class ExportService {
 				csvPrinter.printRecord(List.of(
 						Integer.toString(order.getNum()),
 						customer.getName(),
-						order.getCourtesyOfName() == null ? "" : order.getCourtesyOfName(),
+						valueOrEmpty(order.getCourtesyOfName()),
 						StringUtils.capitalize(order.getType().toString().toLowerCase()),
 						StringUtils.capitalize(order.getDeliveryDay().toString().toLowerCase()),
-						order.getType() == OrderType.COLLECT
-								? (order.getCollectionHour() == null ? "" : Integer.toString(order.getCollectionHour()))
-								: (customer.getAddress() == null ? "" : customer.getAddress().getGeolocatableAddress()),
-						customer.getEmailAddress() == null ? "" : customer.getEmailAddress(),
-						customer.getTelephone() == null ? "" : customer.getTelephone(),
+						getHourOrAddress(order, customer),
+						valueOrEmpty(customer.getEmailAddress()),
+						valueOrEmpty(customer.getTelephone()),
 						Integer.toString(order.getCount()),
 						String.format("%.2f", order.getDisplayPrice()),
 						order.getDiscount() == null ? "" : String.format("%.2f", order.getDisplayDiscount()),
@@ -246,10 +274,55 @@ public class ExportService {
 		return csv;
 	}
 
+	public byte[] exportAddressesToCsv() throws IOException {
+		LOGGER.info("Exporting Customer Addresses (for all Sales)");
+
+		final byte[] csv;
+		try (final ByteArrayOutputStream baos = prepareCsvOutputStream();
+			 final PrintWriter pw = new PrintWriter(baos, false, CSV_CHARSET);
+			 final CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.builder().setHeader(
+					 "House Name/Number", "Street", "Town", "City", "Postcode", "Address", "Last Order Year"
+			 ).build())) {
+
+			// get the sales
+			final Map<Address, Integer> addressYears = new TreeMap<>(); // sort using the Address#compareTo definition
+			final Set<Sale> sales = salesService.findAllSales();
+			for (final Sale sale : sales) {
+				final int saleYear = sale.getYear();
+				for (final Customer customer : sale.getCustomers()) {
+					final Address address = customer.getAddress();
+					if (address != null && (!addressYears.containsKey(address) || addressYears.get(address) < saleYear)) {
+						addressYears.put(address, saleYear);
+					}
+				}
+			}
+
+			// output each Address to the CSV
+			for (final Map.Entry<Address, Integer> addressYear : addressYears.entrySet()) {
+				final Address address = addressYear.getKey();
+				csvPrinter.printRecord(List.of(
+					valueOrEmpty(address.getHouseNameNumber()),
+					valueOrEmpty(address.getStreet()),
+					valueOrEmpty(address.getTown()),
+					valueOrEmpty(address.getCity()),
+					valueOrEmpty(address.getPostcode()),
+					valueOrEmpty(address.getGeolocatableAddress()),
+					Integer.toString(addressYear.getValue())
+				));
+			}
+
+			csvPrinter.flush();
+			csv = baos.toByteArray();
+		}
+
+		// return CSV content
+		return csv;
+	}
+
 	private ByteArrayOutputStream prepareCsvOutputStream() throws IOException {
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-		// write bom to prevent miscoding
+		// write bom to prevent mis-coding
 		baos.write(CSV_BOM);
 
 		return baos;

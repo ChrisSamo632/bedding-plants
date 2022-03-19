@@ -24,7 +24,7 @@ class Customers {
 	private CustomersService customersService;
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-	public Set<Customer> geCustomers(@RequestParam final Integer year) {
+	public Set<Customer> getCustomers(@RequestParam final Integer year) {
 		LOGGER.info("Retrieving Customers for Sale [{}]", year);
 
 		final Set<Customer> customers = customersService.findCustomersBySaleYear(year);
@@ -36,7 +36,7 @@ class Customers {
 
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/summaries")
-	public Set<CustomerSummary> geCustomerSummaries(@RequestParam final Integer year) {
+	public Set<CustomerSummary> getCustomerSummaries(@RequestParam final Integer year) {
 		LOGGER.info("Retrieving Customer summaries");
 
 		final Set<CustomerSummary> customerSummaries = customersService.findCustomersBySaleYear(year).stream()

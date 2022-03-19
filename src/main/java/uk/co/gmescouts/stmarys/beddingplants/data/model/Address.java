@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -30,7 +31,7 @@ import java.util.Set;
 @ToString(exclude = { "customers" })
 @NoArgsConstructor
 @AllArgsConstructor
-public class Address {
+public class Address implements Comparable<Address> {
 	@JsonIgnore
 	@Id
 	public String getId() {
@@ -131,5 +132,15 @@ public class Address {
 			// replace existing Customer, if present
 			customers.add(customer);
 		}
+	}
+
+	@Override
+	public int compareTo(Address o) {
+		return new CompareToBuilder()
+			.append(this.getCity(), o.getCity())
+			.append(this.getTown(), o.getTown())
+			.append(this.getStreet(), o.getStreet())
+			.append(this.getHouseNameNumber(), o.getHouseNameNumber())
+			.toComparison();
 	}
 }
