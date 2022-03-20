@@ -345,12 +345,12 @@ public class ImportService {
 		return null;
 	}
 
-	String normaliseField(final String field) {
+	String normaliseField(final String fieldName, final String field) {
 		// convert blank strings to nulls
 		String normalised = null;
 
 		if (StringUtils.isNotBlank(field) && !(StringUtils.isAsciiPrintable(StringUtils.replace(field, "£", "")))) {
-			throw new IllegalArgumentException("Field value must be ASCII printable " + field);
+			throw new IllegalArgumentException(String.format("Field [%s] value must be ASCII printable", fieldName));
 		}
 
 		// trim multiple spaces (anywhere in a String)
@@ -392,7 +392,7 @@ public class ImportService {
 						final String str = (String) getter.invoke(imported);
 
 						// normalise the value
-						final String normalised = normaliseField(str);
+						final String normalised = normaliseField(getter.getName(), str);
 
 						// find the equivalent setter method on the imports object
 						final Method setter = findSetter(imported, getter);
