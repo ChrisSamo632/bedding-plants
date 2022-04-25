@@ -47,7 +47,7 @@ class Export {
 	 */
 	private static final String EXPORT_CUSTOMER_ADDRESSES = "/addresses";
 	private static final String EXPORT_CUSTOMER_ADDRESSES_YEAR = "/addresses/{saleYear}";
-	private static final String EXPORT_CUSTOMER_ADDRESSES_IMG = EXPORT_CUSTOMER_ADDRESSES + "/img";
+	private static final String EXPORT_CUSTOMER_ADDRESSES_IMG = EXPORT_CUSTOMER_ADDRESSES_YEAR + "/img";
 
 	private static final MediaType MEDIA_TYPE_TEXT_CSV = MediaType.parseMediaType("text/csv");
 
