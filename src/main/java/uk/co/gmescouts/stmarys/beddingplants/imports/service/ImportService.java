@@ -349,8 +349,8 @@ public class ImportService {
 		// convert blank strings to nulls
 		String normalised = null;
 
-		if (StringUtils.isNotBlank(field) && !(StringUtils.isAsciiPrintable(StringUtils.replace(field, "£", "")))) {
-			throw new IllegalArgumentException(String.format("Field [%s] value must be ASCII printable", fieldName));
+		if (StringUtils.isNotBlank(field) && !(StringUtils.isAsciiPrintable(StringUtils.replaceEach(field, new String[]{"£", "\n", "\r"}, new String[]{"", " ", ""})))) {
+			throw new IllegalArgumentException(String.format("Field [%s] value must be ASCII printable: %s", fieldName, field));
 		}
 
 		// trim multiple spaces (anywhere in a String)
