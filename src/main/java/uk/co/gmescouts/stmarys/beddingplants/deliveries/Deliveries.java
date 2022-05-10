@@ -24,9 +24,9 @@ public class Deliveries {
 	private DeliveriesService deliveriesService;
 
 	@GetMapping(DELIVERY_ROUTES)
-	public Set<DeliveryRoute> getDeliveryRoutes(@PathVariable final Integer saleYear) {
-		LOGGER.info("Retrieving Delivery Routes for Sale Year [{}]", saleYear);
+	public Set<DeliveryRoute> calculateDeliveryRoutes(@PathVariable final Integer saleYear) {
+		LOGGER.info("Calculating Delivery Routes for Sale Year [{}]", saleYear);
 
-		return deliveriesService.getDeliveryRoutes(saleYear);
+		return deliveriesService.calculateDeliveryRoutes(saleYear);
 	}
 }

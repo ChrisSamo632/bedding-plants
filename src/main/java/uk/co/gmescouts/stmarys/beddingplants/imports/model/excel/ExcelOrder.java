@@ -26,6 +26,9 @@ public class ExcelOrder {
 	@ExcelCellName(value = "Delivery Day", mandatory = false)
 	private String deliveryDay;
 
+	@ExcelCellName(value = "Delivery Route", mandatory = false)
+	private String deliveryRoute;
+
 	@ExcelCellName(value = "Preferred Collection Slot", mandatory = false)
 	private String collectionSlot;
 

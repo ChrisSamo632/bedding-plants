@@ -15,11 +15,13 @@ import uk.co.gmescouts.stmarys.beddingplants.data.model.Address;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.CollectionSlot;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Customer;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.DeliveryDay;
+import uk.co.gmescouts.stmarys.beddingplants.data.model.DeliveryRoute;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderItem;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderType;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Plant;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
+import uk.co.gmescouts.stmarys.beddingplants.deliveries.service.DeliveriesService;
 import uk.co.gmescouts.stmarys.beddingplants.imports.configuration.ImportConfiguration;
 import uk.co.gmescouts.stmarys.beddingplants.imports.model.excel.ExcelOrder;
 import uk.co.gmescouts.stmarys.beddingplants.imports.model.excel.ExcelPlant;
@@ -52,6 +54,9 @@ public class ImportService {
 
 	@Resource
 	private SalesService salesService;
+
+	@Resource
+	private DeliveriesService deliveriesService;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ImportService.class);
 
@@ -119,7 +124,7 @@ public class ImportService {
 		return updateSaleWithImportedPlantsFromExcel(file, plantImportsSheetName, sale);
 	}
 
-	private Sale updateSaleWithImportedCustomersFromExcel(final MultipartFile file, final String orderImportsSheetName, @NotNull Sale sale)
+	private Sale updateSaleWithImportedCustomersFromExcel(final MultipartFile file, final String orderImportsSheetName, @NotNull final Sale sale)
 			throws IOException {
 		LOGGER.info("Importing Orders from file [{}] for Sale [{}]", file.getOriginalFilename(), sale.getYear());
 
@@ -141,7 +146,7 @@ public class ImportService {
 			IMPORTED_ADDRESS_CACHE.clear();
 
 			// convert to Orders
-			final List<Customer> customerOrders = importedOrders.stream().filter(ExcelOrder::isValid).map(order -> createCustomer(order, plants))
+			final List<Customer> customerOrders = importedOrders.stream().filter(ExcelOrder::isValid).map(order -> createCustomer(order, sale, plants))
 					.collect(Collectors.toList());
 			LOGGER.info("Imported [{}] valid Customer Orders", customerOrders.size());
 
@@ -168,11 +173,8 @@ public class ImportService {
 			customers.forEach(sale::addCustomer);
 
 			// save any Sale updates
-			sale = salesService.saveSale(sale);
+			return salesService.saveSale(sale);
 		}
-
-		// return the updated Sale
-		return sale;
 	}
 
 	private Sale updateSaleWithImportedPlantsFromExcel(final MultipartFile file, final String plantImportsSheetName, @NotNull Sale sale)
@@ -210,7 +212,7 @@ public class ImportService {
 				.details(excelPlant.getDetails()).price(price).cost(cost).build();
 	}
 
-	private Customer createCustomer(final ExcelOrder excelOrder, final Set<Plant> plants) {
+	private Customer createCustomer(final ExcelOrder excelOrder, final Sale sale, final Set<Plant> plants) {
 		LOGGER.trace("Convert imported Order: [{}]", excelOrder);
 
 		// create Customer (without Address)
@@ -218,7 +220,7 @@ public class ImportService {
 				.emailAddress(excelOrder.getEmailAddress()).telephone(normaliseTelephoneNumber(excelOrder.getTelephone())).build();
 
 		// add Order
-		final Order order = createOrder(excelOrder, plants);
+		final Order order = createOrder(excelOrder, sale, plants);
 		customer.addOrder(order);
 
 		// link Customer with Address (if present)
@@ -230,7 +232,7 @@ public class ImportService {
 		return customer;
 	}
 
-	private Order createOrder(final ExcelOrder excelOrder, @NotNull @Size(min = 1) final Set<Plant> plants) {
+	private Order createOrder(final ExcelOrder excelOrder, final Sale sale, @NotNull @Size(min = 1) final Set<Plant> plants) {
 		// determine DeliveryDay (default is Saturday if not present)
 		final DeliveryDay deliveryDay = StringUtils.isNotBlank(excelOrder.getDeliveryDay())
 				? DeliveryDay.valueOf(StringUtils.upperCase(excelOrder.getDeliveryDay()))
@@ -241,14 +243,21 @@ public class ImportService {
 				? CollectionSlot.valueOf(StringUtils.upperCase(excelOrder.getCollectionSlot()))
 				: CollectionSlot.ANY;
 
+		// Delivery Route (default is none)
+		final DeliveryRoute deliveryRoute = StringUtils.isNotBlank(excelOrder.getDeliveryRoute())
+				? deliveriesService.getOrCreateDeliveryRoute(Long.parseLong(excelOrder.getDeliveryRoute()), deliveryDay, sale)
+				: null;
+
 		// create Order (without Customer or OrderItems)
 		final Order order = Order.builder()
 				.num(Integer.valueOf(excelOrder.getOrderNumber()))
 				.type(OrderType.valueOf(excelOrder.getCollectDeliver().toUpperCase().charAt(0)))
 				.deliveryDay(deliveryDay)
+				.deliveryRoute(deliveryRoute)
 				.collectionSlot(collectionSlot)
 				.collectionHour(StringUtils.isNotBlank(excelOrder.getCollectionHour()) ? Integer.parseInt(excelOrder.getCollectionHour()) : null)
 				.courtesyOfName(excelOrder.getCourtesyOf())
+				.notes(excelOrder.getNotes())
 				.paid(StringUtils.isNotBlank(excelOrder.getPaid()) ? Double.valueOf(excelOrder.getPaid()) : null)
 				.discount(StringUtils.isNotBlank(excelOrder.getDiscount()) ? Double.valueOf(excelOrder.getDiscount()) : null)
 				.build();

@@ -10,5 +10,5 @@ public interface DeliveryRouteRepository extends JpaRepository<DeliveryRoute, Lo
 	@OrderBy("num")
 	Set<DeliveryRoute> findDeliveryRouteBySaleYear(Integer saleYear);
 
-	DeliveryRoute findDeliveryRouteBySaleYearAndOrdersNum(Integer saleYear, Integer orderNum);
+	DeliveryRoute findDeliveryRouteBySaleYearAndNum(Integer saleYear, Long num);
 }

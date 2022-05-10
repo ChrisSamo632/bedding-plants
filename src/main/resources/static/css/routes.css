@@ -1,0 +1,59 @@
+/*
+* Route Page
+*/
+div.route {
+	text-align: center;
+	width: 100%;
+}
+
+/*
+* Route Details
+*/
+div.routes div {
+    text-align: center;
+}
+
+/*
+* Order Details
+*/
+table.orders {
+	font-size: 14pt;
+	margin-bottom: 10pt;
+	table-layout: auto;
+	width: 1000px;
+}
+
+table.orders tbody tr {
+    height: 100px;
+}
+
+table.orders td.wrap {
+    word-wrap: break-word;
+}
+
+table.orders td.detail, table.orders td.price {
+	border-color: lightgray;
+	border-style: solid;
+}
+
+table.orders td.label {
+	color: gray;
+}
+
+table.orders td.detail {
+	border-width: thin;
+}
+
+table.orders td.price {
+	border-width: medium;
+	font-weight: bold;
+}
+
+table.orders tfoot tr td.label {
+    text-align: right;
+}
+
+table.orders td.amount {
+	color: black;
+	font-weight: bold;
+}

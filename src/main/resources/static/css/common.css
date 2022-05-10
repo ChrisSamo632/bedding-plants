@@ -1,0 +1,71 @@
+/*
+* Printing
+*/
+@media print {
+	@page {
+		size: portrait;
+	}
+}
+
+@media all {
+    caption {
+        display: none;
+    }
+
+    @page {
+        @bottom-right {
+            content: "Page " counter(page) " of " counter(pages);
+        }
+    }
+}
+
+/*
+* Page
+*/
+html, body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+.break {
+	page-break-before: always;
+}
+
+table {
+	margin: 0 auto;
+	text-align: left;
+	border: none;
+}
+
+table td, table th {
+	padding: 1px 5px;
+}
+
+/*
+* Header
+*/
+th.header {
+	text-align: center;
+	vertical-align: middle;
+	margin-bottom: 10pt;
+}
+
+img {
+	vertical-align: middle;
+	height: 40px;
+	display: inline;
+}
+
+h1 {
+	font-size: 20pt;
+	vertical-align: middle;
+	display: inline;
+}
+
+h1 span {
+	color: gray;
+	font-size: 20pt;
+	vertical-align: middle;
+	border: thin solid lightgray;
+}

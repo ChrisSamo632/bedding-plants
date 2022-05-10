@@ -13,6 +13,8 @@ import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -72,7 +74,12 @@ public class DeliveryRoute implements PlantSummary {
 	@NonNull
 	@NotNull
 	@Min(1)
-	private Integer num;
+	private Long num;
+
+	@NonNull
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	private DeliveryDay day;
 
 	@JsonIgnore
 	@Access(AccessType.FIELD)
@@ -82,9 +89,8 @@ public class DeliveryRoute implements PlantSummary {
 	// TODO: store image of the DeliveryRoute points plotted on a map?
 	// private byte[] mapImage;
 
-	@NonNull
 	@Builder.Default
-	@OrderBy("order")
+	@OrderBy("num")
 	@Access(AccessType.FIELD)
 	@OneToMany(cascade = { CascadeType.ALL }, mappedBy = "deliveryRoute")
 	private Set<Order> orders = new TreeSet<>(Comparator.comparingInt(Order::getNum));

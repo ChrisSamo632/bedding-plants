@@ -33,7 +33,7 @@ import java.util.TreeSet;
 @Data
 @Builder
 @EqualsAndHashCode(of = { "customer", "num" })
-@ToString(exclude = { "customer" })
+@ToString(exclude = { "customer", "deliveryRoute" })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order implements PlantSummary {

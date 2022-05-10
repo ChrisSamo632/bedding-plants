@@ -32,7 +32,8 @@ class ImportServiceTest {
 		assertEquals(" 123 ", feature.normaliseField("test", " 123  "));
 		assertEquals(" 1 2 3 ", feature.normaliseField("test", "  1 2  3 "));
 
-		final IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> feature.normaliseField("test", "123-456-" + Character.toString(30)));
-		assertEquals("Field [test] value must be ASCII printable", iae.getMessage());
+		final String fails = "123-456-" + Character.toString(30);
+		final IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> feature.normaliseField("test", fails));
+		assertEquals("Field [test] value must be ASCII printable: " + fails, iae.getMessage());
 	}
 }

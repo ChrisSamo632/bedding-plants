@@ -46,10 +46,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -111,19 +108,28 @@ public class ExportService {
 
 		LOGGER.info("Exporting Customer Orders for Sale [{}] and Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
 
-		// setup the URLs
-		final String exportHostUrl = getExportHostUrl();
+		// set up the URL
 		final StringBuilder sb = new StringBuilder(100);
 		sb.append("sorts=").append(sorts);
 		if (orderType != null) {
 			sb.append("&orderType=").append(orderType);
 		}
 
-		final String exportHtmlUrl = String.format("%s%s%s?%s", exportHostUrl, baseUri, ExportHtml.EXPORT_CUSTOMER_ORDERS_HTML, sb);
+		return executeSaleHtmlExport(saleYear, String.format("%s%s?%s", baseUri, ExportHtml.EXPORT_CUSTOMER_ORDERS_HTML, sb));
+	}
+
+	public byte[] exportSaleDeliveryRoutesToPdf(@NotNull final Integer saleYear, @NotNull final String sorts) throws IOException {
+		LOGGER.info("Exporting Delivery Routes for Sale [{}] sorted by [{}]", saleYear, sorts);
+		return executeSaleHtmlExport(saleYear, String.format("%s%s?%s", baseUri, ExportHtml.EXPORT_DELIVERY_ROUTES_HTML, "sorts=" + sorts));
+	}
+
+	private byte[] executeSaleHtmlExport(@NotNull final Integer saleYear, @NotNull final String exportHtmlUrl) throws IOException {
+		final String exportHostUrl = getExportHostUrl();
+
 		LOGGER.debug("Calling HTML Export URL [{}]", exportHtmlUrl);
 
 		// get the HTML via external call
-		final String html = restTemplate.getForObject(exportHtmlUrl, String.class, saleYear);
+		final String html = restTemplate.getForObject(exportHostUrl + exportHtmlUrl, String.class, saleYear);
 
 		// convert HTML to PDF
 		byte[] pdf;

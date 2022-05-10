@@ -35,7 +35,6 @@ class Export {
 	private static final String EXPORT_CUSTOMER_ORDERS_PDF = EXPORT_CUSTOMER_ORDERS + "/pdf";
 	private static final String EXPORT_CUSTOMER_ORDERS_CSV = EXPORT_CUSTOMER_ORDERS + "/csv";
 
-
 	/*
      * Payments
 	 */
@@ -49,6 +48,11 @@ class Export {
 	private static final String EXPORT_CUSTOMER_ADDRESSES_YEAR = "/addresses/{saleYear}";
 	private static final String EXPORT_CUSTOMER_ADDRESSES_IMG = EXPORT_CUSTOMER_ADDRESSES_YEAR + "/img";
 
+	/*
+	 * Delivery Routes
+	 */
+	private static final String EXPORT_DELIVERY_ROUTES_PDF = "/routes/{saleYear}/pdf";
+
 	private static final MediaType MEDIA_TYPE_TEXT_CSV = MediaType.parseMediaType("text/csv");
 
 	@Resource
@@ -57,7 +61,7 @@ class Export {
 	@GetMapping(produces = MediaType.APPLICATION_PDF_VALUE, value = EXPORT_CUSTOMER_ORDERS_PDF)
 	public ResponseEntity<ByteArrayResource> exportSaleCustomerOrdersAsPdf(@PathVariable final Integer saleYear,
 																		   @RequestParam(required = false) final OrderType orderType,
-																		   @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,collectionHour:ASC,num:ASC") final String sorts)
+																		   @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,deliveryRoute.num:ASC,collectionHour:ASC,num:ASC") final String sorts)
 			throws IOException {
 
 		LOGGER.info("Exporting (PDF) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
@@ -76,7 +80,7 @@ class Export {
 	@GetMapping(produces = "text/csv", value = EXPORT_CUSTOMER_ORDERS_CSV)
 	public ResponseEntity<ByteArrayResource> exportSaleCustomerOrdersAsCsv(@PathVariable final Integer saleYear,
 																		   @RequestParam(required = false) final OrderType orderType,
-																		   @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,collectionHour:ASC,num:ASC") String sorts)
+																		   @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,collectionHour:ASC,num:ASC") final String sorts)
 			throws IOException {
 
 		LOGGER.info("Exporting (CSV) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
@@ -95,7 +99,7 @@ class Export {
 	@GetMapping(produces = "text/csv", value = EXPORT_CUSTOMER_ORDER_PAYMENTS_CSV)
 	public ResponseEntity<ByteArrayResource> exportSaleCustomerPaymentsToCsv(@PathVariable final Integer saleYear,
 																		     @RequestParam(required = false) final OrderType orderType,
-																		     @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,collectionHour:ASC,num:ASC") String sorts)
+																		     @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,collectionHour:ASC,num:ASC") final String sorts)
 			throws IOException {
 
 		LOGGER.info("Exporting (CSV) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
@@ -157,6 +161,24 @@ class Export {
 				.headers(getNoCacheHeaders(String.format("attachment; filename=\"map_sale_orders_%s%s.%s\"", saleYear,
 						(orderType == null ? "" : orderType), mapImageFormat.getFilenameExtension())))
 				.contentLength(mapImg.length).contentType(MediaType.APPLICATION_OCTET_STREAM).body(new ByteArrayResource(mapImg));
+	}
+
+	@GetMapping(produces = MediaType.APPLICATION_PDF_VALUE, value = EXPORT_DELIVERY_ROUTES_PDF)
+	public ResponseEntity<ByteArrayResource> exportSaleDeliveryRoutesAsPdf(@PathVariable final Integer saleYear,
+																		   @RequestParam(defaultValue = "day:ASC,num:ASC") final String sorts)
+			throws IOException {
+
+		LOGGER.info("Exporting (PDF) Delivery Route details for Sale [{}] sorted by [{}]", saleYear, sorts);
+
+		// get the PDF content
+		final byte[] pdf = exportService.exportSaleDeliveryRoutesToPdf(saleYear, sorts);
+
+		if (pdf == null) {
+			return ResponseEntity.noContent().build();
+		}
+
+		return ResponseEntity.ok().headers(getNoCacheHeaders(String.format("attachment; filename=\"sale_delivery_routes_%s.pdf\"", saleYear)))
+				.contentLength(pdf.length).contentType(MediaType.APPLICATION_OCTET_STREAM).body(new ByteArrayResource(pdf));
 	}
 
 	private static HttpHeaders getNoCacheHeaders(final String contentDisposition) {

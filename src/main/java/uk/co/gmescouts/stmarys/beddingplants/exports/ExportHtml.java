@@ -8,10 +8,12 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import uk.co.gmescouts.stmarys.beddingplants.data.model.DeliveryRoute;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderType;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Plant;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
+import uk.co.gmescouts.stmarys.beddingplants.deliveries.service.DeliveriesService;
 import uk.co.gmescouts.stmarys.beddingplants.exports.configuration.ExportConfiguration;
 import uk.co.gmescouts.stmarys.beddingplants.exports.service.ExportService;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.configuration.GeolocationConfiguration;
@@ -34,14 +36,17 @@ public class ExportHtml {
 	/*
 	 * Orders
 	 */
-	private static final String EXPORT_CUSTOMER_ORDERS = EXPORT_BASE + "/orders/{saleYear}";
-	public static final String EXPORT_CUSTOMER_ORDERS_HTML = EXPORT_CUSTOMER_ORDERS + "/html";
+	public static final String EXPORT_CUSTOMER_ORDERS_HTML = EXPORT_BASE + "/orders/{saleYear}/html";
 
 	/*
 	 * Addresses
 	 */
-	private static final String EXPORT_CUSTOMER_ADDRESSES = EXPORT_BASE + "/addresses/{saleYear}";
-	private static final String EXPORT_CUSTOMER_ADDRESSES_HTML = EXPORT_CUSTOMER_ADDRESSES + "/html";
+	private static final String EXPORT_CUSTOMER_ADDRESSES_HTML = EXPORT_BASE + "/addresses/{saleYear}/html";
+
+	/*
+	 * Delivery Routes
+	 */
+	public static final String EXPORT_DELIVERY_ROUTES_HTML = EXPORT_BASE + "/routes/{saleYear}/html";
 
 	@Value("${spring.application.name}")
 	private String appName;
@@ -64,11 +69,14 @@ public class ExportHtml {
 	@Resource
 	private PlantsService plantsService;
 
+	@Resource
+	private DeliveriesService deliveriesService;
+
 	@SuppressWarnings("SameReturnValue")
 	@GetMapping(EXPORT_CUSTOMER_ORDERS_HTML)
 	public String exportSaleCustomerOrdersAsHtml(final Model model, @PathVariable final Integer saleYear,
 												 @RequestParam(required = false) final OrderType orderType,
-												 @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,collectionHour:ASC,num:ASC") String sorts) {
+												 @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,deliveryRoute.num:ASC,collectionHour:ASC,num:ASC") final String sorts) {
 		LOGGER.info("Exporting (HTML) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
 
 		// get the Salve
@@ -89,6 +97,25 @@ public class ExportHtml {
 
 		// use the orders template
 		return "orders";
+	}
+
+
+
+	@SuppressWarnings("SameReturnValue")
+	@GetMapping(EXPORT_DELIVERY_ROUTES_HTML)
+	public String exportSaleDeliveryRoutesAsHtml(final Model model, @PathVariable final Integer saleYear, @RequestParam(defaultValue = "day:ASC,num:ASC") final String sorts) {
+		LOGGER.info("Exporting (HTML) Delivery Route details for Sale [{}] sorted by [{}]", saleYear, sorts);
+
+		// get the Delivery Routes
+		final Set<DeliveryRoute> deliveryRoutes = deliveriesService.getDeliveryRoutesBySaleYear(saleYear);
+
+		// add data attributes to template Model
+		addCommonModelAttributes(model);
+		model.addAttribute("saleYear", saleYear);
+		model.addAttribute("routes", deliveryRoutes);
+
+		// use the orders template
+		return "routes";
 	}
 
 	@SuppressWarnings("SameReturnValue")
