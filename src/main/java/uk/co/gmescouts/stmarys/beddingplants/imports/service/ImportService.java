@@ -94,7 +94,7 @@ public class ImportService {
 		Sale sale = salesService.findSaleByYear(saleYear);
 		if (sale == null) {
 			// create new Sale if it doesn't exist
-			sale = salesService.saveSale(Sale.builder().year(saleYear).vat(vat).deliveryCharge(deliveryCharge).build());
+			sale = salesService.saveSale(Sale.builder().saleYear(saleYear).vat(vat).deliveryCharge(deliveryCharge).build());
 		}
 
 		// import Plants (and add to Sale)
@@ -126,12 +126,12 @@ public class ImportService {
 
 	private Sale updateSaleWithImportedCustomersFromExcel(final MultipartFile file, final String orderImportsSheetName, @NotNull final Sale sale)
 			throws IOException {
-		LOGGER.info("Importing Orders from file [{}] for Sale [{}]", file.getOriginalFilename(), sale.getYear());
+		LOGGER.info("Importing Orders from file [{}] for Sale [{}]", file.getOriginalFilename(), sale.getSaleYear());
 
 		// check the Sale contains some Plants
 		final Set<Plant> plants = sale.getPlants();
 		if (plants.isEmpty()) {
-			throw new IllegalArgumentException(String.format("Cannot import Orders for a Sale without Plants [%d]", sale.getYear()));
+			throw new IllegalArgumentException(String.format("Cannot import Orders for a Sale without Plants [%d]", sale.getSaleYear()));
 		}
 
 		// get Workbook from file (ensure we can read it and determine the type)
@@ -179,7 +179,7 @@ public class ImportService {
 
 	private Sale updateSaleWithImportedPlantsFromExcel(final MultipartFile file, final String plantImportsSheetName, @NotNull Sale sale)
 			throws IOException {
-		LOGGER.info("Importing Plants from file [{}] for Sale [{}]", file.getOriginalFilename(), sale.getYear());
+		LOGGER.info("Importing Plants from file [{}] for Sale [{}]", file.getOriginalFilename(), sale.getSaleYear());
 
 		// get Workbook from file (ensure we can read it and determine the type)
 		try (final Workbook workbook = WorkbookFactory.create(file.getInputStream())) {

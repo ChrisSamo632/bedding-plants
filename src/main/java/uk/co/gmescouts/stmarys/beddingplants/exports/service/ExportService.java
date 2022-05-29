@@ -294,7 +294,7 @@ public class ExportService {
 			final Map<Address, Integer> addressYears = new TreeMap<>(); // sort using the Address#compareTo definition
 			final Set<Sale> sales = salesService.findAllSales();
 			for (final Sale sale : sales) {
-				final int saleYear = sale.getYear();
+				final int saleYear = sale.getSaleYear();
 				for (final Customer customer : sale.getCustomers()) {
 					final Address address = customer.getAddress();
 					if (address != null && (!addressYears.containsKey(address) || addressYears.get(address) < saleYear)) {
@@ -375,9 +375,9 @@ public class ExportService {
 		// get Addresses for specified Sale Year/OrderType
 		Set<Address> addresses;
 		if (orderType != null) {
-			addresses = addressRepository.findAddressByCustomersSaleYearAndCustomersOrdersType(saleYear, orderType);
+			addresses = addressRepository.findAddressByCustomersSaleSaleYearAndCustomersOrdersType(saleYear, orderType);
 		} else {
-			addresses = addressRepository.findAddressByCustomersSaleYear(saleYear);
+			addresses = addressRepository.findAddressByCustomersSaleSaleYear(saleYear);
 		}
 		LOGGER.debug("[{}] Sale Addresses", CollectionUtils.size(addresses));
 

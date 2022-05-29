@@ -8,7 +8,7 @@ import java.util.Set;
 
 public interface CustomerRepository extends JpaRepository<Customer, String> {
 	@OrderBy("surname, forename")
-	Set<Customer> findBySaleYear(Integer saleYear);
+	Set<Customer> findBySaleSaleYear(Integer saleSaleYear);
 
 	Customer findByEmailAddress(Integer emailAddress);
 }

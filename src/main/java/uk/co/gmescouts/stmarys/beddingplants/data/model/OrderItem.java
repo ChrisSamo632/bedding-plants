@@ -32,7 +32,7 @@ public class OrderItem implements PlantSummary {
 	@Id
 	public Long getId() {
 		// key on the Sale year, Order num and Plant num
-		return Long.valueOf(String.format("%d%03d%02d", order.getCustomer().getSale().getYear(), order.getNum(), plant.getNum()));
+		return Long.valueOf(String.format("%d%03d%02d", order.getCustomer().getSale().getSaleYear(), order.getNum(), plant.getNum()));
 	}
 
 	@SuppressWarnings("EmptyMethod")

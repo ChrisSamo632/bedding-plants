@@ -8,9 +8,9 @@ import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderType;
 import java.util.Set;
 
 public interface OrderRepository extends JpaRepository<Order, Long> {
-	Order findByNumAndCustomerSaleYear(Integer num, Integer customerSaleYear);
+	Order findByNumAndCustomerSaleSaleYear(Integer num, Integer customerSaleSaleYear);
 
-	Set<Order> findByTypeAndCustomerSaleYear(OrderType type, Integer customerSaleYear, Sort sort);
+	Set<Order> findByTypeAndCustomerSaleSaleYear(OrderType type, Integer customerSaleSaleYear, Sort sort);
 
-	Set<Order> findByCustomerSaleYear(Integer customerSaleYear, Sort sort);
+	Set<Order> findByCustomerSaleSaleYear(Integer customerSaleSaleYear, Sort sort);
 }

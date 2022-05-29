@@ -26,9 +26,9 @@ public class OrdersService {
 		final Sort sort = calculateSort(sorts, Sort.by(Sort.Direction.ASC, "num"));
 		Set<Order> orders;
 		if (orderType == null) {
-			orders = orderRepository.findByCustomerSaleYear(saleYear, sort);
+			orders = orderRepository.findByCustomerSaleSaleYear(saleYear, sort);
 		} else {
-			orders = orderRepository.findByTypeAndCustomerSaleYear(orderType, saleYear, sort);
+			orders = orderRepository.findByTypeAndCustomerSaleSaleYear(orderType, saleYear, sort);
 		}
 
 		return orders;
@@ -37,14 +37,14 @@ public class OrdersService {
 	public Order findOrderByNumAndSaleYear(@NotNull final Integer orderNumber, @NotNull final Integer saleYear) {
 		LOGGER.info("Finding Order [{}] for Sale [{}]", orderNumber, saleYear);
 
-		return orderRepository.findByNumAndCustomerSaleYear(orderNumber, saleYear);
+		return orderRepository.findByNumAndCustomerSaleSaleYear(orderNumber, saleYear);
 	}
 
 	public Boolean deleteSaleOrder(@NotNull final Integer orderNumber, @NotNull final Integer year) {
 		LOGGER.info("Deleting Order [{}] from Sale [{}]", orderNumber, year);
 
 		// first check if there is a matching Order
-		final Order order = orderRepository.findByNumAndCustomerSaleYear(orderNumber, year);
+		final Order order = orderRepository.findByNumAndCustomerSaleSaleYear(orderNumber, year);
 
 		// delete it
 		boolean deleted = false;

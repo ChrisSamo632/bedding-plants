@@ -31,7 +31,7 @@ public class Plant {
 	@Id
 	public Long getId() {
 		// key on the Sale year and Plant num
-		return Long.valueOf(String.format("%d%02d", sale.getYear(), this.num));
+		return Long.valueOf(String.format("%d%02d", sale.getSaleYear(), this.num));
 	}
 
 	@SuppressWarnings("EmptyMethod")

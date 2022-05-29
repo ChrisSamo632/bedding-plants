@@ -7,8 +7,8 @@ import javax.persistence.OrderBy;
 import java.util.Set;
 
 public interface PlantRepository extends JpaRepository<Plant, Long> {
-	Plant findByNumAndSaleYear(Integer num, Integer saleYear);
+	Plant findByNumAndSaleSaleYear(Integer num, Integer saleSaleYear);
 
 	@OrderBy("num")
-	Set<Plant> findBySaleYear(Integer saleYear);
+	Set<Plant> findBySaleSaleYear(Integer saleSaleYear);
 }

@@ -9,8 +9,8 @@ import java.util.Set;
 
 public interface AddressRepository extends JpaRepository<Address, String> {
 	@OrderBy("city, town, street, houseNameNumber")
-	Set<Address> findAddressByCustomersSaleYear(Integer customersSaleYear);
+	Set<Address> findAddressByCustomersSaleSaleYear(Integer customersSaleSaleYear);
 
 	@OrderBy("city, town, street, houseNameNumber")
-	Set<Address> findAddressByCustomersSaleYearAndCustomersOrdersType(Integer customersSaleYear, OrderType customersOrdersType);
+	Set<Address> findAddressByCustomersSaleSaleYearAndCustomersOrdersType(Integer customersSaleSaleYear, OrderType customersOrdersType);
 }

@@ -20,20 +20,20 @@ public class PlantsService {
 	public Set<Plant> getSalePlants(@NotNull final Integer saleYear) {
 		LOGGER.info("Get Plants for Sale [{}]", saleYear);
 
-		return plantRepository.findBySaleYear(saleYear);
+		return plantRepository.findBySaleSaleYear(saleYear);
 	}
 
 	public Plant findPlantByNumAndSaleYear(@NotNull final Integer plantNumber, @NotNull final Integer saleYear) {
 		LOGGER.info("Finding Plant [{}] for Sale [{}]", plantNumber, saleYear);
 
-		return plantRepository.findByNumAndSaleYear(plantNumber, saleYear);
+		return plantRepository.findByNumAndSaleSaleYear(plantNumber, saleYear);
 	}
 
 	public Boolean deleteSalePlant(@NotNull final Integer plantNumber, @NotNull final Integer year) {
 		LOGGER.info("Deleting Plant [{}] from Sale [{}]", plantNumber, year);
 
 		// first check if there is a matching Plant
-		final Plant plant = plantRepository.findByNumAndSaleYear(plantNumber, year);
+		final Plant plant = plantRepository.findByNumAndSaleSaleYear(plantNumber, year);
 
 		// delete it
 		boolean deleted = false;

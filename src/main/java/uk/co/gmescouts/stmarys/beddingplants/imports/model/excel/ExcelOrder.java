@@ -2,7 +2,6 @@ package uk.co.gmescouts.stmarys.beddingplants.imports.model.excel;
 
 import com.poiji.annotation.ExcelCellName;
 import com.poiji.annotation.ExcelRow;
-import com.poiji.annotation.ExcelUnknownCells;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 
@@ -157,6 +156,12 @@ public class ExcelOrder {
 
 	@ExcelCellName(value = "Discount", mandatory = false)
 	private String discount;
+
+	@ExcelCellName(value = "Payment Type", mandatory = false)
+	private String paymentType;
+
+	@ExcelCellName(value = "Payment Notes", mandatory = false)
+	private String paymentNotes;
 
 	public boolean isValid() {
 		return StringUtils.isNotBlank(orderNumber);

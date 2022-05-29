@@ -19,11 +19,9 @@ import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -44,7 +42,7 @@ public class DeliveriesService {
 	private OrderRepository orderRepository;
 
 	public Set<DeliveryRoute> getDeliveryRoutesBySaleYear(@NotNull final Integer saleYear) {
-		return deliveryRouteRepository.findDeliveryRouteBySaleYear(saleYear);
+		return deliveryRouteRepository.findDeliveryRouteBySaleSaleYear(saleYear);
 	}
 
 	public Set<DeliveryRoute> calculateDeliveryRoutes(@NotNull final Integer saleYear) {
@@ -108,16 +106,16 @@ public class DeliveriesService {
 	private DeliveryRoute createDeliveryRouteFromOrders(@NotNull final long routeNumber, @NotNull final Sale sale, @NotNull final Set<Order> orders) {
 		return DeliveryRoute.builder()
 				.num(routeNumber)
-				.day(orders.stream().findFirst().orElseThrow(() -> new IllegalArgumentException("Orders cannot be empty")).getDeliveryDay())
+				.deliveryDay(orders.stream().findFirst().orElseThrow(() -> new IllegalArgumentException("Orders cannot be empty")).getDeliveryDay())
 				.sale(sale)
 				.orders(orders)
 				.build();
 	}
 
 	public DeliveryRoute getOrCreateDeliveryRoute(@NotNull final long routeNumber, @NotNull final DeliveryDay deliveryDay, @NotNull final Sale sale) {
-		DeliveryRoute deliveryRoute = deliveryRouteRepository.findDeliveryRouteBySaleYearAndNum(sale.getYear(), routeNumber);
+		DeliveryRoute deliveryRoute = deliveryRouteRepository.findDeliveryRouteBySaleSaleYearAndNum(sale.getSaleYear(), routeNumber);
 		if (deliveryRoute == null) {
-			deliveryRoute = DeliveryRoute.builder().sale(sale).num(routeNumber).day(deliveryDay).build();
+			deliveryRoute = DeliveryRoute.builder().sale(sale).num(routeNumber).deliveryDay(deliveryDay).build();
 			deliveryRouteRepository.save(deliveryRoute);
 		}
 		return deliveryRoute;

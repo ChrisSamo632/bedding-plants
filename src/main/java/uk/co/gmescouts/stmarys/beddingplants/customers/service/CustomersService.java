@@ -22,7 +22,7 @@ public class CustomersService {
 	public Set<Customer> findCustomersBySaleYear(@NotNull final Integer saleYear) {
 		LOGGER.info("Finding Customers for Sale [{}]", saleYear);
 
-		return customerRepository.findBySaleYear(saleYear);
+		return customerRepository.findBySaleSaleYear(saleYear);
 	}
 
 	public CustomerSummary summariseCustomer(@NotNull final Customer customer) {

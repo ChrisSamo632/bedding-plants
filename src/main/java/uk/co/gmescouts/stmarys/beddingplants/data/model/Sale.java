@@ -32,7 +32,7 @@ public class Sale {
 	@NotNull
 	@Id
 	@Column(unique = true)
-	private Integer year;
+	private Integer saleYear;
 
 	@NonNull
 	@Min(0)

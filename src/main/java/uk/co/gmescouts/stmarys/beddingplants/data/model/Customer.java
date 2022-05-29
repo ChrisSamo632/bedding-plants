@@ -36,7 +36,7 @@ public class Customer {
 	@JsonIgnore
 	@Id
 	public String getId() {
-		return String.format("%s-%04d", this.getName().toUpperCase(), sale.getYear());
+		return String.format("%s-%04d", this.getName().toUpperCase(), sale.getSaleYear());
 	}
 
 	@SuppressWarnings("EmptyMethod")

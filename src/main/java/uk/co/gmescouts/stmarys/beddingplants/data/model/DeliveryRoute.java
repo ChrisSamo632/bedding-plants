@@ -40,7 +40,7 @@ public class DeliveryRoute implements PlantSummary {
 	@Id
 	public Long getId() {
 		// key on the Sale year and DeliveryRoute num
-		return Long.valueOf(String.format("%04d%03d", sale.getYear(), this.num));
+		return Long.valueOf(String.format("%04d%03d", sale.getSaleYear(), this.num));
 	}
 
 	@SuppressWarnings("EmptyMethod")
@@ -79,7 +79,7 @@ public class DeliveryRoute implements PlantSummary {
 	@NonNull
 	@NotNull
 	@Enumerated(EnumType.STRING)
-	private DeliveryDay day;
+	private DeliveryDay deliveryDay;
 
 	@JsonIgnore
 	@Access(AccessType.FIELD)

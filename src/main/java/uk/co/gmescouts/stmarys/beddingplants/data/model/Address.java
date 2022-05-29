@@ -14,6 +14,7 @@ import org.apache.commons.lang3.builder.CompareToBuilder;
 import javax.persistence.Access;
 import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -122,6 +123,7 @@ public class Address implements Comparable<Address> {
 	@OneToMany(cascade = { CascadeType.ALL }, mappedBy = "address")
 	private Set<Customer> customers = new HashSet<>(); // FIXME: new TreeSet<>(Comparator.comparing(Customer::getForename));
 
+	@Embedded
 	private Geolocation geolocation;
 
 	public void addCustomer(final Customer customer) {

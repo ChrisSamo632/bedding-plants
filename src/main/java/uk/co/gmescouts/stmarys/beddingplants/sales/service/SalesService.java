@@ -24,7 +24,7 @@ public class SalesService {
 	private SaleRepository saleRepository;
 
 	public Sale saveSale(final Sale sale) {
-		LOGGER.info("Saving Sale [{}]", sale.getYear());
+		LOGGER.info("Saving Sale [{}]", sale.getSaleYear());
 
 		return saleRepository.save(sale);
 	}
@@ -33,7 +33,7 @@ public class SalesService {
 		LOGGER.info("Deleting Sale [{}]", year);
 
 		// first check if there is a matching Sale
-		final Sale sale = saleRepository.findByYear(year);
+		final Sale sale = saleRepository.findBySaleYear(year);
 
 		// delete it
 		boolean deleted = false;
@@ -48,7 +48,7 @@ public class SalesService {
 	public Sale findSaleByYear(@NotNull final Integer year) {
 		LOGGER.info("Finding Sale by Year [{}]", year);
 
-		return saleRepository.findByYear(year);
+		return saleRepository.findBySaleYear(year);
 	}
 
 	public Set<Sale> findAllSales() {
@@ -73,7 +73,7 @@ public class SalesService {
 				sale.getCustomers().stream().map(Customer::getOrders).mapToDouble(OrdersService::calculateOrdersIncomeTotal).sum() * 100.0) / 100.0;
 		final int orderPlantTotal = sale.getCustomers().stream().map(Customer::getOrders).flatMapToInt(orders -> orders.stream().mapToInt(Order::getCount)).sum();
 
-		return SaleSummary.builder().year(sale.getYear()).vat(sale.getVat()).deliveryCharge(sale.getDeliveryCharge()).plantCount(plantCount).customerCount(customerCount)
+		return SaleSummary.builder().year(sale.getSaleYear()).vat(sale.getVat()).deliveryCharge(sale.getDeliveryCharge()).plantCount(plantCount).customerCount(customerCount)
 				.orderCount(orderCount).orderCostTotal(orderCostTotal).orderIncomeTotal(orderIncomeTotal).orderPlantTotal(orderPlantTotal).build();
 	}
 }

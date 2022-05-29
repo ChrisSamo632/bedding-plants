@@ -8,7 +8,7 @@ import java.util.Set;
 
 public interface DeliveryRouteRepository extends JpaRepository<DeliveryRoute, Long> {
 	@OrderBy("num")
-	Set<DeliveryRoute> findDeliveryRouteBySaleYear(Integer saleYear);
+	Set<DeliveryRoute> findDeliveryRouteBySaleSaleYear(Integer saleSaleYear);
 
-	DeliveryRoute findDeliveryRouteBySaleYearAndNum(Integer saleYear, Long num);
+	DeliveryRoute findDeliveryRouteBySaleSaleYearAndNum(Integer saleSaleYear, Long num);
 }
