@@ -403,7 +403,7 @@
 		<repository>
 			<id>maven-central</id>
 			<name>maven-central</name>
-			<url>http://central.maven.org/maven2/</url>
+			<url>https://central.maven.org/maven2/</url>
 		</repository>
 		<repository>
 			<id>sonatype-releases</id>
@@ -413,12 +413,12 @@
 		<repository>
 			<id>spring-plugins</id>
 			<name>spring-plugins</name>
-			<url>http://repo.spring.io/plugins-release/</url>
+			<url>https://repo.spring.io/plugins-release/</url>
 		</repository>
 		<repository>
 			<id>spring-milestones</id>
 			<name>spring-milestones</name>
-			<url>http://repo.spring.io/libs-milestone/</url>
+			<url>https://repo.spring.io/libs-milestone/</url>
 		</repository>
 		<repository>
 			<id>apache-releases</id>
