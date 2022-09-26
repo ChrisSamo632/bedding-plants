@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.util.Set;
 
 @RestController
-@RequestMapping(value = "/export")
+@RequestMapping("/export")
 class Export {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Export.class);
 
@@ -63,8 +63,9 @@ class Export {
 																		   @RequestParam(required = false) final OrderType orderType,
 																		   @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,deliveryRoute.num:ASC,collectionHour:ASC,num:ASC") final String sorts)
 			throws IOException {
-
-		LOGGER.info("Exporting (PDF) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Exporting (PDF) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+		}
 
 		// get the PDF content
 		final byte[] pdf = exportService.exportSaleCustomersToPdf(saleYear, orderType, sorts);
@@ -82,8 +83,9 @@ class Export {
 																		   @RequestParam(required = false) final OrderType orderType,
 																		   @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,collectionHour:ASC,num:ASC") final String sorts)
 			throws IOException {
-
-		LOGGER.info("Exporting (CSV) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Exporting (CSV) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+		}
 
 		// get the CSV content
 		final byte[] csv = exportService.exportSaleCustomersToCsv(saleYear, orderType, sorts);
@@ -101,8 +103,9 @@ class Export {
 																		     @RequestParam(required = false) final OrderType orderType,
 																		     @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,collectionHour:ASC,num:ASC") final String sorts)
 			throws IOException {
-
-		LOGGER.info("Exporting (CSV) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Exporting (CSV) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+		}
 
 		// get the CSV content
 		final byte[] csv = exportService.exportSaleCustomerPaymentsToCsv(saleYear, orderType, sorts);
@@ -119,7 +122,9 @@ class Export {
 	public Set<Address> exportSaleAddressesAsJson(@PathVariable final Integer saleYear,
 												  @RequestParam(required = false) final OrderType orderType,
 												  @RequestParam(required = false, defaultValue = "false") final boolean geolocatedOnly) {
-		LOGGER.info("Exporting (JSON); Addresses for Sale [{}] with Order Type [{}] and Geolocated [{}]", saleYear, orderType, geolocatedOnly);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Exporting (JSON); Addresses for Sale [{}] with Order Type [{}] and Geolocated [{}]", saleYear, orderType, geolocatedOnly);
+		}
 
 		// get the Addresses
 		return exportService.getSaleAddresses(saleYear, orderType, geolocatedOnly);
@@ -127,7 +132,9 @@ class Export {
 
 	@GetMapping(EXPORT_CUSTOMER_ADDRESSES)
 	public ResponseEntity<ByteArrayResource> exportAddresses() throws IOException {
-		LOGGER.info("Exporting (CSV); Addresses with last Sale Year");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Exporting (CSV); Addresses with last Sale Year");
+		}
 
 		// get the Addresses
 		final byte[] csv = exportService.exportAddressesToCsv();
@@ -147,8 +154,9 @@ class Export {
 																		@RequestParam(defaultValue = "PNG") final MapImageFormat mapImageFormat,
 																		@RequestParam(defaultValue = "ROADMAP") final MapType mapType)
 			throws ApiException, InterruptedException, IOException {
-
-		LOGGER.info("Exporting (IMG); Addresses for Sale [{}] with Order Type [{}]", saleYear, orderType);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Exporting (IMG); Addresses for Sale [{}] with Order Type [{}]", saleYear, orderType);
+		}
 
 		// get the image
 		final byte[] mapImg = exportService.exportGeolocatedSaleAddressesToImage(saleYear, orderType, mapImageFormat, mapType);
@@ -159,7 +167,7 @@ class Export {
 
 		return ResponseEntity.ok()
 				.headers(getNoCacheHeaders(String.format("attachment; filename=\"map_sale_orders_%s%s.%s\"", saleYear,
-						(orderType == null ? "" : orderType), mapImageFormat.getFilenameExtension())))
+						orderType == null ? "" : orderType, mapImageFormat.getFilenameExtension())))
 				.contentLength(mapImg.length).contentType(MediaType.APPLICATION_OCTET_STREAM).body(new ByteArrayResource(mapImg));
 	}
 
@@ -167,8 +175,9 @@ class Export {
 	public ResponseEntity<ByteArrayResource> exportSaleDeliveryRoutesAsPdf(@PathVariable final Integer saleYear,
 																		   @RequestParam(defaultValue = "day:ASC,num:ASC") final String sorts)
 			throws IOException {
-
-		LOGGER.info("Exporting (PDF) Delivery Route details for Sale [{}] sorted by [{}]", saleYear, sorts);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Exporting (PDF) Delivery Route details for Sale [{}] sorted by [{}]", saleYear, sorts);
+		}
 
 		// get the PDF content
 		final byte[] pdf = exportService.exportSaleDeliveryRoutesToPdf(saleYear, sorts);

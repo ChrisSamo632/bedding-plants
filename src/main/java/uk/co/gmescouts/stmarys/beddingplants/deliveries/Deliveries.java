@@ -13,7 +13,7 @@ import javax.annotation.Resource;
 import java.util.Set;
 
 @RestController
-@RequestMapping(value = "/deliveries")
+@RequestMapping("/deliveries")
 public class Deliveries {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Deliveries.class);
 
@@ -25,7 +25,9 @@ public class Deliveries {
 
 	@GetMapping(DELIVERY_ROUTES)
 	public Set<DeliveryRoute> calculateDeliveryRoutes(@PathVariable final Integer saleYear) {
-		LOGGER.info("Calculating Delivery Routes for Sale Year [{}]", saleYear);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Calculating Delivery Routes for Sale Year [{}]", saleYear);
+		}
 
 		return deliveriesService.calculateDeliveryRoutes(saleYear);
 	}

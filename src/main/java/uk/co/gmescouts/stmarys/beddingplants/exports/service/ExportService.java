@@ -48,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -55,7 +56,7 @@ import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Service
-public class ExportService {
+public final class ExportService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(ExportService.class);
 
 	private static final Charset CSV_CHARSET = StandardCharsets.UTF_8;
@@ -105,8 +106,9 @@ public class ExportService {
 
 	public byte[] exportSaleCustomersToPdf(@NotNull final Integer saleYear, final OrderType orderType, @NotNull final String sorts)
 			throws IOException {
-
-		LOGGER.info("Exporting Customer Orders for Sale [{}] and Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Exporting Customer Orders for Sale [{}] and Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+		}
 
 		// set up the URL
 		final StringBuilder sb = new StringBuilder(100);
@@ -119,14 +121,18 @@ public class ExportService {
 	}
 
 	public byte[] exportSaleDeliveryRoutesToPdf(@NotNull final Integer saleYear, @NotNull final String sorts) throws IOException {
-		LOGGER.info("Exporting Delivery Routes for Sale [{}] sorted by [{}]", saleYear, sorts);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Exporting Delivery Routes for Sale [{}] sorted by [{}]", saleYear, sorts);
+		}
 		return executeSaleHtmlExport(saleYear, String.format("%s%s?%s", baseUri, ExportHtml.EXPORT_DELIVERY_ROUTES_HTML, "sorts=" + sorts));
 	}
 
 	private byte[] executeSaleHtmlExport(@NotNull final Integer saleYear, @NotNull final String exportHtmlUrl) throws IOException {
 		final String exportHostUrl = getExportHostUrl();
 
-		LOGGER.debug("Calling HTML Export URL [{}]", exportHtmlUrl);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Calling HTML Export URL [{}]", exportHtmlUrl);
+		}
 
 		// get the HTML via external call
 		final String html = restTemplate.getForObject(exportHostUrl + exportHtmlUrl, String.class, saleYear);
@@ -143,7 +149,7 @@ public class ExportService {
 		writerProperties.setCompressionLevel(CompressionConstants.BEST_COMPRESSION);
 
 		// converter
-		try (final ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
 			final PdfWriter pdfWriter = new PdfWriter(baos, writerProperties);
 			HtmlConverter.convertToPdf(html, pdfWriter, converterProperties);
 			pdf = baos.toByteArray();
@@ -180,8 +186,9 @@ public class ExportService {
 
 	public byte[] exportSaleCustomersToCsv(@NotNull final Integer saleYear, final OrderType orderType, @NotNull final String sorts)
 			throws IOException {
-
-		LOGGER.info("Exporting Customer Orders for Sale [{}] and Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Exporting Customer Orders for Sale [{}] and Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+		}
 
 		// get the plants
 		final Set<Plant> plants = plantsService.getSalePlants(saleYear);
@@ -197,9 +204,9 @@ public class ExportService {
 		headers.add(String.format("To Pay / %c", POUND_SIGN));
 
 		final byte[] csv;
-		try (final ByteArrayOutputStream baos = prepareCsvOutputStream();
-			 final PrintWriter pw = new PrintWriter(baos, false, CSV_CHARSET);
-			 final CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.builder().setHeader(headers.toArray(new String[0])).build())) {
+		try (ByteArrayOutputStream baos = prepareCsvOutputStream();
+			 PrintWriter pw = new PrintWriter(baos, false, CSV_CHARSET);
+			 CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.builder().setHeader(headers.toArray(new String[0])).build())) {
 
 			// get the orders
 			final Set<Order> orders = ordersService.getSaleCustomerOrders(saleYear, orderType, sorts);
@@ -212,9 +219,9 @@ public class ExportService {
 						Integer.toString(order.getNum()),
 						customer.getName(),
 						valueOrEmpty(order.getCourtesyOfName()),
-						StringUtils.capitalize(order.getType().toString().toLowerCase()),
-						StringUtils.capitalize(order.getDeliveryDay().toString().toLowerCase()),
-						order.getCollectionSlot() == null ? "" : StringUtils.capitalize(order.getCollectionSlot().toString().toLowerCase()),
+						StringUtils.capitalize(order.getType().toString().toLowerCase(Locale.ROOT)),
+						StringUtils.capitalize(order.getDeliveryDay().toString().toLowerCase(Locale.ROOT)),
+						order.getCollectionSlot() == null ? "" : StringUtils.capitalize(order.getCollectionSlot().toString().toLowerCase(Locale.ROOT)),
 						getCollectionHour(order),
 						getAddress(customer),
 						valueOrEmpty(customer.getEmailAddress()),
@@ -236,13 +243,14 @@ public class ExportService {
 
 	public byte[] exportSaleCustomerPaymentsToCsv(@NotNull final Integer saleYear, final OrderType orderType, @NotNull final String sorts)
 			throws IOException {
-
-		LOGGER.info("Exporting Customer Order Payments for Sale [{}] and Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Exporting Customer Order Payments for Sale [{}] and Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+		}
 
 		final byte[] csv;
-		try (final ByteArrayOutputStream baos = prepareCsvOutputStream();
-			 final PrintWriter pw = new PrintWriter(baos, false, CSV_CHARSET);
-			 final CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.builder().setHeader(
+		try (ByteArrayOutputStream baos = prepareCsvOutputStream();
+			 PrintWriter pw = new PrintWriter(baos, false, CSV_CHARSET);
+			 CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.builder().setHeader(
 					 "#", "Name", "c/o", "Type", "Day", "Hour / Address", "Email Address", "Telephone", "# Plants",
 					 String.format("Plant Price / %c", POUND_SIGN), String.format("Discount / %c", POUND_SIGN),
 					 String.format("Paid / %c", POUND_SIGN), String.format("To Pay / %c", POUND_SIGN)
@@ -259,8 +267,8 @@ public class ExportService {
 						Integer.toString(order.getNum()),
 						customer.getName(),
 						valueOrEmpty(order.getCourtesyOfName()),
-						StringUtils.capitalize(order.getType().toString().toLowerCase()),
-						StringUtils.capitalize(order.getDeliveryDay().toString().toLowerCase()),
+						StringUtils.capitalize(order.getType().toString().toLowerCase(Locale.ROOT)),
+						StringUtils.capitalize(order.getDeliveryDay().toString().toLowerCase(Locale.ROOT)),
 						getHourOrAddress(order, customer),
 						valueOrEmpty(customer.getEmailAddress()),
 						valueOrEmpty(customer.getTelephone()),
@@ -281,12 +289,14 @@ public class ExportService {
 	}
 
 	public byte[] exportAddressesToCsv() throws IOException {
-		LOGGER.info("Exporting Customer Addresses (for all Sales)");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Exporting Customer Addresses (for all Sales)");
+		}
 
 		final byte[] csv;
-		try (final ByteArrayOutputStream baos = prepareCsvOutputStream();
-			 final PrintWriter pw = new PrintWriter(baos, false, CSV_CHARSET);
-			 final CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.builder().setHeader(
+		try (ByteArrayOutputStream baos = prepareCsvOutputStream();
+			 PrintWriter pw = new PrintWriter(baos, false, CSV_CHARSET);
+			 CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.builder().setHeader(
 					 "House Name/Number", "Street", "Town", "City", "Postcode", "Address", "Last Order Year"
 			 ).build())) {
 
@@ -335,7 +345,9 @@ public class ExportService {
 	}
 
 	public Set<GeolocatedPoint> getGeolocatedSaleAddressesAsPoints(@NotNull final Integer saleYear, final OrderType orderType) {
-		LOGGER.info("Generating Geolocated Points from Addresses for Sale Year [{}] and Order Type [{}]", saleYear, orderType);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Generating Geolocated Points from Addresses for Sale Year [{}] and Order Type [{}]", saleYear, orderType);
+		}
 
 		final Set<Address> geolocatedAddresses = getSaleAddresses(saleYear, orderType, true);
 		LOGGER.debug("[{}] Geolocated Addresses", CollectionUtils.size(geolocatedAddresses));
@@ -344,7 +356,9 @@ public class ExportService {
 		if (geolocatedAddresses != null) {
 			// convert Addresses to GeolocatedPoints ready for plotting on the map
 			geolocatedPoints = geolocatedAddresses.stream().map(ExportService::convertAddressToGeolocatedPoint).collect(Collectors.toSet());
-			LOGGER.debug("[{}] Geolocated Points from Addresses", CollectionUtils.size(geolocatedPoints));
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("[{}] Geolocated Points from Addresses", CollectionUtils.size(geolocatedPoints));
+			}
 		}
 
 		return geolocatedPoints;
@@ -352,8 +366,10 @@ public class ExportService {
 
 	public byte[] exportGeolocatedSaleAddressesToImage(@NotNull final Integer saleYear, final OrderType orderType,
 			@NotNull final MapImageFormat mapImageFormat, @NotNull final MapType mapType) throws ApiException, InterruptedException, IOException {
-		LOGGER.info("Generating Map Image for Addresses from Sale Year [{}] and Order Type [{}] in Format [{}] with Map Type [{}]", saleYear,
-				orderType, mapImageFormat, mapType);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Generating Map Image for Addresses from Sale Year [{}] and Order Type [{}] in Format [{}] with Map Type [{}]", saleYear,
+					orderType, mapImageFormat, mapType);
+		}
 
 		// get the (geolocated) Addresses as Points
 		final Set<GeolocatedPoint> geolocatedPoints = getGeolocatedSaleAddressesAsPoints(saleYear, orderType);
@@ -363,14 +379,18 @@ public class ExportService {
 		if (CollectionUtils.isNotEmpty(geolocatedPoints)) {
 			// get the image containing the Geolocated Points
 			mapImg = geolocationService.plotPointsOnMapImage(geolocatedPoints, mapImageFormat, mapType);
-			LOGGER.debug("Generated Image size [{}]", mapImg == null ? 0 : mapImg.length);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Generated Image size [{}]", mapImg == null ? 0 : mapImg.length);
+			}
 		}
 
 		return mapImg;
 	}
 
 	public Set<Address> getSaleAddresses(@NotNull final Integer saleYear, final OrderType orderType, final boolean geolocatedOnly) {
-		LOGGER.info("Retrieving Addresses for Sale Year [{}] and Order Type [{}], Geolocated Only [{}]", saleYear, orderType, geolocatedOnly);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Retrieving Addresses for Sale Year [{}] and Order Type [{}], Geolocated Only [{}]", saleYear, orderType, geolocatedOnly);
+		}
 
 		// get Addresses for specified Sale Year/OrderType
 		Set<Address> addresses;
@@ -379,13 +399,17 @@ public class ExportService {
 		} else {
 			addresses = addressRepository.findAddressByCustomersSaleSaleYear(saleYear);
 		}
-		LOGGER.debug("[{}] Sale Addresses", CollectionUtils.size(addresses));
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("[{}] Sale Addresses", CollectionUtils.size(addresses));
+		}
 
 		// filter to geolocated addresses only if so requested
 		if (geolocatedOnly) {
 			// geolocate Address(es), if not already
 			if (CollectionUtils.isNotEmpty(addresses)) {
-				LOGGER.debug("Geolocating Sale Addresses (if not previously geolocated)");
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Geolocating Sale Addresses (if not previously geolocated)");
+				}
 				addresses.forEach(this::geolocateAddress);
 
 				// save these to the database
@@ -393,14 +417,18 @@ public class ExportService {
 			}
 
 			addresses = addresses.stream().filter(Address::isGeolocated).collect(Collectors.toSet());
-			LOGGER.debug("[{}] Geolocated Sale Addresses", CollectionUtils.size(addresses));
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("[{}] Geolocated Sale Addresses", CollectionUtils.size(addresses));
+			}
 		}
 
 		return addresses;
 	}
 
 	private static GeolocatedPoint convertAddressToGeolocatedPoint(@NotNull final Address address) {
-		LOGGER.info("Converting Address [{}] to Geolocated Point", address);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Converting Address [{}] to Geolocated Point", address);
+		}
 
 		final GeolocatedPoint geolocatedPoint = new GeolocatedPoint(address.getGeolocation().getLatitude(), address.getGeolocation().getLongitude(),
 				address.getGeolocatableAddress());
@@ -408,7 +436,9 @@ public class ExportService {
 		// determine size of the marker based on number of orders
 		// TODO: does this need restricting to specific Sale Year (as Customer may be a repeat across multiple Years)? Same for Order Types below?
 		final long numOrders = address.getCustomers().stream().mapToLong(customer -> customer.getOrders().size()).sum();
-		LOGGER.debug("Number of Orders associated with this Address [{}]", numOrders);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Number of Orders associated with this Address [{}]", numOrders);
+		}
 		if (numOrders == 1) {
 			geolocatedPoint.setMapMarkerSize(MapMarkerSize.NORMAL);
 		} else {
@@ -418,14 +448,17 @@ public class ExportService {
 		// determine colour of marker based on order type
 		final boolean delivery = address.getCustomers().stream().flatMap(customer -> customer.getOrders().stream()).map(Order::getType)
 				.anyMatch(OrderType::isDelivery);
-		LOGGER.debug("Address contains a Delivery [{}]", delivery);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Address contains a Delivery [{}]", delivery);
+		}
 		if (delivery) {
 			geolocatedPoint.setMapMarkerColour(MapMarkerColour.RED);
 		} else {
 			geolocatedPoint.setMapMarkerColour(MapMarkerColour.GREEN);
 		}
-
-		LOGGER.debug("Generated Geolocated Point [{}]", geolocatedPoint);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Generated Geolocated Point [{}]", geolocatedPoint);
+		}
 
 		return geolocatedPoint;
 	}
@@ -433,7 +466,9 @@ public class ExportService {
 	private void geolocateAddress(@NotNull final Address address) {
 		if (address.getGeolocation() == null && address.isGeolocatable()) {
 			final String geolocatableAddress = address.getGeolocatableAddress();
-			LOGGER.debug("Geolocatable Address [{}]", geolocatableAddress);
+			if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("Geolocatable Address [{}]", geolocatableAddress);
+			}
 
 			final Geolocation geolocation = geolocationService.geolocateGeolocatableAddress(geolocatableAddress);
 			if (geolocation != null && StringUtils.isNoneBlank(geolocation.getFormattedAddress())) {

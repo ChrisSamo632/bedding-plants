@@ -21,6 +21,7 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import java.util.Comparator;
+import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -29,14 +30,13 @@ import java.util.TreeSet;
 @Data
 @Builder
 @EqualsAndHashCode(of = { "forename", "surname", "sale" })
-@ToString(exclude = { "sale" })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Customer {
 	@JsonIgnore
 	@Id
 	public String getId() {
-		return String.format("%s-%04d", this.getName().toUpperCase(), sale.getSaleYear());
+		return String.format("%s-%04d", this.getName().toUpperCase(Locale.ROOT), sale.getSaleYear());
 	}
 
 	@SuppressWarnings("EmptyMethod")
@@ -77,6 +77,7 @@ public class Customer {
 	@Access(AccessType.FIELD)
 	@OrderBy("num")
 	@OneToMany(cascade = { CascadeType.ALL }, mappedBy = "customer")
+	@ToString.Exclude
 	private Set<Order> orders = new TreeSet<>(Comparator.comparingInt(Order::getNum));
 
 	public void addOrder(final Order order) {

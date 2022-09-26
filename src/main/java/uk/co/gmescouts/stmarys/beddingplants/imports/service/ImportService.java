@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -60,6 +61,7 @@ public class ImportService {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(ImportService.class);
 
+	private static final String GROVE = " Grove";
 	private static final Map<String, String> ADDRESS_CONTRACTIONS;
 	static {
 		final Map<String, String> contractions = new HashMap<>(15, 1);
@@ -72,8 +74,6 @@ public class ImportService {
 		contractions.put(" cl", " Close");
 		contractions.put(" ln", " Lane");
 		contractions.put(" terr", " Terrace");
-
-		final String GROVE = " Grove";
 
 		contractions.put(" gv", GROVE);
 		contractions.put(" grv", GROVE);
@@ -88,7 +88,9 @@ public class ImportService {
 
 	public Sale importSaleFromExcelFile(final MultipartFile file, final Integer saleYear, final Double vat, final Double deliveryCharge,
 										final String orderImportsSheetName, final String plantImportsSheetName) throws IOException {
-		LOGGER.info("Importing Sale from file [{}] for Order Year [{}] with VAT [{}] and Delivery Charge [{}]", file.getOriginalFilename(), saleYear, vat, deliveryCharge);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Importing Sale from file [{}] for Order Year [{}] with VAT [{}] and Delivery Charge [{}]", file.getOriginalFilename(), saleYear, vat, deliveryCharge);
+		}
 
 		// check for existing Sale for the specified year
 		Sale sale = salesService.findSaleByYear(saleYear);
@@ -126,7 +128,9 @@ public class ImportService {
 
 	private Sale updateSaleWithImportedCustomersFromExcel(final MultipartFile file, final String orderImportsSheetName, @NotNull final Sale sale)
 			throws IOException {
-		LOGGER.info("Importing Orders from file [{}] for Sale [{}]", file.getOriginalFilename(), sale.getSaleYear());
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Importing Orders from file [{}] for Sale [{}]", file.getOriginalFilename(), sale.getSaleYear());
+		}
 
 		// check the Sale contains some Plants
 		final Set<Plant> plants = sale.getPlants();
@@ -135,7 +139,7 @@ public class ImportService {
 		}
 
 		// get Workbook from file (ensure we can read it and determine the type)
-		try (final Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+		try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
 
 			// Order Imports
 			final List<ExcelOrder> importedOrders = readDataFromExcelFile(file.getInputStream(), workbook,
@@ -146,9 +150,10 @@ public class ImportService {
 			IMPORTED_ADDRESS_CACHE.clear();
 
 			// convert to Orders
-			final List<Customer> customerOrders = importedOrders.stream().filter(ExcelOrder::isValid).map(order -> createCustomer(order, sale, plants))
-					.collect(Collectors.toList());
-			LOGGER.info("Imported [{}] valid Customer Orders", customerOrders.size());
+			final List<Customer> customerOrders = importedOrders.stream().filter(ExcelOrder::isValid).map(order -> createCustomer(order, sale, plants)).toList();
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("Imported [{}] valid Customer Orders", customerOrders.size());
+			}
 
 			// merge duplicate Customers and aggregate Orders
 			final Set<Customer> customers = new HashSet<>();
@@ -165,7 +170,9 @@ public class ImportService {
 					customers.add(customerOrder);
 				}
 			});
-			LOGGER.info("Imported [{}] de-duplicated Customers", customers.size());
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("Imported [{}] de-duplicated Customers", customers.size());
+			}
 
 			// TODO is the "JPA way" to save the Customers (and the Plants) separately and then "refresh" the Sale instead?
 			// add Customer to Sale
@@ -179,17 +186,21 @@ public class ImportService {
 
 	private Sale updateSaleWithImportedPlantsFromExcel(final MultipartFile file, final String plantImportsSheetName, @NotNull Sale sale)
 			throws IOException {
-		LOGGER.info("Importing Plants from file [{}] for Sale [{}]", file.getOriginalFilename(), sale.getSaleYear());
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Importing Plants from file [{}] for Sale [{}]", file.getOriginalFilename(), sale.getSaleYear());
+		}
 
 		// get Workbook from file (ensure we can read it and determine the type)
-		try (final Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+		try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
 			// Plant Imports
 			final List<ExcelPlant> importedPlants = readDataFromExcelFile(file.getInputStream(), workbook,
 					StringUtils.defaultIfBlank(plantImportsSheetName, importConfiguration.getPlantImportsName()), ExcelPlant.class);
 
 			// convert to Plants
 			final Set<Plant> plants = importedPlants.stream().filter(ExcelPlant::isValid).map(this::createPlant).collect(Collectors.toSet());
-			LOGGER.info("Imported [{}] valid Plants", plants.size());
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("Imported [{}] valid Plants", plants.size());
+			}
 
 			// add to Sale
 			plants.forEach(sale::addPlant);
@@ -203,7 +214,9 @@ public class ImportService {
 	}
 
 	private Plant createPlant(final ExcelPlant excelPlant) {
-		LOGGER.trace("Convert imported Plant: [{}]", excelPlant);
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("Convert imported Plant: [{}]", excelPlant);
+		}
 
 		final Double price = StringUtils.isNotBlank(excelPlant.getPrice()) ? Double.parseDouble(excelPlant.getPrice().replaceFirst("£", "")) : 0d;
 		final Double cost = StringUtils.isNotBlank(excelPlant.getCost()) ? Double.parseDouble(excelPlant.getCost().replaceFirst("£", "")) : 0d;
@@ -213,7 +226,9 @@ public class ImportService {
 	}
 
 	private Customer createCustomer(final ExcelOrder excelOrder, final Sale sale, final Set<Plant> plants) {
-		LOGGER.trace("Convert imported Order: [{}]", excelOrder);
+		if (LOGGER.isTraceEnabled()) {
+			LOGGER.trace("Convert imported Order: [{}]", excelOrder);
+		}
 
 		// create Customer (without Address)
 		final Customer customer = Customer.builder().forename(excelOrder.getForename()).surname(excelOrder.getSurname())
@@ -251,7 +266,7 @@ public class ImportService {
 		// create Order (without Customer or OrderItems)
 		final Order order = Order.builder()
 				.num(Integer.valueOf(excelOrder.getOrderNumber()))
-				.type(OrderType.valueOf(excelOrder.getCollectDeliver().toUpperCase().charAt(0)))
+				.type(OrderType.valueOf(excelOrder.getCollectDeliver().toUpperCase(Locale.ROOT).charAt(0)))
 				.deliveryDay(deliveryDay)
 				.deliveryRoute(deliveryRoute)
 				.collectionSlot(collectionSlot)
@@ -320,7 +335,7 @@ public class ImportService {
 		if (StringUtils.isNotBlank(excelOrder.getStreet())) {
 			street = ADDRESS_CONTRACTIONS.entrySet().stream()
 					// find if any contractions match the end of the imported street
-					.filter(contraction -> excelOrder.getStreet().toLowerCase().endsWith(contraction.getKey()))
+					.filter(contraction -> excelOrder.getStreet().toLowerCase(Locale.ROOT).endsWith(contraction.getKey()))
 					// replace the contraction with the full street ending
 					.map(contraction -> excelOrder.getStreet().replaceFirst(String.format("%s$", contraction.getKey()), contraction.getValue()))
 					// there can be only one (or none, in which case stick with the original value)...
@@ -343,10 +358,7 @@ public class ImportService {
 			address.setCity(StringUtils.defaultIfEmpty(excelOrder.getCity(), importConfiguration.getDefaultCity()));
 
 			// store Address (if new) for later re-use
-			if (!IMPORTED_ADDRESS_CACHE.containsKey(address)) {
-				IMPORTED_ADDRESS_CACHE.put(address, address);
-			}
-
+			IMPORTED_ADDRESS_CACHE.putIfAbsent(address, address);
 			return IMPORTED_ADDRESS_CACHE.get(address);
 		}
 
@@ -423,7 +435,9 @@ public class ImportService {
 
 		// read the data from the file
 		final List<T> data = Poiji.fromExcel(inputStream, excelType, dataType, poijiOptionsBuilder.sheetIndex(index).build());
-		LOGGER.info("Read [{}] records of type [{}]", data.size(), dataType.getSimpleName());
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Read [{}] records of type [{}]", data.size(), dataType.getSimpleName());
+		}
 
 		// normalise all fields for each imported datum
 		data.forEach(this::normaliseImportedFields);
@@ -439,7 +453,9 @@ public class ImportService {
 			case EXCEL2007 -> PoijiExcelType.XLSX;
 			case EXCEL97 -> PoijiExcelType.XLS;
 		};
-		LOGGER.debug("Workbook POI Excel Type [{}]", poijiExcelType);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Workbook POI Excel Type [{}]", poijiExcelType);
+		}
 
 		return poijiExcelType;
 	}
@@ -450,7 +466,9 @@ public class ImportService {
 		if (index < 0) {
 			throw new IllegalStateException(String.format("Cannot locate worksheet with name %s", name));
 		}
-		LOGGER.debug("Worksheet [{}] Index [{}]", name, index);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Worksheet [{}] Index [{}]", name, index);
+		}
 
 		return index;
 	}

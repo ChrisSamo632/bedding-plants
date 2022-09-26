@@ -24,7 +24,6 @@ import javax.validation.constraints.NotNull;
 @Data
 @Builder
 @EqualsAndHashCode(exclude = { "count" })
-@ToString(exclude = { "order" })
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderItem implements PlantSummary {
@@ -61,6 +60,7 @@ public class OrderItem implements PlantSummary {
 	@JsonIgnore
 	@Access(AccessType.FIELD)
 	@ManyToOne
+	@ToString.Exclude
 	private Order order;
 
 	@NonNull

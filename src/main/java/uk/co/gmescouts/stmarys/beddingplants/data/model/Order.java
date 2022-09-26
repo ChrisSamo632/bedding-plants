@@ -33,7 +33,6 @@ import java.util.TreeSet;
 @Data
 @Builder
 @EqualsAndHashCode(of = { "customer", "num" })
-@ToString(exclude = { "customer", "deliveryRoute" })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order implements PlantSummary {
@@ -183,6 +182,7 @@ public class Order implements PlantSummary {
 	@OrderBy("plant")
 	@Access(AccessType.FIELD)
 	@OneToMany(cascade = { CascadeType.ALL }, mappedBy = "order")
+	@ToString.Exclude
 	private Set<OrderItem> orderItems = new TreeSet<>(Comparator.comparingInt(oi -> oi.getPlant().getNum()));
 
 	public void addOrderItem(final OrderItem orderItem) {

@@ -14,7 +14,7 @@ import uk.co.gmescouts.stmarys.beddingplants.plants.service.PlantsService;
 import javax.annotation.Resource;
 
 @RestController
-@RequestMapping(value = "/plant")
+@RequestMapping("/plant")
 class Plants {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Plants.class);
 
@@ -23,22 +23,30 @@ class Plants {
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public Plant getPlantDetail(@RequestParam final Integer year, @RequestParam final Integer plantNumber) {
-		LOGGER.info("Finding details for Plant [{}] from Sale year [{}]", plantNumber, year);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Finding details for Plant [{}] from Sale year [{}]", plantNumber, year);
+		}
 
 		final Plant plant = plantsService.findPlantByNumAndSaleYear(plantNumber, year);
 
-		LOGGER.debug("Plant: [{}]", plant);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Plant: [{}]", plant);
+		}
 
 		return plant;
 	}
 
 	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public Boolean deletePlant(@RequestParam final Integer plantNumber, @RequestParam final Integer year) {
-		LOGGER.info("Deleting Plant [{}] from Sale [{}]", plantNumber, year);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Deleting Plant [{}] from Sale [{}]", plantNumber, year);
+		}
 
 		final boolean deleted = plantsService.deleteSalePlant(plantNumber, year);
 
-		LOGGER.debug("Plant [{}] from Sale [{}] deleted [{}]", plantNumber, year, deleted);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Plant [{}] from Sale [{}] deleted [{}]", plantNumber, year, deleted);
+		}
 
 		return deleted;
 	}
