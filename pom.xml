@@ -136,7 +136,7 @@
 		<!-- TODO: enable OAuth2 security:
 			* for Spring Boot - https://www.baeldung.com/spring-boot-security-autoconfiguration
 			* for Swagger UI - https://springdoc.org/faq.html#_how_can_i_define_securityscheme
-			* for Thymeleaf -
+			* for Thymeleaf - https://www.thymeleaf.org/doc/articles/springsecurity.html
 		- ->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

@@ -350,7 +350,9 @@ public final class ExportService {
 		}
 
 		final Set<Address> geolocatedAddresses = getSaleAddresses(saleYear, orderType, true);
-		LOGGER.debug("[{}] Geolocated Addresses", CollectionUtils.size(geolocatedAddresses));
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("[{}] Geolocated Addresses", CollectionUtils.size(geolocatedAddresses));
+		}
 
 		Set<GeolocatedPoint> geolocatedPoints = Collections.emptySet();
 		if (geolocatedAddresses != null) {

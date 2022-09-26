@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
-import uk.co.gmescouts.stmarys.beddingplants.orders.service.OrdersService;
 import uk.co.gmescouts.stmarys.beddingplants.sales.model.SaleSummary;
 import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
 
