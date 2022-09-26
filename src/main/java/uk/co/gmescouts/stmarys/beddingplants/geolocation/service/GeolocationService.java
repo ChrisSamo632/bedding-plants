@@ -47,7 +47,9 @@ public class GeolocationService {
 
 	public byte[] plotPointsOnMapImage(@NotNull final Set<GeolocatedPoint> points, @NotNull final MapImageFormat mapImageFormat,
 			@NotNull final MapType mapType) throws ApiException, InterruptedException, IOException {
-		LOGGER.info("Generating Google Map Image of Format [{}] and Type [{}] for [{}] Points", mapImageFormat, mapType, points.size());
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Generating Google Map Image of Format [{}] and Type [{}] for [{}] Points", mapImageFormat, mapType, points.size());
+		}
 
 		byte[] imgData = null;
 
@@ -92,7 +94,9 @@ public class GeolocationService {
 	}
 
 	public Geolocation geolocateGeolocatableAddress(@NotNull final String geolocatableAddress) {
-		LOGGER.info("Gelocating Address [{}]", geolocatableAddress);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Gelocating Address [{}]", geolocatableAddress);
+		}
 
 		final Geolocation geolocation = new Geolocation();
 		try {
@@ -117,7 +121,9 @@ public class GeolocationService {
 				}
 
 				final GeocodingResult selectedResult = result.get();
-				LOGGER.debug("Geolocation result: [{}]", selectedResult);
+				if (LOGGER.isDebugEnabled()) {
+					LOGGER.debug("Geolocation result: [{}]", selectedResult);
+				}
 
 				// set the Geolocation on the Address, assuming something found (otherwise Address not updated)
 				if (StringUtils.isNotBlank(selectedResult.formattedAddress)) {
@@ -128,9 +134,13 @@ public class GeolocationService {
 				}
 			}
 		} catch (IllegalStateException | ApiException | IOException e) {
-			LOGGER.warn(String.format("Unable to geocode address [%s]: %s", geolocatableAddress, e.getMessage()), e);
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn(String.format("Unable to geocode address [%s]: %s", geolocatableAddress, e.getMessage()), e);
+			}
 		} catch (final InterruptedException ie) {
-			LOGGER.warn(String.format("Thread interrupted whilst geocoding address [%s]: %s", geolocatableAddress, ie.getMessage()), ie);
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn(String.format("Thread interrupted whilst geocoding address [%s]: %s", geolocatableAddress, ie.getMessage()), ie);
+			}
 			Thread.currentThread().interrupt();
 		}
 

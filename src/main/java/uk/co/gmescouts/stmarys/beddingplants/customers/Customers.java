@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "/customer")
+@RequestMapping("/customer")
 class Customers {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Customers.class);
 
@@ -25,11 +25,15 @@ class Customers {
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public Set<Customer> getCustomers(@RequestParam final Integer year) {
-		LOGGER.info("Retrieving Customers for Sale [{}]", year);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Retrieving Customers for Sale [{}]", year);
+		}
 
 		final Set<Customer> customers = customersService.findCustomersBySaleYear(year);
 
-		LOGGER.debug("Number of Customers [{}]", customers.size());
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Number of Customers [{}]", customers.size());
+		}
 
 		return customers;
 	}
@@ -37,12 +41,16 @@ class Customers {
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = "/summaries")
 	public Set<CustomerSummary> getCustomerSummaries(@RequestParam final Integer year) {
-		LOGGER.info("Retrieving Customer summaries");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Retrieving Customer summaries");
+		}
 
 		final Set<CustomerSummary> customerSummaries = customersService.findCustomersBySaleYear(year).stream()
 				.map(customersService::summariseCustomer).collect(Collectors.toSet());
 
-		LOGGER.debug("Number of Customers [{}]", customerSummaries.size());
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Number of Customers [{}]", customerSummaries.size());
+		}
 
 		return customerSummaries;
 	}

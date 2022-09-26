@@ -16,7 +16,7 @@ import uk.co.gmescouts.stmarys.beddingplants.orders.service.OrdersService;
 import javax.annotation.Resource;
 
 @RestController
-@RequestMapping(value = "/order")
+@RequestMapping("/order")
 class Orders {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Orders.class);
 
@@ -25,22 +25,30 @@ class Orders {
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public Order getOrderDetail(@RequestParam final Integer year, @RequestParam final Integer orderNumber) {
-		LOGGER.info("Finding details for Order [{}] from Sale year [{}]", orderNumber, year);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Finding details for Order [{}] from Sale year [{}]", orderNumber, year);
+		}
 
 		final Order order = ordersService.findOrderByNumAndSaleYear(orderNumber, year);
 
-		LOGGER.debug("Order: [{}]", order);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Order: [{}]", order);
+		}
 
 		return order;
 	}
 
 	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 	public Boolean deleteOrder(@RequestParam final Integer orderNumber, @RequestParam final Integer year) {
-		LOGGER.info("Deleting Order [{}] from Sale [{}]", orderNumber, year);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Deleting Order [{}] from Sale [{}]", orderNumber, year);
+		}
 
 		final boolean deleted = ordersService.deleteSaleOrder(orderNumber, year);
 
-		LOGGER.debug("Order [{}] from Sale [{}] deleted [{}]", orderNumber, year, deleted);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Order [{}] from Sale [{}] deleted [{}]", orderNumber, year, deleted);
+		}
 
 		return deleted;
 	}
@@ -48,11 +56,15 @@ class Orders {
 	@SuppressWarnings("java:S4684")
 	@PutMapping
 	public boolean updateOrder(@RequestParam final Integer orderNumber, @RequestParam final int year, @RequestBody final Order order) {
-		LOGGER.info("Updating Order [{}] from Sale [{}]", orderNumber, year);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Updating Order [{}] from Sale [{}]", orderNumber, year);
+		}
 
 		final boolean updated = ordersService.updateOrder(orderNumber, year, order);
 
-		LOGGER.debug("Order [{}] from Sale [{}] updated [{}]", orderNumber, year, updated);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Order [{}] from Sale [{}] updated [{}]", orderNumber, year, updated);
+		}
 
 		return updated;
 	}

@@ -24,13 +24,17 @@ public class SalesService {
 	private SaleRepository saleRepository;
 
 	public Sale saveSale(final Sale sale) {
-		LOGGER.info("Saving Sale [{}]", sale.getSaleYear());
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Saving Sale [{}]", sale.getSaleYear());
+		}
 
 		return saleRepository.save(sale);
 	}
 
 	public Boolean deleteSale(@NotNull final Integer year) {
-		LOGGER.info("Deleting Sale [{}]", year);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Deleting Sale [{}]", year);
+		}
 
 		// first check if there is a matching Sale
 		final Sale sale = saleRepository.findBySaleYear(year);
@@ -46,13 +50,17 @@ public class SalesService {
 	}
 
 	public Sale findSaleByYear(@NotNull final Integer year) {
-		LOGGER.info("Finding Sale by Year [{}]", year);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Finding Sale by Year [{}]", year);
+		}
 
 		return saleRepository.findBySaleYear(year);
 	}
 
 	public Set<Sale> findAllSales() {
-		LOGGER.info("Finding all Sales");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Finding all Sales");
+		}
 
 		// find and sort by Year
 		return new HashSet<>(saleRepository.findAll(Sort.by(Sort.Order.asc("year"))));

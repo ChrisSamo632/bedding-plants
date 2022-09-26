@@ -23,7 +23,6 @@ import javax.validation.constraints.NotNull;
 @Data
 @Builder
 @EqualsAndHashCode(of = { "sale", "num" })
-@ToString(exclude = { "sale" })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Plant {
@@ -42,6 +41,7 @@ public class Plant {
 	@JsonIgnore
 	@Access(AccessType.FIELD)
 	@ManyToOne
+	@ToString.Exclude
 	private Sale sale;
 
 	@NonNull

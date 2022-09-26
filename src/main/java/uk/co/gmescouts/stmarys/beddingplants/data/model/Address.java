@@ -29,7 +29,6 @@ import java.util.Set;
 @Data
 @Builder
 @EqualsAndHashCode(exclude = { "customers", "geolocation" })
-@ToString(exclude = { "customers" })
 @NoArgsConstructor
 @AllArgsConstructor
 public class Address implements Comparable<Address> {
@@ -93,7 +92,7 @@ public class Address implements Comparable<Address> {
 	@JsonIgnore
 	@Transient
 	public boolean isGeolocatable() {
-		return (StringUtils.isNotBlank(street) && StringUtils.isNotBlank(town)) || StringUtils.isNotBlank(postcode);
+		return StringUtils.isNotBlank(street) && StringUtils.isNotBlank(town) || StringUtils.isNotBlank(postcode);
 	}
 
 	/**
@@ -121,6 +120,7 @@ public class Address implements Comparable<Address> {
 	@OrderBy("surname, forename")
 	@Access(AccessType.FIELD)
 	@OneToMany(cascade = { CascadeType.ALL }, mappedBy = "address")
+	@ToString.Exclude
 	private Set<Customer> customers = new HashSet<>(); // FIXME: new TreeSet<>(Comparator.comparing(Customer::getForename));
 
 	@Embedded

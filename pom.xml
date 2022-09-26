@@ -135,8 +135,8 @@
 
 		<!-- TODO: enable OAuth2 security:
 			* for Spring Boot - https://www.baeldung.com/spring-boot-security-autoconfiguration
-			* for Swagger UI - http://springfox.github.io/springfox/docs/current/#securing-swagger-ui
-			* for Thymeleaf -
+			* for Swagger UI - https://springdoc.org/faq.html#_how_can_i_define_securityscheme
+			* for Thymeleaf - https://www.thymeleaf.org/doc/articles/springsecurity.html
 		- ->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -252,15 +252,9 @@
 
 		<!-- Swagger -->
 		<dependency>
-			<groupId>io.springfox</groupId>
-			<artifactId>springfox-boot-starter</artifactId>
-			<version>3.0.0</version>
-			<exclusions>
-				<exclusion>
-					<groupId>io.github.classgraph</groupId>
-					<artifactId>classgraph</artifactId>
-				</exclusion>
-			</exclusions>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+			<version>1.6.11</version>
 		</dependency>
 
 		<!-- Helpers -->

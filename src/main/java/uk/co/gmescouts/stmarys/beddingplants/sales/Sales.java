@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
-import uk.co.gmescouts.stmarys.beddingplants.orders.service.OrdersService;
 import uk.co.gmescouts.stmarys.beddingplants.sales.model.SaleSummary;
 import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
 
@@ -20,7 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping(value = "/sale")
+@RequestMapping("/sale")
 class Sales {
 	private static final Logger LOGGER = LoggerFactory.getLogger(Sales.class);
 
@@ -42,39 +41,48 @@ class Sales {
 	@Resource
 	private SalesService salesService;
 
-	@Resource
-	private OrdersService ordersService;
-
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = SALE_SUMMARY)
 	public Set<SaleSummary> getSaleSummary() {
-		LOGGER.info("Retrieving Sale summaries");
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Retrieving Sale summaries");
+		}
 
 		final Set<SaleSummary> saleSummaries = salesService.findAllSales().stream().map(salesService::summariseSale)
 				.sorted(Comparator.comparingInt(SaleSummary::getYear)).collect(Collectors.toCollection(LinkedHashSet::new));
 
-		LOGGER.debug("Number of Sales [{}]", saleSummaries.size());
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Number of Sales [{}]", saleSummaries.size());
+		}
 
 		return saleSummaries;
 	}
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = SALE_DETAIL)
 	public Sale getSaleDetail(@RequestParam final Integer year) {
-		LOGGER.info("Finding details for Sale year [{}]", year);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Finding details for Sale year [{}]", year);
+		}
 
 		final Sale sale = salesService.findSaleByYear(year);
 
-		LOGGER.debug("Sale: [{}]", sale);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Sale: [{}]", sale);
+		}
 
 		return sale;
 	}
 
 	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = DELETE_SALE)
 	public Boolean deleteSale(@RequestParam final Integer year) {
-		LOGGER.info("Deleting Sale [{}]", year);
+		if (LOGGER.isInfoEnabled()) {
+			LOGGER.info("Deleting Sale [{}]", year);
+		}
 
 		final boolean deleted = salesService.deleteSale(year);
 
-		LOGGER.debug("Sale [{}] deleted [{}]", year, deleted);
+		if (LOGGER.isDebugEnabled()) {
+			LOGGER.debug("Sale [{}] deleted [{}]", year, deleted);
+		}
 
 		return deleted;
 	}

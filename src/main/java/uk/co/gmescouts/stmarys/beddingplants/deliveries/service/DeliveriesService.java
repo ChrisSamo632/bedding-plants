@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 public class DeliveriesService {
 	private static final Logger LOGGER = LoggerFactory.getLogger(DeliveriesService.class);
 
+	private static final int EARTH_RADIUS = 6371; // Radius of the earth
+
 	@Resource
 	private DeliveriesConfiguration deliveriesConfiguration;
 
@@ -61,30 +63,31 @@ public class DeliveriesService {
 			// 1) combine C/O orders to be considered for a Delivery Route
 			final Set<String> coNames = deliveryOrders.stream().map(Order::getCourtesyOfName).filter(StringUtils::isNotBlank).collect(Collectors.toSet());
 			final Set<DeliveryRoute> coOrderRoutes = coNames.stream().map(cn -> createDeliveryRouteFromOrders(routeNumber.getAndIncrement(), sale, coOrders(cn, deliveryOrders))).collect(Collectors.toSet());
-			removeRoutedOrders(deliveryOrders, coOrderRoutes, sale);
+			removeRoutedOrders(deliveryOrders, coOrderRoutes);
 			deliveryRoutes.addAll(coOrderRoutes);
 
 			// 2) single (and C/O)-order Route for any with plant counts higher than configured max
 			final Set<DeliveryRoute> singleOrderRoutes = deliveryOrders.stream().filter(this::maximumPlantLimitReached)
 					.map(order -> createDeliveryRouteFromOrders(routeNumber.getAndIncrement(), sale, order)).collect(Collectors.toSet());
-			removeRoutedOrders(deliveryOrders, singleOrderRoutes, sale);
+			removeRoutedOrders(deliveryOrders, singleOrderRoutes);
 			deliveryRoutes.addAll(singleOrderRoutes);
 
 			// 3) group orders by Postcode - combine into Route where matched
 			final Set<DeliveryRoute> postcodeDeliveryRoutes = deliveryOrders.stream().collect(Collectors.groupingBy(o -> o.getCustomer().getAddress().getPostcode()))
 					.values().stream().filter(l -> l.size() > 1).map(orders -> createDeliveryRouteFromOrders(routeNumber.getAndIncrement(), sale, new HashSet<>(orders))).collect(Collectors.toSet());
-			removeRoutedOrders(deliveryOrders, postcodeDeliveryRoutes, sale);
+			removeRoutedOrders(deliveryOrders, postcodeDeliveryRoutes);
 			deliveryRoutes.addAll(postcodeDeliveryRoutes);
 
 			// 4) group orders by town & street - combine into a Route where matched
 			final Set<DeliveryRoute> streetDeliveryRoutes = deliveryOrders.stream()
 					.collect(Collectors.groupingBy(o -> new ImmutablePair<>(o.getCustomer().getAddress().getStreet(), o.getCustomer().getAddress().getTown())))
 					.values().stream().filter(l -> l.size() > 1).map(orders -> createDeliveryRouteFromOrders(routeNumber.getAndIncrement(), sale, new HashSet<>(orders))).collect(Collectors.toSet());
-			removeRoutedOrders(deliveryOrders, streetDeliveryRoutes, sale);
+			removeRoutedOrders(deliveryOrders, streetDeliveryRoutes);
 			deliveryRoutes.addAll(streetDeliveryRoutes);
 
 			// 6) iterate through remaining orders to group by distance (within configured max)
 			deliveryOrders.forEach(o -> {
+				@SuppressWarnings({"unused", "PMD.UnusedLocalVariable"})
 				final Geolocation orderGeo = o.getCustomer().getAddress().getGeolocation();
 				// TODO: find "close" Orders and group them together; do we need to change this forEach to a collect(Map) or collect(groupingBy) or something instead maybe?
 			});
@@ -121,11 +124,11 @@ public class DeliveriesService {
 		return deliveryRoute;
 	}
 
-	private void removeRoutedOrders(@NotNull final Set<Order> deliveryOrders, @NotNull final Set<DeliveryRoute> deliveryRoutes, @NotNull final Sale sale) {
-		deliveryRoutes.forEach(r -> removeRoutedOrders(deliveryOrders, r, sale));
+	private void removeRoutedOrders(@NotNull final Set<Order> deliveryOrders, @NotNull final Set<DeliveryRoute> deliveryRoutes) {
+		deliveryRoutes.forEach(r -> removeRoutedOrders(deliveryOrders, r));
 	}
 
-	private void removeRoutedOrders(@NotNull final Set<Order> deliveryOrders, @NotNull final DeliveryRoute deliveryRoute, @NotNull final Sale sale) {
+	private void removeRoutedOrders(@NotNull final Set<Order> deliveryOrders, @NotNull final DeliveryRoute deliveryRoute) {
 		deliveryOrders.removeAll(deliveryRoute.getOrders());
 		deliveryRoute.getOrders().forEach(o -> o.setDeliveryRoute(deliveryRoute));
 		orderRepository.saveAll(deliveryRoute.getOrders());
@@ -141,6 +144,7 @@ public class DeliveriesService {
 		return coOrders;
 	}
 
+	@SuppressWarnings({"unused", "PMD.UnusedPrivateMethod"})
 	private static double distance(@NotNull final Geolocation geo1, @NotNull final Geolocation geo2) {
 		return distance(geo1.getLatitude(), geo2.getLatitude(), geo1.getLongitude(), geo2.getLongitude());
 	}
@@ -162,14 +166,13 @@ public class DeliveriesService {
 	 */
 	private static double distance(final double lat1, final double lat2, final double lon1, final double lon2) {
 		// TODO: use this (approximation) for "line of sight" point distances *or* use Google Maps Distance Matrix?
-		final int R = 6371; // Radius of the earth
 
 		final double latDistance = Math.toRadians(lat2 - lat1);
 		final double lonDistance = Math.toRadians(lon2 - lon1);
 		final double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
 				+ Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
 		final double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-		double distance = R * c * 1000; // convert to meters
+		double distance = EARTH_RADIUS * c * 1000; // convert to meters
 
 		return Math.sqrt(Math.pow(distance, 2));
 	}
