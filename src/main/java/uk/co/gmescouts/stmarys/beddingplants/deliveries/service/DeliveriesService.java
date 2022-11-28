@@ -1,5 +1,7 @@
 package uk.co.gmescouts.stmarys.beddingplants.deliveries.service;
 
+import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -17,8 +19,6 @@ import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
 import uk.co.gmescouts.stmarys.beddingplants.deliveries.configuration.DeliveriesConfiguration;
 import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
 
-import javax.annotation.Resource;
-import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;

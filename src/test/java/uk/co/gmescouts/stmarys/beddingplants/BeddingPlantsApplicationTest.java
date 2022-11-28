@@ -14,10 +14,11 @@ import uk.co.gmescouts.stmarys.beddingplants.imports.configuration.ImportConfigu
 
 @SpringBootTest(properties = { "classpath:application.properties", "classpath:application-dev.properties" })
 @AutoConfigureWebClient
-@ContextConfiguration(classes = { WebMvcConfigure.class, BeddingPlantsConfiguration.class, ImportConfiguration.class, GeolocationConfiguration.class,
+@ContextConfiguration(classes = { WebMvcConfigure.class, BeddingPlantsConfiguration.class, ImportConfiguration.class,
+		GeolocationConfiguration.class,
 		ExportConfiguration.class, DeliveriesConfiguration.class })
 class BeddingPlantsApplicationTest {
-	@SuppressWarnings({"EmptyMethod", "java:S2699"})
+	@SuppressWarnings({ "EmptyMethod", "java:S2699" })
 	@Test
 	void contextLoads() {
 		// intentionally blank

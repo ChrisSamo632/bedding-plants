@@ -1,6 +1,7 @@
 package uk.co.gmescouts.stmarys.beddingplants.exports;
 
 import com.google.maps.errors.ApiException;
+import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ByteArrayResource;
@@ -19,7 +20,6 @@ import uk.co.gmescouts.stmarys.beddingplants.exports.service.ExportService;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapImageFormat;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapType;
 
-import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.Set;
 

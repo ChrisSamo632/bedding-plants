@@ -1,5 +1,6 @@
 package uk.co.gmescouts.stmarys.beddingplants.sales;
 
+import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -12,7 +13,6 @@ import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
 import uk.co.gmescouts.stmarys.beddingplants.sales.model.SaleSummary;
 import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
 
-import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -20,75 +20,75 @@ import java.util.List;
 @RestController
 @RequestMapping("/sale")
 class Sales {
-	private static final Logger LOGGER = LoggerFactory.getLogger(Sales.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Sales.class);
 
-	/*
-	 * Summaries
-	 */
-	private static final String SALE_SUMMARY = "/summary";
+    /*
+     * Summaries
+     */
+    private static final String SALE_SUMMARY = "/summary";
 
-	/*
-	 * Details
-	 */
-	private static final String SALE_DETAIL = "/detail";
+    /*
+     * Details
+     */
+    private static final String SALE_DETAIL = "/detail";
 
-	/*
-	 * Deletes
-	 */
-	private static final String DELETE_SALE = "/";
+    /*
+     * Deletes
+     */
+    private static final String DELETE_SALE = "/";
 
-	@Resource
-	private SalesService salesService;
+    @Resource
+    private SalesService salesService;
 
-	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = SALE_SUMMARY)
-	public List<SaleSummary> getSaleSummary() {
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("Retrieving Sale summaries");
-		}
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = SALE_SUMMARY)
+    public List<SaleSummary> getSaleSummary() {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Retrieving Sale summaries");
+        }
 
-		final List<Sale> sales = salesService.findAllSales();
-		final List<SaleSummary> saleSummaries;
-		if (!sales.isEmpty()) {
-			saleSummaries = sales.stream().map(salesService::summariseSale)
-					.sorted(Comparator.comparingInt(SaleSummary::getYear)).toList();
-		} else {
-			saleSummaries = Collections.emptyList();
-		}
+        final List<Sale> sales = salesService.findAllSales();
+        final List<SaleSummary> saleSummaries;
+        if (!sales.isEmpty()) {
+            saleSummaries = sales.stream().map(salesService::summariseSale)
+                    .sorted(Comparator.comparingInt(SaleSummary::getYear)).toList();
+        } else {
+            saleSummaries = Collections.emptyList();
+        }
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Number of Sales [{}]", saleSummaries.size());
-		}
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Number of Sales [{}]", saleSummaries.size());
+        }
 
-		return saleSummaries;
-	}
+        return saleSummaries;
+    }
 
-	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = SALE_DETAIL)
-	public Sale getSaleDetail(@RequestParam final Integer year) {
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("Finding details for Sale year [{}]", year);
-		}
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = SALE_DETAIL)
+    public Sale getSaleDetail(@RequestParam final Integer year) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Finding details for Sale year [{}]", year);
+        }
 
-		final Sale sale = salesService.findSaleByYear(year);
+        final Sale sale = salesService.findSaleByYear(year);
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Sale: [{}]", sale);
-		}
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Sale: [{}]", sale);
+        }
 
-		return sale;
-	}
+        return sale;
+    }
 
-	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = DELETE_SALE)
-	public Boolean deleteSale(@RequestParam final Integer year) {
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("Deleting Sale [{}]", year);
-		}
+    @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = DELETE_SALE)
+    public Boolean deleteSale(@RequestParam final Integer year) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Deleting Sale [{}]", year);
+        }
 
-		final boolean deleted = salesService.deleteSale(year);
+        final boolean deleted = salesService.deleteSale(year);
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Sale [{}] deleted [{}]", year, deleted);
-		}
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Sale [{}] deleted [{}]", year, deleted);
+        }
 
-		return deleted;
-	}
+        return deleted;
+    }
 }

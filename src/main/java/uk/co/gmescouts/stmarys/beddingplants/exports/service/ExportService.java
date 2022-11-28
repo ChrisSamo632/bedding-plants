@@ -8,6 +8,8 @@ import com.itextpdf.kernel.pdf.CompressionConstants;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
+import jakarta.annotation.Resource;
+import jakarta.validation.constraints.NotNull;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -37,8 +39,6 @@ import uk.co.gmescouts.stmarys.beddingplants.orders.service.OrdersService;
 import uk.co.gmescouts.stmarys.beddingplants.plants.service.PlantsService;
 import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
 
-import javax.annotation.Resource;
-import javax.validation.constraints.NotNull;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;

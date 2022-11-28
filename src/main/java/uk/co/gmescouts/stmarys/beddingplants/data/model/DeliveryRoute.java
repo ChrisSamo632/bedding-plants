@@ -1,6 +1,20 @@
 package uk.co.gmescouts.stmarys.beddingplants.data.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.Access;
+import jakarta.persistence.AccessType;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OrderBy;
+import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,20 +23,6 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.ToString;
 
-import javax.persistence.Access;
-import javax.persistence.AccessType;
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
@@ -31,77 +31,77 @@ import java.util.TreeSet;
 @Table(name = "deliveryRoutes")
 @Data
 @Builder
-@EqualsAndHashCode(of = { "sale", "num" })
+@EqualsAndHashCode(of = {"sale", "num"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeliveryRoute implements PlantSummary {
-	@JsonIgnore
-	@Id
-	public Long getId() {
-		// key on the Sale year and DeliveryRoute num
-		return Long.valueOf(String.format("%04d%03d", sale.getSaleYear(), this.num));
-	}
+    @JsonIgnore
+    @Id
+    public Long getId() {
+        // key on the Sale year and DeliveryRoute num
+        return Long.valueOf(String.format("%04d%03d", sale.getSaleYear(), this.num));
+    }
 
-	@SuppressWarnings("EmptyMethod")
-	public void setId(final Long id) {
-		// intentionally blank, only needed for Hibernate
-	}
+    @SuppressWarnings("EmptyMethod")
+    public void setId(final Long id) {
+        // intentionally blank, only needed for Hibernate
+    }
 
-	@Override
-	@JsonIgnore
-	@Transient
-	public Integer getCount() {
-		return this.orders.stream().mapToInt(Order::getCount).sum();
-	}
+    @Override
+    @JsonIgnore
+    @Transient
+    public Integer getCount() {
+        return this.orders.stream().mapToInt(Order::getCount).sum();
+    }
 
-	@Override
-	@JsonIgnore
-	@Transient
-	public Double getPrice() {
-		// sum of all OrderItem prices
-		return this.orders.stream().mapToDouble(Order::getPrice).sum();
-	}
+    @Override
+    @JsonIgnore
+    @Transient
+    public Double getPrice() {
+        // sum of all OrderItem prices
+        return this.orders.stream().mapToDouble(Order::getPrice).sum();
+    }
 
-	@Override
-	@JsonIgnore
-	@Transient
-	public Double getCost() {
-		// sum of all OrderItem costs
-		return this.orders.stream().mapToDouble(Order::getCost).sum();
-	}
+    @Override
+    @JsonIgnore
+    @Transient
+    public Double getCost() {
+        // sum of all OrderItem costs
+        return this.orders.stream().mapToDouble(Order::getCost).sum();
+    }
 
-	@NonNull
-	@NotNull
-	@Min(1)
-	private Long num;
+    @NonNull
+    @NotNull
+    @Min(1)
+    private Long num;
 
-	@NonNull
-	@NotNull
-	@Enumerated(EnumType.STRING)
-	private DeliveryDay deliveryDay;
+    @NonNull
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private DeliveryDay deliveryDay;
 
-	@JsonIgnore
-	@Access(AccessType.FIELD)
-	@ManyToOne
-	private Sale sale;
+    @JsonIgnore
+    @Access(AccessType.FIELD)
+    @ManyToOne
+    private Sale sale;
 
-	// TODO: store image of the DeliveryRoute points plotted on a map?
-	// private byte[] mapImage;
+    // TODO: store image of the DeliveryRoute points plotted on a map?
+    // private byte[] mapImage;
 
-	@Builder.Default
-	@OrderBy("num")
-	@Access(AccessType.FIELD)
-	@OneToMany(cascade = { CascadeType.ALL }, mappedBy = "deliveryRoute")
-	@ToString.Exclude
-	private Set<Order> orders = new TreeSet<>(Comparator.comparingInt(Order::getNum));
+    @Builder.Default
+    @OrderBy("num")
+    @Access(AccessType.FIELD)
+    @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "deliveryRoute")
+    @ToString.Exclude
+    private Set<Order> orders = new TreeSet<>(Comparator.comparingInt(Order::getNum));
 
-	public void addOrder(final Order order) {
-		if (order != null) {
-			// link DeliveryRoute to Order
-			order.setDeliveryRoute(this);
+    public void addOrder(final Order order) {
+        if (order != null) {
+            // link DeliveryRoute to Order
+            order.setDeliveryRoute(this);
 
-			// replace existing Order, if present
-			orders.add(order);
-		}
-	}
+            // replace existing Order, if present
+            orders.add(order);
+        }
+    }
 }
