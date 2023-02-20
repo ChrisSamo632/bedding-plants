@@ -170,7 +170,7 @@
 		<dependency>
 			<groupId>commons-fileupload</groupId>
 			<artifactId>commons-fileupload</artifactId>
-			<version>1.4</version>
+			<version>1.5</version>
 			<exclusions>
 				<exclusion>
 					<groupId>commons-io</groupId>
@@ -322,7 +322,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-site-plugin</artifactId>
-				<version>4.0.0-M4</version>
+				<version>4.0.0-M5</version>
 			</plugin>
 
 			<plugin>
