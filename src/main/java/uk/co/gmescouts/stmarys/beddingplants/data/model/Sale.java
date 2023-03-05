@@ -24,7 +24,7 @@ import java.util.TreeSet;
 @Table(name = "sales")
 @Data
 @Builder
-@EqualsAndHashCode(of = "year")
+@EqualsAndHashCode(of = "saleYear")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Sale {
