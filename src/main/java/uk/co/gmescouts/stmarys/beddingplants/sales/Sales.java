@@ -13,8 +13,10 @@ import uk.co.gmescouts.stmarys.beddingplants.sales.model.SaleSummary;
 import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -42,13 +44,19 @@ class Sales {
 	private SalesService salesService;
 
 	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = SALE_SUMMARY)
-	public Set<SaleSummary> getSaleSummary() {
+	public List<SaleSummary> getSaleSummary() {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("Retrieving Sale summaries");
 		}
 
-		final Set<SaleSummary> saleSummaries = salesService.findAllSales().stream().map(salesService::summariseSale)
-				.sorted(Comparator.comparingInt(SaleSummary::getYear)).collect(Collectors.toCollection(LinkedHashSet::new));
+		final List<Sale> sales = salesService.findAllSales();
+		final List<SaleSummary> saleSummaries;
+		if (!sales.isEmpty()) {
+			saleSummaries = sales.stream().map(salesService::summariseSale)
+					.sorted(Comparator.comparingInt(SaleSummary::getYear)).toList();
+		} else {
+			saleSummaries = Collections.emptyList();
+		}
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Number of Sales [{}]", saleSummaries.size());

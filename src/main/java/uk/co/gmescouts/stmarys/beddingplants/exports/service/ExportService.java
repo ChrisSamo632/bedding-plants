@@ -46,10 +46,12 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -61,7 +63,7 @@ public final class ExportService {
 
 	private static final Charset CSV_CHARSET = StandardCharsets.UTF_8;
 	private static final byte[] CSV_BOM = new byte[] {(byte) 0xEF, (byte) 0xBB, (byte) 0xBF};
-	private static final char POUND_SIGN = '\u00A3';
+	private static final char POUND_SIGN = '£';
 
 	@Resource
 	private GeolocationService geolocationService;
@@ -302,15 +304,13 @@ public final class ExportService {
 
 			// get the sales
 			final Map<Address, Integer> addressYears = new TreeMap<>(); // sort using the Address#compareTo definition
-			final Set<Sale> sales = salesService.findAllSales();
+			final List<Sale> sales = salesService.findAllSales().stream()
+					.sorted(Comparator.comparingInt(Sale::getSaleYear).reversed()).toList();
 			for (final Sale sale : sales) {
 				final int saleYear = sale.getSaleYear();
-				for (final Customer customer : sale.getCustomers()) {
-					final Address address = customer.getAddress();
-					if (address != null && (!addressYears.containsKey(address) || addressYears.get(address) < saleYear)) {
-						addressYears.put(address, saleYear);
-					}
-				}
+				sale.getCustomers().stream().filter(c -> Objects.nonNull(c.getAddress())).forEach(c ->
+						addressYears.putIfAbsent(c.getAddress(), saleYear)
+				);
 			}
 
 			// output each Address to the CSV

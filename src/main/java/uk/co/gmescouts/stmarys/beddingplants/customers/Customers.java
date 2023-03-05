@@ -12,6 +12,7 @@ import uk.co.gmescouts.stmarys.beddingplants.data.model.Customer;
 import uk.co.gmescouts.stmarys.beddingplants.sales.model.CustomerSummary;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -45,8 +46,13 @@ class Customers {
 			LOGGER.info("Retrieving Customer summaries");
 		}
 
-		final Set<CustomerSummary> customerSummaries = customersService.findCustomersBySaleYear(year).stream()
-				.map(customersService::summariseCustomer).collect(Collectors.toSet());
+		final Set<Customer> customers = customersService.findCustomersBySaleYear(year);
+		final Set<CustomerSummary> customerSummaries;
+		if (!customers.isEmpty()) {
+			customerSummaries = customers.stream().map(customersService::summariseCustomer).collect(Collectors.toSet());
+		} else {
+			customerSummaries = Collections.emptySet();
+		}
 
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("Number of Customers [{}]", customerSummaries.size());

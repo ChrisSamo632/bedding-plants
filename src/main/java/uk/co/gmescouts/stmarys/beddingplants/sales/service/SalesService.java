@@ -13,7 +13,9 @@ import uk.co.gmescouts.stmarys.beddingplants.sales.model.SaleSummary;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -57,13 +59,13 @@ public class SalesService {
 		return saleRepository.findBySaleYear(year);
 	}
 
-	public Set<Sale> findAllSales() {
+	public List<Sale> findAllSales() {
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info("Finding all Sales");
 		}
 
 		// find and sort by Year
-		return new HashSet<>(saleRepository.findAll(Sort.by(Sort.Order.asc("year"))));
+		return new ArrayList<>(saleRepository.findAll(Sort.by(Sort.Order.desc("saleYear"))));
 	}
 
 	public SaleSummary summariseSale(@NotNull final Sale sale) {

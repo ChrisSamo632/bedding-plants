@@ -1,5 +1,6 @@
 package uk.co.gmescouts.stmarys.beddingplants.imports;
 
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -53,9 +54,9 @@ class Import {
 	@Resource
 	private SalesService salesService;
 
-	@PostMapping(consumes = { MEDIA_TYPE_XLS, MEDIA_TYPE_XLSX, MediaType.MULTIPART_FORM_DATA_VALUE },
+	@PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MEDIA_TYPE_XLS, MEDIA_TYPE_XLSX },
 			produces = MediaType.APPLICATION_JSON_VALUE, value = IMPORT_SALE_EXCEL)
-	public SaleSummary importSaleFromExcel(@RequestPart final MultipartFile file, @RequestParam(defaultValue = "20.0") final double vat,
+	public SaleSummary importSaleFromExcel(@RequestBody @RequestPart("file") final MultipartFile file, @RequestParam(defaultValue = "20.0") final double vat,
 										   @RequestParam(defaultValue = "2.50") final double deliveryCharge, @RequestParam(required = false) final Integer year,
 										   @RequestParam(required = false) final String orderImportsSheetName, @RequestParam(required = false) final String plantImportsSheetName)
 			throws IOException {
@@ -87,9 +88,9 @@ class Import {
 		return salesService.summariseSale(sale);
 	}
 
-	@PostMapping(consumes = { MEDIA_TYPE_XLS, MEDIA_TYPE_XLSX, MediaType.MULTIPART_FORM_DATA_VALUE },
+	@PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MEDIA_TYPE_XLS, MEDIA_TYPE_XLSX },
 			produces = MediaType.APPLICATION_JSON_VALUE, value = IMPORT_CUSTOMERS_EXCEL)
-	public SaleSummary importCustomersFromExcel(@RequestPart final MultipartFile file, @RequestParam final Integer saleYear,
+	public SaleSummary importCustomersFromExcel(@RequestBody @RequestPart("file") final MultipartFile file, @RequestParam final Integer saleYear,
 			@RequestParam(required = false) final String orderImportsSheetName) throws IOException {
 		// do the import
 		final Sale sale = importService.importCustomersFromExcel(file, orderImportsSheetName, saleYear);
@@ -98,9 +99,9 @@ class Import {
 		return salesService.summariseSale(sale);
 	}
 
-	@PostMapping(consumes = { MEDIA_TYPE_XLS, MEDIA_TYPE_XLSX, MediaType.MULTIPART_FORM_DATA_VALUE },
+	@PostMapping(consumes = { MediaType.MULTIPART_FORM_DATA_VALUE, MEDIA_TYPE_XLS, MEDIA_TYPE_XLSX },
 			produces = MediaType.APPLICATION_JSON_VALUE, value = IMPORT_PLANTS_EXCEL)
-	public SaleSummary importPlantsFromExcel(@RequestPart final MultipartFile file, @RequestParam final Integer saleYear,
+	public SaleSummary importPlantsFromExcel(@RequestBody @RequestPart("file") final MultipartFile file, @RequestParam final Integer saleYear,
 			@RequestParam(required = false) final String plantImportsSheetName) throws IOException {
 		// do the import
 		final Sale sale = importService.importPlantsFromExcel(file, plantImportsSheetName, saleYear);
