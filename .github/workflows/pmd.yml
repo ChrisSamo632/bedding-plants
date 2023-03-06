@@ -7,11 +7,11 @@ name: pmd
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
   schedule:
-    - cron: '35 7 * * 4'
+    - cron: "35 7 * * 4"
 
 permissions:
   contents: read
@@ -21,23 +21,26 @@ jobs:
     permissions:
       contents: read # for actions/checkout to fetch code
       security-events: write # for github/codeql-action/upload-sarif to upload SARIF results
-      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status 
+      actions: read # only required for a private repository by github/codeql-action/upload-sarif to get the Action run status
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
-          distribution: 'temurin'
+          java-version: "17"
+          distribution: "temurin"
       - name: Run PMD
         id: pmd
-        uses: pmd/pmd-github-action@f47ab08ac718d79f712f556dd11d6448245643bc
+        uses: pmd/pmd-github-action@v1
         with:
-          rulesets: 'rulesets/java/quickstart.xml'
-          sourcePath: 'src/main/java'
+          rulesets: "rulesets/java/quickstart.xml"
+          sourcePath: "src/main/java"
           analyzeModifiedFilesOnly: false
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: pmd-report.sarif
+      - name: Fail build if there are violations
+        if: steps.pmd.outputs.violations != 0
+        run: exit 1
