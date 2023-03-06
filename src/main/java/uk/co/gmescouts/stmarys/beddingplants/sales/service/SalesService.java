@@ -14,7 +14,6 @@ import uk.co.gmescouts.stmarys.beddingplants.sales.model.SaleSummary;
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 

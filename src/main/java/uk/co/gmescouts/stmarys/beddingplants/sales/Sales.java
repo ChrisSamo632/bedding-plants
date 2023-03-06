@@ -15,10 +15,7 @@ import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
 import javax.annotation.Resource;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/sale")
