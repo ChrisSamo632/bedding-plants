@@ -94,7 +94,7 @@ public final class ExportService {
 	@Value("${server.servlet.context-path}")
 	private String baseUri;
 
-	private ExportService() throws UnknownHostException {
+	ExportService() throws UnknownHostException {
 		hostname = InetAddress.getLocalHost().getHostName();
 	}
 

@@ -54,7 +54,7 @@ public class OrderItem implements PlantSummary {
 		// (plant cost exc. VAT + VAT) * number of plants ordered
 		final double vatMultiplier = 1.0 + (this.plant.getSale().getVat() / 100.0);
 
-		return (this.plant.getCost() * vatMultiplier) * this.count;
+		return this.plant.getCost() * vatMultiplier * this.count;
 	}
 
 	@JsonIgnore

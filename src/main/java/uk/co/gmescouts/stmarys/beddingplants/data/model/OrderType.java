@@ -12,10 +12,10 @@ public enum OrderType {
 	}
 
 	public static OrderType valueOf(final Character type) {
-		return Arrays.stream(OrderType.values()).filter(orderType -> orderType.type.equals(type)).findFirst().orElse(null);
+		return Arrays.stream(values()).filter(orderType -> orderType.type.equals(type)).findFirst().orElse(null);
 	}
 
 	public boolean isDelivery() {
-		return OrderType.DELIVER.equals(this);
+		return DELIVER.equals(this);
 	}
 }
