@@ -18,7 +18,7 @@
 								<span th:text="${saleYear}">[Sale Year]</span>
 								Bedding Plant Order Form
 								<span th:text="${order.num}">[Order Number]</span>
-								<span th:if="${#strings.toLowerCase(order.type) == 'deliver'}" th:text="'(' + ${order.deliveryRoute.num} + ')'">[Delivery Route]</span>
+								<span th:if="${#strings.toLowerCase(order.type) == 'deliver'}" th:text="'(' + (*{order.deliveryRoute != null}? ${order.deliveryRoute.num}  : 'N/A') + ')'">[Delivery Route]</span>
 							</h1>
 						</th>
 					</tr>
