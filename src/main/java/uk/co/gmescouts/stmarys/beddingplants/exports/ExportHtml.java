@@ -99,8 +99,6 @@ public class ExportHtml {
 		return "orders";
 	}
 
-
-
 	@SuppressWarnings("SameReturnValue")
 	@GetMapping(EXPORT_DELIVERY_ROUTES_HTML)
 	public String exportSaleDeliveryRoutesAsHtml(final Model model, @PathVariable final Integer saleYear, @RequestParam(defaultValue = "day:ASC,num:ASC") final String sorts) {

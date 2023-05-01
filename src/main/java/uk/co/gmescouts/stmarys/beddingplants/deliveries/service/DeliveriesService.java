@@ -107,12 +107,14 @@ public class DeliveriesService {
 	}
 
 	private DeliveryRoute createDeliveryRouteFromOrders(@NotNull final long routeNumber, @NotNull final Sale sale, @NotNull final Set<Order> orders) {
-		return DeliveryRoute.builder()
+		final DeliveryRoute deliveryRoute = DeliveryRoute.builder()
 				.num(routeNumber)
 				.deliveryDay(orders.stream().findFirst().orElseThrow(() -> new IllegalArgumentException("Orders cannot be empty")).getDeliveryDay())
 				.sale(sale)
 				.orders(orders)
 				.build();
+		deliveryRouteRepository.save(deliveryRoute);
+		return deliveryRoute;
 	}
 
 	public DeliveryRoute getOrCreateDeliveryRoute(@NotNull final long routeNumber, @NotNull final DeliveryDay deliveryDay, @NotNull final Sale sale) {
@@ -125,12 +127,16 @@ public class DeliveriesService {
 	}
 
 	private void removeRoutedOrders(@NotNull final Set<Order> deliveryOrders, @NotNull final Set<DeliveryRoute> deliveryRoutes) {
-		deliveryRoutes.forEach(r -> removeRoutedOrders(deliveryOrders, r));
+		deliveryRoutes.forEach(deliveryRoute -> {
+			removeRoutedOrders(deliveryOrders, deliveryRoute);
+			deliveryRouteRepository.save(deliveryRoute);
+		});
 	}
 
 	private void removeRoutedOrders(@NotNull final Set<Order> deliveryOrders, @NotNull final DeliveryRoute deliveryRoute) {
 		deliveryOrders.removeAll(deliveryRoute.getOrders());
 		deliveryRoute.getOrders().forEach(o -> o.setDeliveryRoute(deliveryRoute));
+		deliveryRouteRepository.save(deliveryRoute);
 		orderRepository.saveAll(deliveryRoute.getOrders());
 	}
 
