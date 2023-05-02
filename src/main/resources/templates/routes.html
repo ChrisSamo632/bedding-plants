@@ -1,57 +1,61 @@
 <!DOCTYPE html>
 <!--suppress HtmlUnknownAttribute -->
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-	<head lang="en" th:replace="fragments/base :: common_header(~{::link})">
-		<link href="../static/css/common.css" th:href="@{/css/common.css}" rel="stylesheet" />
-		<link href="../static/css/routes.css" th:href="@{/css/routes.css}" rel="stylesheet" />
-		<title>Bedding Plant Delivery Routes</title>
-	</head>
-	<body>
-		<div th:each="route,routeStat : ${routes}" th:class="${routeStat.index &gt; 0} ? 'route break' : 'route'">
-			<div>
-				<h1>
-					<img src="../static/images/logo.jpg" th:src="@{/images/logo.jpg}" alt="Scouts"/>
-					<span th:text="${saleYear}">[Sale Year]</span>
-					Delivery Route
-					<span th:text="${route.day}">[Route Day]</span>
-					<span th:text="${route.num}">[Route Number]</span>
-				</h1>
-			</div>
-			<table class="orders">
-				<thead>
-					<tr>
-						<th>#</th>
-						<th>Name</th>
-						<th>C/O</th>
-						<th>Address</th>
-						<th>Notes</th>
-						<th>#&nbsp;Plants</th>
-						<th>Total&nbsp;/&nbsp;&#163;</th>
-						<th>Paid&nbsp;/&nbsp;&#163;</th>
-					</tr>
-				</thead>
-				<tbody>
-					<!--suppress HtmlUnknownTag, HtmlUnknownTag -->
-					<th:block th:each="order : ${route.orders}">
-						<tr>
-							<td th:text="${order.num}" class="detail">[Order #]</td>
-							<td th:text="${order.customer.name}" class="detail">[Name]</td>
-							<td th:text="${order.courtesyOfName}" class="detail">[C/O]</td>
-							<td th:text="*{order.customer.address != null}? ${order.customer.address.geolocatableAddress} : ''" class="detail wrap">[Address]</td>
-							<td th:text="${order.notes}" class="detail wrap">[Notes]</td>
-							<td th:text="${order.count}" class="detail amount">[# Plants]</td>
-							<td th:text="${#numbers.formatCurrency(order.displayPrice)}" class="detail price">£ [Amount]</td>
-							<td th:text="${#numbers.formatCurrency(order.displayPaid)}" class="detail">£ [Already Paid]</td>
-						</tr>
-					</th:block>
-				</tbody>
-				<tfoot>
-					<tr>
-						<td colspan="5" class="label">#&nbsp;Plants</td><td th:text="${route.count}" class="amount">[Total]</td>
-						<td class="label">Total&nbsp;/&nbsp;&#163;</td><td th:text="${#numbers.formatCurrency(route.price)}?: '&#163;0.00'" class="detail price">£ [To Pay]</td>
-					</tr>
-				</tfoot>
-			</table>
-		</div>
-	</body>
+<head lang="en" th:replace="fragments/base :: common_header(~{::link})">
+    <link href="../static/css/common.css" th:href="@{/css/common.css}" rel="stylesheet"/>
+    <link href="../static/css/routes.css" th:href="@{/css/routes.css}" rel="stylesheet"/>
+    <title>Bedding Plant Delivery Routes</title>
+</head>
+<body>
+<div th:each="route,routeStat : ${routes}" th:class="${routeStat.index &gt; 0} ? 'route break' : 'route'">
+    <div>
+        <h1>
+            <img src="../static/images/logo.jpg" th:src="@{/images/logo.jpg}" alt="Scouts"/>
+            <span th:text="${saleYear}">[Sale Year]</span>
+            Delivery Route
+            <span th:text="${route.deliveryDay}">[Route Day]</span>
+            <span th:text="${route.num}">[Route Number]</span>
+        </h1>
+    </div>
+    <table class="orders">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>C/O</th>
+            <th>Address</th>
+            <th>Notes</th>
+            <th>#&nbsp;Plants</th>
+            <th>Total&nbsp;/&nbsp;&#163;</th>
+            <th>Paid&nbsp;/&nbsp;&#163;</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!--suppress HtmlUnknownTag, HtmlUnknownTag -->
+        <th:block th:each="order : ${route.orders}">
+            <tr>
+                <td th:text="${order.num}" class="detail">[Order #]</td>
+                <td th:text="${order.customer.name}" class="detail">[Name]</td>
+                <td th:text="${order.courtesyOfName}" class="detail">[C/O]</td>
+                <td th:text="*{order.customer.address != null}? ${order.customer.address.geolocatableAddress} : ''"
+                    class="detail wrap">[Address]
+                </td>
+                <td th:text="${order.notes}" class="detail wrap">[Notes]</td>
+                <td th:text="${order.count}" class="detail amount">[# Plants]</td>
+                <td th:text="${#numbers.formatCurrency(order.displayPrice)}" class="detail price">£ [Amount]</td>
+                <td th:text="${#numbers.formatCurrency(order.displayPaid)}" class="detail">£ [Already Paid]</td>
+            </tr>
+        </th:block>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="5" class="label">#&nbsp;Plants</td>
+            <td th:text="${route.count}" class="amount">[Total]</td>
+            <td class="label">Total&nbsp;/&nbsp;&#163;</td>
+            <td th:text="${#numbers.formatCurrency(route.price)}?: '&#163;0.00'" class="detail price">£ [To Pay]</td>
+        </tr>
+        </tfoot>
+    </table>
+</div>
+</body>
 </html>

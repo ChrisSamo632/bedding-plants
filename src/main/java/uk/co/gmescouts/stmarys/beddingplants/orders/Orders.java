@@ -18,54 +18,54 @@ import javax.annotation.Resource;
 @RestController
 @RequestMapping("/order")
 class Orders {
-	private static final Logger LOGGER = LoggerFactory.getLogger(Orders.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Orders.class);
 
-	@Resource
-	private OrdersService ordersService;
+    @Resource
+    private OrdersService ordersService;
 
-	@GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-	public Order getOrderDetail(@RequestParam final Integer year, @RequestParam final Integer orderNumber) {
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("Finding details for Order [{}] from Sale year [{}]", orderNumber, year);
-		}
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public Order getOrderDetail(@RequestParam final Integer year, @RequestParam final Integer orderNumber) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Finding details for Order [{}] from Sale year [{}]", orderNumber, year);
+        }
 
-		final Order order = ordersService.findOrderByNumAndSaleYear(orderNumber, year);
+        final Order order = ordersService.findOrderByNumAndSaleYear(orderNumber, year);
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Order: [{}]", order);
-		}
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Order: [{}]", order);
+        }
 
-		return order;
-	}
+        return order;
+    }
 
-	@DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-	public Boolean deleteOrder(@RequestParam final Integer orderNumber, @RequestParam final Integer year) {
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("Deleting Order [{}] from Sale [{}]", orderNumber, year);
-		}
+    @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public Boolean deleteOrder(@RequestParam final Integer orderNumber, @RequestParam final Integer year) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Deleting Order [{}] from Sale [{}]", orderNumber, year);
+        }
 
-		final boolean deleted = ordersService.deleteSaleOrder(orderNumber, year);
+        final boolean deleted = ordersService.deleteSaleOrder(orderNumber, year);
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Order [{}] from Sale [{}] deleted [{}]", orderNumber, year, deleted);
-		}
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Order [{}] from Sale [{}] deleted [{}]", orderNumber, year, deleted);
+        }
 
-		return deleted;
-	}
+        return deleted;
+    }
 
-	@SuppressWarnings("java:S4684")
-	@PutMapping
-	public boolean updateOrder(@RequestParam final Integer orderNumber, @RequestParam final int year, @RequestBody final Order order) {
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("Updating Order [{}] from Sale [{}]", orderNumber, year);
-		}
+    @SuppressWarnings("java:S4684")
+    @PutMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    public boolean updateOrder(@RequestParam final Integer orderNumber, @RequestParam final int year, @RequestBody final Order order) {
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Updating Order [{}] from Sale [{}]", orderNumber, year);
+        }
 
-		final boolean updated = ordersService.updateOrder(orderNumber, year, order);
+        final boolean updated = ordersService.updateOrder(orderNumber, year, order);
 
-		if (LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Order [{}] from Sale [{}] updated [{}]", orderNumber, year, updated);
-		}
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Order [{}] from Sale [{}] updated [{}]", orderNumber, year, updated);
+        }
 
-		return updated;
-	}
+        return updated;
+    }
 }

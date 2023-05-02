@@ -2,13 +2,14 @@ package uk.co.gmescouts.stmarys.beddingplants.exports;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.core.SpringDocUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.DeliveryRoute;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderType;
@@ -30,127 +31,129 @@ import java.util.Set;
 
 @Controller
 public class ExportHtml {
-	private static final Logger LOGGER = LoggerFactory.getLogger(ExportHtml.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExportHtml.class);
 
-	private static final String EXPORT_BASE = "/export";
+    private static final String EXPORT_BASE = "/export";
 
-	/*
-	 * Orders
-	 */
-	public static final String EXPORT_CUSTOMER_ORDERS_HTML = EXPORT_BASE + "/orders/{saleYear}/html";
+    /*
+     * Orders
+     */
+    public static final String EXPORT_CUSTOMER_ORDERS_HTML = EXPORT_BASE + "/orders/{saleYear}/html";
 
-	/*
-	 * Addresses
-	 */
-	private static final String EXPORT_CUSTOMER_ADDRESSES_HTML = EXPORT_BASE + "/addresses/{saleYear}/html";
+    /*
+     * Addresses
+     */
+    private static final String EXPORT_CUSTOMER_ADDRESSES_HTML = EXPORT_BASE + "/addresses/{saleYear}/html";
 
-	/*
-	 * Delivery Routes
-	 */
-	public static final String EXPORT_DELIVERY_ROUTES_HTML = EXPORT_BASE + "/routes/{saleYear}/html";
+    /*
+     * Delivery Routes
+     */
+    public static final String EXPORT_DELIVERY_ROUTES_HTML = EXPORT_BASE + "/routes/{saleYear}/html";
 
-	@Value("${spring.application.name}")
-	private String appName;
+    static {
+        // add export-html to the OpenAPI docs - https://springdoc.org/#my-rest-controller-using-controller-annotation-is-ignored
+        SpringDocUtils.getConfig().addRestControllers(ExportHtml.class);
+    }
 
-	@Resource
-	private GeolocationConfiguration geolocationConfiguration;
+    @Value("${spring.application.name}")
+    private String appName;
 
-	@Resource
-	private ExportConfiguration exportConfiguration;
+    @Resource
+    private GeolocationConfiguration geolocationConfiguration;
 
-	@Resource
-	private ExportService exportService;
+    @Resource
+    private ExportConfiguration exportConfiguration;
 
-	@Resource
-	private SalesService salesService;
+    @Resource
+    private ExportService exportService;
 
-	@Resource
-	private OrdersService ordersService;
+    @Resource
+    private SalesService salesService;
 
-	@Resource
-	private PlantsService plantsService;
+    @Resource
+    private OrdersService ordersService;
 
-	@Resource
-	private DeliveriesService deliveriesService;
+    @Resource
+    private PlantsService plantsService;
 
-	@GetMapping(EXPORT_CUSTOMER_ORDERS_HTML)
-	@ResponseBody
-	public String exportSaleCustomerOrdersAsHtml(final Model model, @PathVariable final Integer saleYear,
-												 @RequestParam(required = false) final OrderType orderType,
-												 @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,deliveryRoute.num:ASC,collectionHour:ASC,num:ASC") final String sorts) {
-		LOGGER.info("Exporting (HTML) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+    @Resource
+    private DeliveriesService deliveriesService;
 
-		// get the Salve
-		final Sale sale = salesService.findSaleByYear(saleYear);
+    @GetMapping(value = EXPORT_CUSTOMER_ORDERS_HTML, produces = MediaType.TEXT_HTML_VALUE)
+    public String exportSaleCustomerOrdersAsHtml(final Model model, @PathVariable final Integer saleYear,
+                                                 @RequestParam(required = false) final OrderType orderType,
+                                                 @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,deliveryRoute.num:ASC,collectionHour:ASC,num:ASC") final String sorts) {
+        LOGGER.info("Exporting (HTML) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
 
-		// get the Plants
-		final Set<Plant> plants = plantsService.getSalePlants(saleYear);
+        // get the Salve
+        final Sale sale = salesService.findSaleByYear(saleYear);
 
-		// get the Orders
-		final Set<Order> orders = ordersService.getSaleCustomerOrders(saleYear, orderType, sorts);
+        // get the Plants
+        final Set<Plant> plants = plantsService.getSalePlants(saleYear);
 
-		// add data attributes to template Model
-		addCommonModelAttributes(model);
-		model.addAttribute("saleYear", saleYear);
-		model.addAttribute("sale", sale);
-		model.addAttribute("orders", orders);
-		model.addAttribute("plants", plants);
+        // get the Orders
+        final Set<Order> orders = ordersService.getSaleCustomerOrders(saleYear, orderType, sorts);
 
-		// use the orders template
-		return "orders";
-	}
+        // add data attributes to template Model
+        addCommonModelAttributes(model);
+        model.addAttribute("saleYear", saleYear);
+        model.addAttribute("sale", sale);
+        model.addAttribute("orders", orders);
+        model.addAttribute("plants", plants);
 
-	@GetMapping(EXPORT_DELIVERY_ROUTES_HTML)
-	@ResponseBody
-	public String exportSaleDeliveryRoutesAsHtml(final Model model, @PathVariable final Integer saleYear, @RequestParam(defaultValue = "day:ASC,num:ASC") final String sorts) {
-		LOGGER.info("Exporting (HTML) Delivery Route details for Sale [{}] sorted by [{}]", saleYear, sorts);
+        // use the orders template
+        return "orders";
+    }
 
-		// get the Delivery Routes
-		final Set<DeliveryRoute> deliveryRoutes = deliveriesService.getDeliveryRoutesBySaleYear(saleYear);
+    @GetMapping(value = EXPORT_DELIVERY_ROUTES_HTML, produces = MediaType.TEXT_HTML_VALUE)
+    public String exportSaleDeliveryRoutesAsHtml(final Model model, @PathVariable final Integer saleYear, @RequestParam(defaultValue = "day:ASC,num:ASC") final String sorts) {
+        LOGGER.info("Exporting (HTML) Delivery Route details for Sale [{}] sorted by [{}]", saleYear, sorts);
 
-		// add data attributes to template Model
-		addCommonModelAttributes(model);
-		model.addAttribute("saleYear", saleYear);
-		model.addAttribute("routes", deliveryRoutes);
+        // get the Delivery Routes
+        final Set<DeliveryRoute> deliveryRoutes = deliveriesService.getDeliveryRoutesBySaleYear(saleYear);
 
-		// use the orders template
-		return "routes";
-	}
+        // add data attributes to template Model
+        addCommonModelAttributes(model);
+        model.addAttribute("saleYear", saleYear);
+        model.addAttribute("routes", deliveryRoutes);
 
-	@GetMapping(EXPORT_CUSTOMER_ADDRESSES_HTML)
-	@ResponseBody
-	public String exportSaleAddressesAsMap(final Model model, @PathVariable final Integer saleYear,
-			@RequestParam(required = false) final OrderType orderType, @RequestParam(defaultValue = "ROADMAP") final MapType mapType,
-			@RequestParam(defaultValue = "TINY") final MapMarkerSize mapMarkerSize,
-			@RequestParam(defaultValue = "YELLOW") final MapMarkerColour mapMarkerColour) {
-		LOGGER.info("Exporting (HTML); Addresses for Sale [{}] with Order Type [{}]", saleYear, orderType);
+        // use the orders template
+        return "routes";
+    }
 
-		addCommonModelAttributes(model);
+    @GetMapping(value = EXPORT_CUSTOMER_ADDRESSES_HTML, produces = MediaType.TEXT_HTML_VALUE)
+    public String exportSaleAddressesAsMap(final Model model, @PathVariable final Integer saleYear,
+                                           @RequestParam(required = false) final OrderType orderType, @RequestParam(defaultValue = "ROADMAP") final MapType mapType,
+                                           @RequestParam(defaultValue = "TINY") final MapMarkerSize mapMarkerSize,
+                                           @RequestParam(defaultValue = "YELLOW") final MapMarkerColour mapMarkerColour) {
+        LOGGER.info("Exporting (HTML); Addresses for Sale [{}] with Order Type [{}]", saleYear, orderType);
 
-		// Google API key to call map service
-		model.addAttribute("googleApiKey", geolocationConfiguration.getGoogleApiKey());
+        addCommonModelAttributes(model);
 
-		// geolocated Addresses to be plotted on the Map
-		model.addAttribute("geolocatedPoints", exportService.getGeolocatedSaleAddressesAsPoints(saleYear, orderType));
+        // Google API key to call map service
+        model.addAttribute("googleApiKey", geolocationConfiguration.getGoogleApiKey());
 
-		// Google Maps MapTypeId
-		model.addAttribute("mapTypeId", mapType.getGoogleMapsMapTypeId());
+        // geolocated Addresses to be plotted on the Map
+        model.addAttribute("geolocatedPoints", exportService.getGeolocatedSaleAddressesAsPoints(saleYear, orderType));
 
-		// Scout Hut location (default Map centre)
-		model.addAttribute("scoutHutLat", exportConfiguration.getScoutHutLat());
-		model.addAttribute("scoutHutLng", exportConfiguration.getScoutHutLng());
+        // Google Maps MapTypeId
+        model.addAttribute("mapTypeId", mapType.getGoogleMapsMapTypeId());
 
-		// default Map viewport settings (boundaries and zoom level)
-		model.addAttribute("defaultZoom", exportConfiguration.getDefaultZoom());
-		model.addAttribute("viewportMaxLat", exportConfiguration.getViewportMaxLat());
-		model.addAttribute("viewportMinLat", exportConfiguration.getViewportMinLat());
-		model.addAttribute("viewportMaxLng", exportConfiguration.getViewportMaxLng());
-		model.addAttribute("viewportMinLng", exportConfiguration.getViewportMinLng());
+        // Scout Hut location (default Map centre)
+        model.addAttribute("scoutHutLat", exportConfiguration.getScoutHutLat());
+        model.addAttribute("scoutHutLng", exportConfiguration.getScoutHutLng());
 
-		return "addresses";
-	}
+        // default Map viewport settings (boundaries and zoom level)
+        model.addAttribute("defaultZoom", exportConfiguration.getDefaultZoom());
+        model.addAttribute("viewportMaxLat", exportConfiguration.getViewportMaxLat());
+        model.addAttribute("viewportMinLat", exportConfiguration.getViewportMinLat());
+        model.addAttribute("viewportMaxLng", exportConfiguration.getViewportMaxLng());
+        model.addAttribute("viewportMinLng", exportConfiguration.getViewportMinLng());
 
-	private void addCommonModelAttributes(final Model model) {
-		model.addAttribute("appName", appName);
-	}
+        return "addresses";
+    }
+
+    private void addCommonModelAttributes(final Model model) {
+        model.addAttribute("appName", appName);
+    }
 }
