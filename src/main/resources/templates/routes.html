@@ -42,8 +42,8 @@
                 </td>
                 <td th:text="${order.notes}" class="detail wrap">[Notes]</td>
                 <td th:text="${order.count}" class="detail amount">[# Plants]</td>
-                <td th:text="${#numbers.formatCurrency(order.displayPrice)}" class="detail price">£ [Amount]</td>
-                <td th:text="${#numbers.formatCurrency(order.displayPaid)}" class="detail">£ [Already Paid]</td>
+                <td th:text="${#numbers.formatDecimal(order.displayPrice, 1, 2)}" class="detail price">£ [Amount]</td>
+                <td th:text="${#numbers.formatDecimal(order.displayPaid, 1, 2)}" class="detail">£ [Already Paid]</td>
             </tr>
         </th:block>
         </tbody>
@@ -52,7 +52,8 @@
             <td colspan="5" class="label">#&nbsp;Plants</td>
             <td th:text="${route.count}" class="amount">[Total]</td>
             <td class="label">Total&nbsp;/&nbsp;&#163;</td>
-            <td th:text="${#numbers.formatCurrency(route.price)}?: '&#163;0.00'" class="detail price">£ [To Pay]</td>
+            <td th:text="${#numbers.formatDecimal(route.price, 1, 2)}?: '&#163;0.00'" class="detail price">£ [To Pay]
+            </td>
         </tr>
         </tfoot>
     </table>

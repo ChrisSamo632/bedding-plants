@@ -1,4 +1,13 @@
 /*
+* Printing
+*/
+@media print {
+	@page {
+		size: landscape;
+	}
+}
+
+/*
 * Route Page
 */
 div.route {
