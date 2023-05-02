@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.DeliveryRoute;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderType;
@@ -72,8 +73,8 @@ public class ExportHtml {
 	@Resource
 	private DeliveriesService deliveriesService;
 
-	@SuppressWarnings("SameReturnValue")
 	@GetMapping(EXPORT_CUSTOMER_ORDERS_HTML)
+	@ResponseBody
 	public String exportSaleCustomerOrdersAsHtml(final Model model, @PathVariable final Integer saleYear,
 												 @RequestParam(required = false) final OrderType orderType,
 												 @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,deliveryRoute.num:ASC,collectionHour:ASC,num:ASC") final String sorts) {
@@ -99,8 +100,8 @@ public class ExportHtml {
 		return "orders";
 	}
 
-	@SuppressWarnings("SameReturnValue")
 	@GetMapping(EXPORT_DELIVERY_ROUTES_HTML)
+	@ResponseBody
 	public String exportSaleDeliveryRoutesAsHtml(final Model model, @PathVariable final Integer saleYear, @RequestParam(defaultValue = "day:ASC,num:ASC") final String sorts) {
 		LOGGER.info("Exporting (HTML) Delivery Route details for Sale [{}] sorted by [{}]", saleYear, sorts);
 
@@ -116,8 +117,8 @@ public class ExportHtml {
 		return "routes";
 	}
 
-	@SuppressWarnings("SameReturnValue")
 	@GetMapping(EXPORT_CUSTOMER_ADDRESSES_HTML)
+	@ResponseBody
 	public String exportSaleAddressesAsMap(final Model model, @PathVariable final Integer saleYear,
 			@RequestParam(required = false) final OrderType orderType, @RequestParam(defaultValue = "ROADMAP") final MapType mapType,
 			@RequestParam(defaultValue = "TINY") final MapMarkerSize mapMarkerSize,
