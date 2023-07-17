@@ -20,3 +20,6 @@ application-map.properties
 # Package Files #
 *.jar
 !maven-wrapper.jar
+
+# VS Code #
+.vscode/

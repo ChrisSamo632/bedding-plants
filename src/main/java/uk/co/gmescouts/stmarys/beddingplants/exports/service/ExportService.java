@@ -410,7 +410,7 @@ public final class ExportService {
         }
 
         // filter to geolocated addresses only if so requested
-        if (geolocatedOnly) {
+        if (addresses != null && geolocatedOnly) {
             // geolocate Address(es), if not already
             if (CollectionUtils.isNotEmpty(addresses)) {
                 if (LOGGER.isDebugEnabled()) {
