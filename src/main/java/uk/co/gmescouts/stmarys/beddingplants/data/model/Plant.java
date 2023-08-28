@@ -6,25 +6,32 @@ import jakarta.persistence.AccessType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
+
+import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "plants")
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Builder
-@EqualsAndHashCode(of = {"sale", "num"})
 @NoArgsConstructor
 @AllArgsConstructor
-public class Plant {
+public class Plant implements Comparable<Plant> {
     @JsonIgnore
     @Id
     public Long getId() {
@@ -67,4 +74,31 @@ public class Plant {
     @Min(0)
     @NotNull
     private Double cost;
+
+    @Access(AccessType.FIELD)
+    @OneToMany(mappedBy = "plant")
+    @ToString.Exclude
+    private Set<OrderItem> orderItems;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Plant plant = (Plant) o;
+        return Objects.equals(sale, plant.sale) && Objects.equals(num, plant.num);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(sale, num);
+    }
+
+    @Override
+    public int compareTo(@org.jetbrains.annotations.NotNull final Plant o) {
+        return this.getNum().compareTo(o.getNum());
+    }
 }

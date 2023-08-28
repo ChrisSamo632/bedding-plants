@@ -13,22 +13,26 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "addresses")
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Builder
-@EqualsAndHashCode(exclude = {"customers", "geolocation"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Address implements Comparable<Address> {
@@ -53,7 +57,7 @@ public class Address implements Comparable<Address> {
 
         // street
         if (StringUtils.isNotBlank(street)) {
-            if (geo.length() > 0) {
+            if (!geo.isEmpty()) {
                 geo.append(" ");
             }
             geo.append(street);
@@ -61,7 +65,7 @@ public class Address implements Comparable<Address> {
 
         // town
         if (StringUtils.isNotBlank(town)) {
-            if (geo.length() > 0) {
+            if (!geo.isEmpty()) {
                 geo.append(", ");
             }
             geo.append(town);
@@ -69,7 +73,7 @@ public class Address implements Comparable<Address> {
 
         // city
         if (StringUtils.isNotBlank(city)) {
-            if (geo.length() > 0) {
+            if (!geo.isEmpty()) {
                 geo.append(", ");
             }
             geo.append(city);
@@ -77,7 +81,7 @@ public class Address implements Comparable<Address> {
 
         // postcode
         if (StringUtils.isNotBlank(postcode)) {
-            if (geo.length() > 0) {
+            if (!geo.isEmpty()) {
                 geo.append(", ");
             }
             geo.append(postcode);
@@ -144,5 +148,22 @@ public class Address implements Comparable<Address> {
                 .append(this.getStreet(), o.getStreet())
                 .append(this.getHouseNameNumber(), o.getHouseNameNumber())
                 .toComparison();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Address address = (Address) o;
+        return Objects.equals(houseNameNumber, address.houseNameNumber) && Objects.equals(street, address.street) && Objects.equals(town, address.town) && Objects.equals(city, address.city) && Objects.equals(postcode, address.postcode);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(houseNameNumber, street, town, city, postcode);
     }
 }

@@ -12,20 +12,25 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
+
+import java.util.Objects;
 
 @Entity
 @Table(name = "orderitems")
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Builder
-@EqualsAndHashCode(exclude = {"count"})
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderItem implements PlantSummary {
+public class OrderItem implements PlantSummary, Comparable<OrderItem> {
     @JsonIgnore
     @Id
     public Long getId() {
@@ -53,8 +58,8 @@ public class OrderItem implements PlantSummary {
         // (plant cost exc. VAT + VAT) * number of plants ordered
         final double vatMultiplier = 1.0 + (this.plant.getSale().getVat() / 100.0);
 
-		return this.plant.getCost() * vatMultiplier * this.count;
-	}
+        return this.plant.getCost() * vatMultiplier * this.count;
+    }
 
     @JsonIgnore
     @Access(AccessType.FIELD)
@@ -71,4 +76,26 @@ public class OrderItem implements PlantSummary {
     @Min(1)
     @NotNull
     private Integer count;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        OrderItem orderItem = (OrderItem) o;
+        return Objects.equals(order, orderItem.order) && Objects.equals(plant, orderItem.plant);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(order, plant);
+    }
+
+    @Override
+    public int compareTo(@org.jetbrains.annotations.NotNull final OrderItem o) {
+        return this.getPlant().getNum().compareTo(o.getPlant().getNum());
+    }
 }

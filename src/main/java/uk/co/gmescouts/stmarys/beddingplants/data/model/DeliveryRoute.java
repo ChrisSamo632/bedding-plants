@@ -17,21 +17,25 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
 @Entity
 @Table(name = "deliveryRoutes")
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Builder
-@EqualsAndHashCode(of = {"sale", "num"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeliveryRoute implements PlantSummary {
@@ -103,5 +107,22 @@ public class DeliveryRoute implements PlantSummary {
             // replace existing Order, if present
             orders.add(order);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        DeliveryRoute that = (DeliveryRoute) o;
+        return Objects.equals(num, that.num) && Objects.equals(sale, that.sale);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(num, sale);
     }
 }

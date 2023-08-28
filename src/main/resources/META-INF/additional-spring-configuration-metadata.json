@@ -1,87 +1,89 @@
-{"properties": [
-  {
-    "name": "beddingplants.import.orderImportsName",
-    "type": "java.lang.String",
-    "description": "Name of Order Imports Worksheet within Excel Workbook"
-  },
-  {
-    "name": "beddingplants.import.plantImportsName",
-    "type": "java.lang.String",
-    "description": "Name of Plant Imports Worksheet within Excel Workbook"
-  },
-  {
-    "name": "beddingplants.import.defaultCity",
-    "type": "java.lang.String",
-    "description": "City to use in Addresses if not specified in the import spreadsheet (where it's optional)"
-  },
-  {
-    "name": "beddingplants.geolocation.googleApiKey",
-    "type": "java.lang.String",
-    "description": "Google API-Key for use with the BeddingPlants application"
-  },
-  {
-    "name": "beddingplants.geolocation.googleMapsImgScale",
-    "type": "java.lang.Integer",
-    "description": "Google Maps Image scale"
-  },
-  {
-    "name": "beddingplants.geolocation.googleMapsImgWidth",
-    "type": "java.lang.Integer",
-    "description": "Google Maps Image width"
-  },
-  {
-    "name": "beddingplants.geolocation.googleMapsImgHeight",
-    "type": "java.lang.Integer",
-    "description": "Google Maps Image height"
-  },
-  {
-    "name": "beddingplants.geolocation.googleMapsImgLangauge",
-    "type": "java.lang.String",
-    "description": "Google Maps Image language"
-  },
-  {
-    "name": "beddingplants.export.scoutHutLat",
-    "type": "java.lang.Float",
-    "description": "Scout Hut latitude"
-  },
-  {
-    "name": "beddingplants.export.scoutHutLng",
-    "type": "java.lang.Float",
-    "description": "Scout Hut longitude"
-  },
-  {
-    "name": "beddingplants.export.defaultZoom",
-    "type": "java.lang.Integer",
-    "description": "Default Google Maps zoom level"
-  },
-  {
-    "name": "beddingplants.export.viewportMaxLat",
-    "type": "java.lang.Float",
-    "description": "Default viewport maximum latitude"
-  },
-  {
-    "name": "beddingplants.export.viewportMinLat",
-    "type": "java.lang.Float",
-    "description": "Default viewport minimum latitude"
-  },
-  {
-    "name": "beddingplants.export.viewportMaxLng",
-    "type": "java.lang.Float",
-    "description": "Default viewport maximum longitude"
-  },
-  {
-    "name": "beddingplants.export.viewportMinLng",
-    "type": "java.lang.Float",
-    "description": "Default viewport minimum longitude"
-  },
-  {
-    "name": "beddingplants.deliveries.maxRoutePlantCount",
-    "type": "java.lang.Integer",
-    "description": "Maximum number of Plants within a Delivery Route (can exceed but should not be significantly greater)"
-  },
-  {
-    "name": "beddingplants.deliveries.maxRouteRadiusKm",
-    "type": "java.lang.Float",
-    "description": "Maximum area radius for Orders within a Delivery Route (can exceed but should not be significantly greater)"
-  }
-]}
+{
+  "properties": [
+    {
+      "name": "beddingplants.import.orderImportsName",
+      "type": "java.lang.String",
+      "description": "Name of Order Imports Worksheet within Excel Workbook"
+    },
+    {
+      "name": "beddingplants.import.plantImportsName",
+      "type": "java.lang.String",
+      "description": "Name of Plant Imports Worksheet within Excel Workbook"
+    },
+    {
+      "name": "beddingplants.import.defaultCity",
+      "type": "java.lang.String",
+      "description": "City to use in Addresses if not specified in the import spreadsheet (where it's optional)"
+    },
+    {
+      "name": "beddingplants.geolocation.googleApiKey",
+      "type": "java.lang.String",
+      "description": "Google API-Key for use with the BeddingPlants application"
+    },
+    {
+      "name": "beddingplants.geolocation.googleMapsImgScale",
+      "type": "java.lang.Integer",
+      "description": "Google Maps Image scale"
+    },
+    {
+      "name": "beddingplants.geolocation.googleMapsImgWidth",
+      "type": "java.lang.Integer",
+      "description": "Google Maps Image width"
+    },
+    {
+      "name": "beddingplants.geolocation.googleMapsImgHeight",
+      "type": "java.lang.Integer",
+      "description": "Google Maps Image height"
+    },
+    {
+      "name": "beddingplants.geolocation.googleMapsImgLanguage",
+      "type": "java.lang.String",
+      "description": "Google Maps Image language"
+    },
+    {
+      "name": "beddingplants.export.scoutHutLat",
+      "type": "java.lang.Float",
+      "description": "Scout Hut latitude"
+    },
+    {
+      "name": "beddingplants.export.scoutHutLng",
+      "type": "java.lang.Float",
+      "description": "Scout Hut longitude"
+    },
+    {
+      "name": "beddingplants.export.defaultZoom",
+      "type": "java.lang.Integer",
+      "description": "Default Google Maps zoom level"
+    },
+    {
+      "name": "beddingplants.export.viewportMaxLat",
+      "type": "java.lang.Float",
+      "description": "Default viewport maximum latitude"
+    },
+    {
+      "name": "beddingplants.export.viewportMinLat",
+      "type": "java.lang.Float",
+      "description": "Default viewport minimum latitude"
+    },
+    {
+      "name": "beddingplants.export.viewportMaxLng",
+      "type": "java.lang.Float",
+      "description": "Default viewport maximum longitude"
+    },
+    {
+      "name": "beddingplants.export.viewportMinLng",
+      "type": "java.lang.Float",
+      "description": "Default viewport minimum longitude"
+    },
+    {
+      "name": "beddingplants.deliveries.maxRoutePlantCount",
+      "type": "java.lang.Integer",
+      "description": "Maximum number of Plants within a Delivery Route (can exceed but should not be significantly greater)"
+    },
+    {
+      "name": "beddingplants.deliveries.maxRouteRadiusKm",
+      "type": "java.lang.Float",
+      "description": "Maximum area radius for Orders within a Delivery Route (can exceed but should not be significantly greater)"
+    }
+  ]
+}

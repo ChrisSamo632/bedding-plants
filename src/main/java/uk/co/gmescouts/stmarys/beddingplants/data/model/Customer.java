@@ -14,22 +14,26 @@ import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
 @Entity
 @Table(name = "customers")
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Builder
-@EqualsAndHashCode(of = {"forename", "surname", "sale"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Customer {
@@ -39,7 +43,7 @@ public class Customer {
         return String.format("%s-%04d", this.getName().toUpperCase(Locale.ROOT), sale.getSaleYear());
     }
 
-    @SuppressWarnings("EmptyMethod")
+    @SuppressWarnings({"EmptyMethod", "unused"})
     public void setId(final String id) {
         // intentionally blank, for Entity/Jackson construction only
     }
@@ -88,5 +92,22 @@ public class Customer {
             // replace existing Order, if present
             orders.add(order);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Customer customer = (Customer) o;
+        return Objects.equals(forename, customer.forename) && Objects.equals(surname, customer.surname) && Objects.equals(sale, customer.sale);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(forename, surname, sale);
     }
 }

@@ -1,7 +1,7 @@
 /target/
 /log/
 /data/
-!.mvn/wrapper/maven-wrapper.jar
+*.log
 
 application-map.properties
 
@@ -16,10 +16,11 @@ application-map.properties
 *.iml
 *.eml
 
-
 # Package Files #
 *.jar
 !maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.jar
 
 # VS Code #
 .vscode/
+!.vscode/settings.json

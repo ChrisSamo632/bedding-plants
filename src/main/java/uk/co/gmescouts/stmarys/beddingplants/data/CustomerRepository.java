@@ -10,5 +10,5 @@ public interface CustomerRepository extends JpaRepository<Customer, String> {
     @OrderBy("surname, forename")
     Set<Customer> findBySaleSaleYear(Integer saleSaleYear);
 
-    Customer findByEmailAddress(Integer emailAddress);
+    Customer findByEmailAddress(String emailAddress);
 }

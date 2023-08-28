@@ -7,6 +7,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -17,22 +18,25 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Comparator;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
 @Entity
 @Table(name = "orders")
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @Builder
-@EqualsAndHashCode(of = {"customer", "num"})
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order implements PlantSummary {
@@ -178,11 +182,11 @@ public class Order implements PlantSummary {
 
     @NonNull
     @Builder.Default
-    @OrderBy("plant")
     @Access(AccessType.FIELD)
-    @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "order")
+    @OrderBy("plant_num")
+    @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "order", fetch = FetchType.EAGER)
     @ToString.Exclude
-    private Set<OrderItem> orderItems = new TreeSet<>(Comparator.comparingInt(oi -> oi.getPlant().getNum()));
+    private Set<OrderItem> orderItems = new TreeSet<>();
 
     public void addOrderItem(final OrderItem orderItem) {
         if (orderItem != null) {
@@ -196,5 +200,22 @@ public class Order implements PlantSummary {
 
     private Double toCurrencyDisplay(final Double amount) {
         return amount == null || amount == 0 ? null : Math.round(amount * 100.0) / 100.0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Order order = (Order) o;
+        return Objects.equals(num, order.num) && Objects.equals(customer, order.customer);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(num, customer);
     }
 }
