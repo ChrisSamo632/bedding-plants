@@ -1,5 +1,6 @@
 package uk.co.gmescouts.stmarys.beddingplants.deliveries;
 
+import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.DeliveryRoute;
 import uk.co.gmescouts.stmarys.beddingplants.deliveries.service.DeliveriesService;
 
-import javax.annotation.Resource;
 import java.util.Set;
 
 @RestController

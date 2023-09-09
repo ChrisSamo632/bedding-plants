@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!--suppress HtmlUnknownAttribute -->
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head lang="en" th:replace="fragments/base :: common_header(~{::link})">
+<head lang="en" th:replace="~{fragments/base :: common_header(~{::link})}">
     <link href="../static/css/common.css" th:href="@{/css/common.css}" rel="stylesheet"/>
     <link href="../static/css/orders.css" th:href="@{/css/orders.css}" rel="stylesheet"/>
     <title>Bedding Plant Orders</title>

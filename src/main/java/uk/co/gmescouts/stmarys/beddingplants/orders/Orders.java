@@ -1,5 +1,6 @@
 package uk.co.gmescouts.stmarys.beddingplants.orders;
 
+import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -12,8 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
 import uk.co.gmescouts.stmarys.beddingplants.orders.service.OrdersService;
-
-import javax.annotation.Resource;
 
 @RestController
 @RequestMapping("/order")

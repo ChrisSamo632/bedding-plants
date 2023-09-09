@@ -1,8 +1,9 @@
 package uk.co.gmescouts.stmarys.beddingplants.exports;
 
+import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springdoc.core.SpringDocUtils;
+import org.springdoc.core.utils.SpringDocUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
@@ -26,7 +27,6 @@ import uk.co.gmescouts.stmarys.beddingplants.orders.service.OrdersService;
 import uk.co.gmescouts.stmarys.beddingplants.plants.service.PlantsService;
 import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
 
-import javax.annotation.Resource;
 import java.util.Set;
 
 @Controller

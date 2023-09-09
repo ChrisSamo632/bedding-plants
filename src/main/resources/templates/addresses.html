@@ -1,46 +1,47 @@
 <!DOCTYPE html>
 <!--suppress HtmlUnknownAttribute -->
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-	<head lang="en" th:replace="fragments/base :: common_header(~{::link})">
-		<link href="../static/css/addresses.css" th:href="@{/css/addresses.css}" rel="stylesheet" />
-		<title>Bedding Plant Addresses</title>
-	</head>
-	<body>
-		<div id="map"></div>
-		<script src="../static/js/GoogleMaps.js" th:src="@{/js/GoogleMaps.js}"></script>
-		<script th:inline="javascript">
-		  function initMap() {
-			var scoutHutLat = /*[[${scoutHutLat}]]*/ 53.48;
-			var scoutHutLng = /*[[${scoutHutLng}]]*/ -2.14;
-			var defaultZoom = /*[[${defaultZoom}]]*/ 15;
+<head lang="en" th:replace="~{fragments/base :: common_header(~{::link})}">
+    <link href="../static/css/addresses.css" th:href="@{/css/addresses.css}" rel="stylesheet"/>
+    <title>Bedding Plant Addresses</title>
+</head>
+<body>
+<div id="map"></div>
+<script src="../static/js/GoogleMaps.js" th:src="@{/js/GoogleMaps.js}"></script>
+<script th:inline="javascript">
+    function initMap() {
+      var scoutHutLat = /*[[${scoutHutLat}]]*/ 53.48;
+      var scoutHutLng = /*[[${scoutHutLng}]]*/ -2.14;
+      var defaultZoom = /*[[${defaultZoom}]]*/ 15;
 
-			var viewportMaxLat = /*[[${viewportMaxLat}]]*/ 54;
-			var viewportMinLat = /*[[${viewportMinLat}]]*/ 53;
-			var viewportMaxLng = /*[[${viewportMaxLng}]]*/ -3;
-			var viewportMinLng = /*[[${viewportMinLng}]]*/ -2;
+      var viewportMaxLat = /*[[${viewportMaxLat}]]*/ 54;
+      var viewportMinLat = /*[[${viewportMinLat}]]*/ 53;
+      var viewportMaxLng = /*[[${viewportMaxLng}]]*/ -3;
+      var viewportMinLng = /*[[${viewportMinLng}]]*/ -2;
 
-			var mapTypeId = /*[(${mapTypeId})]*/ google.maps.MapTypeId.ROADMAP;
-			mapLoadViewer('map', mapTypeId, viewportMaxLat, viewportMinLat, viewportMaxLng, viewportMinLng, loadMapPoints);
-		  }
-		</script>
-		<script th:inline="javascript">
-			var geolocatedPoints = /*[[${geolocatedPoints}]]*/ null;
+      var mapTypeId = /*[(${mapTypeId})]*/ google.maps.MapTypeId.ROADMAP;
+      mapLoadViewer('map', mapTypeId, viewportMaxLat, viewportMinLat, viewportMaxLng, viewportMinLng, loadMapPoints);
+    }
+</script>
+<script th:inline="javascript">
+    var geolocatedPoints = /*[[${geolocatedPoints}]]*/ null;
 
-			function loadMapPoints() {
-				console.log("Loading map points");
+    function loadMapPoints() {
+        console.log("Loading map points");
 
-				// check we have addresses to plot, otherwise finish
-				if (geolocatedPoints == null) {
-					return;
-				}
+        // check we have addresses to plot, otherwise finish
+        if (geolocatedPoints == null) {
+            return;
+        }
 
-				// add each point to the map as a circle
-				for (var p in geolocatedPoints) {
-					var point = geolocatedPoints[p];
-					addCircleToMap(point.lat, point.lng, point.mapMarkerSize.pixels, point.mapMarkerColour, point.description);
-				}
-			}
-		</script>
-		<script th:src="@{${'https://maps.googleapis.com/maps/api/js?key=' + googleApiKey + '&callback=initMap'}}" async defer></script>
-	</body>
+        // add each point to the map as a circle
+        for (var p in geolocatedPoints) {
+            var point = geolocatedPoints[p];
+            addCircleToMap(point.lat, point.lng, point.mapMarkerSize.pixels, point.mapMarkerColour, point.description);
+        }
+    }
+</script>
+<script th:src="@{${'https://maps.googleapis.com/maps/api/js?key=' + googleApiKey + '&callback=initMap'}}" async
+        defer></script>
+</body>
 </html>
