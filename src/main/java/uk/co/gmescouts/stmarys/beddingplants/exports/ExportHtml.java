@@ -79,6 +79,7 @@ public class ExportHtml {
     @Resource
     private DeliveriesService deliveriesService;
 
+    @SuppressWarnings("SameReturnValue")
     @GetMapping(value = EXPORT_CUSTOMER_ORDERS_HTML, produces = MediaType.TEXT_HTML_VALUE)
     public String exportSaleCustomerOrdersAsHtml(final Model model, @PathVariable final Integer saleYear,
                                                  @RequestParam(required = false) final OrderType orderType,
@@ -105,6 +106,7 @@ public class ExportHtml {
         return "orders";
     }
 
+    @SuppressWarnings("SameReturnValue")
     @GetMapping(value = EXPORT_DELIVERY_ROUTES_HTML, produces = MediaType.TEXT_HTML_VALUE)
     public String exportSaleDeliveryRoutesAsHtml(final Model model, @PathVariable final Integer saleYear, @RequestParam(defaultValue = "day:ASC,num:ASC") final String sorts) {
         LOGGER.info("Exporting (HTML) Delivery Route details for Sale [{}] sorted by [{}]", saleYear, sorts);
@@ -121,6 +123,7 @@ public class ExportHtml {
         return "routes";
     }
 
+    @SuppressWarnings("SameReturnValue")
     @GetMapping(value = EXPORT_CUSTOMER_ADDRESSES_HTML, produces = MediaType.TEXT_HTML_VALUE)
     public String exportSaleAddressesAsMap(final Model model, @PathVariable final Integer saleYear,
                                            @RequestParam(required = false) final OrderType orderType, @RequestParam(defaultValue = "ROADMAP") final MapType mapType,
