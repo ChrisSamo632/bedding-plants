@@ -1,24 +1,26 @@
 <!DOCTYPE html>
 <!--suppress HtmlUnknownAttribute -->
-<html xmlns:th="http://www.thymeleaf.org">
-	<head lang="en" th:fragment="common_header(links)">
-		<!-- Required meta tags -->
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	    <meta charset="utf-8">
-	    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head lang="en" th:fragment="common_header(links)">
+    <!-- Required meta tags -->
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-		<link href="http://cdn.jsdelivr.net/webjars/bootstrap/5.2.0/css/bootstrap.min.css"
-			th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet" />
+    <link href="http://cdn.jsdelivr.net/webjars/bootstrap/5.2.3/css/bootstrap.min.css"
+          integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65"
+          th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet"/>
 
-		<link rel="icon" type="image/jpg" href="../static/images/logo.jpg" th:href="@{/images/logo.jpg}" />
+    <!--suppress HtmlUnknownTarget -->
+    <link rel="icon" type="image/jpg" href="../static/images/logo.jpg" th:href="@{/images/logo.jpg}"/>
 
-		<!--/* Per-page placeholder for additional links */-->
-		<!--suppress HtmlUnknownTag -->
-		<th:block th:replace="${links}" />
+    <!--/* Per-page placeholder for additional links */-->
+    <!--suppress HtmlUnknownTag -->
+    <th:block th:replace="${links}"/>
 
-		<title th:text="${appName}">Bedding Plants</title>
-	</head>
-	<body>
-		<div>Common &lt;head/&gt; for application templates</div>
-	</body>
+    <title th:text="${appName}">Bedding Plants</title>
+</head>
+<body>
+<div>Common &lt;head/&gt; for application templates</div>
+</body>
 </html>
