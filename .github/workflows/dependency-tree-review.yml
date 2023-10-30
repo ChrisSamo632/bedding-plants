@@ -5,7 +5,14 @@
 # Source repository: https://github.com/actions/dependency-review-action
 # Public documentation: https://docs.github.com/en/code-security/supply-chain-security/understanding-your-software-supply-chain/about-dependency-review#dependency-review-enforcement
 name: Dependency Tree Review
-on: [pull_request]
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch: {}
+  pull_request: {}
+  schedule:
+    - cron: 29 20 * * 5
 
 permissions:
   contents: write
@@ -18,4 +25,4 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
       - name: Maven Dependency Tree Dependency Submission
-        uses: advanced-security/maven-dependency-submission-action@v3.0.3
+        uses: advanced-security/maven-dependency-submission-action@fcd7eab6b6d22946badc98d1e62665cdee93e0ae #v3.0.3
