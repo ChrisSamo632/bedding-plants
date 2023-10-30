@@ -8,11 +8,15 @@ name: Dependency Tree Review
 
 on:
   push:
-    branches: [master]
+    branches: [master, main]
   workflow_dispatch: {}
   pull_request: {}
   schedule:
     - cron: 29 20 * * 5
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
