@@ -11,7 +11,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Min;
@@ -24,7 +23,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.SortComparator;
 
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -180,10 +181,17 @@ public class Order implements PlantSummary {
     @ManyToOne
     private DeliveryRoute deliveryRoute;
 
+    public static class OrderItemComparator implements Comparator<OrderItem> {
+        @Override
+        public int compare(OrderItem oi1, OrderItem oi2) {
+            return oi1.getPlant().getNum().compareTo(oi2.getPlant().getNum());
+        }
+    }
+
     @NonNull
     @Builder.Default
     @Access(AccessType.FIELD)
-    @OrderBy("plant_num")
+    @SortComparator(OrderItemComparator.class)
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "order", fetch = FetchType.EAGER)
     @ToString.Exclude
     private Set<OrderItem> orderItems = new TreeSet<>();
