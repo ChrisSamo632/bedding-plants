@@ -10,6 +10,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -303,23 +304,30 @@ public final class ExportService {
         try (ByteArrayOutputStream baos = prepareCsvOutputStream();
              PrintWriter pw = new PrintWriter(baos, false, CSV_CHARSET);
              CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.builder().setHeader(
-                     "House Name/Number", "Street", "Town", "City", "Postcode", "Address", "Last Order Year"
+                     "House Name/Number", "Street", "Town", "City", "Postcode", "Address", "Last Order Year", "Has Email Address"
              ).build())) {
 
             // get the sales
-            final Map<Address, Integer> addressYears = new TreeMap<>(); // sort using the Address#compareTo definition
+            final Map<Address, AddressSummary> addressSummaries = new TreeMap<>(); // sort using the Address#compareTo definition
             final List<Sale> sales = salesService.findAllSales().stream()
                     .sorted(Comparator.comparingInt(Sale::getSaleYear).reversed()).toList();
             for (final Sale sale : sales) {
                 final int saleYear = sale.getSaleYear();
-                sale.getCustomers().stream().filter(c -> Objects.nonNull(c.getAddress())).forEach(c ->
-                        addressYears.putIfAbsent(c.getAddress(), saleYear)
-                );
+                sale.getCustomers().stream().filter(c -> Objects.nonNull(c.getAddress())).forEach(c -> {
+                    final Address address = c.getAddress();
+                    final boolean hasEmailAddress = StringUtils.isNotBlank(c.getEmailAddress());
+                    if (addressSummaries.containsKey(address)) {
+                        addressSummaries.get(address).setEmailAddressPresent(hasEmailAddress);
+                    } else {
+                        addressSummaries.put(c.getAddress(), new AddressSummary(saleYear, hasEmailAddress));
+                    }
+                });
             }
 
             // output each Address to the CSV
-            for (final Map.Entry<Address, Integer> addressYear : addressYears.entrySet()) {
-                final Address address = addressYear.getKey();
+            for (final Map.Entry<Address, AddressSummary> addressEntry : addressSummaries.entrySet()) {
+                final Address address = addressEntry.getKey();
+                final AddressSummary addressSummary = addressEntry.getValue();
                 csvPrinter.printRecord(List.of(
                         valueOrEmpty(address.getHouseNameNumber()),
                         valueOrEmpty(address.getStreet()),
@@ -327,7 +335,8 @@ public final class ExportService {
                         valueOrEmpty(address.getCity()),
                         valueOrEmpty(address.getPostcode()),
                         valueOrEmpty(address.getGeolocatableAddress()),
-                        Integer.toString(addressYear.getValue())
+                        Integer.toString(addressSummary.getLastSaleYear()),
+                        Boolean.toString(addressSummary.isEmailAddressPresent())
                 ));
             }
 
@@ -481,5 +490,12 @@ public final class ExportService {
                 address.setGeolocation(geolocation);
             }
         }
+    }
+
+    @lombok.Data
+    @AllArgsConstructor
+    private static class AddressSummary {
+        Integer lastSaleYear;
+        boolean emailAddressPresent;
     }
 }
