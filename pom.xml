@@ -276,6 +276,17 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <artifactId>xmlunit-core</artifactId>
+                    <groupId>org.xmlunit</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <artifactId>xmlunit-core</artifactId>
+            <groupId>org.xmlunit</groupId>
+            <version>2.10.0</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
