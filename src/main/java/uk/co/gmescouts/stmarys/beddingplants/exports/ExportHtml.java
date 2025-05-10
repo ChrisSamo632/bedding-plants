@@ -126,9 +126,9 @@ public class ExportHtml {
     @SuppressWarnings("SameReturnValue")
     @GetMapping(value = EXPORT_CUSTOMER_ADDRESSES_HTML, produces = MediaType.TEXT_HTML_VALUE)
     public String exportSaleAddressesAsMap(final Model model, @PathVariable final Integer saleYear,
-                                           @RequestParam(required = false) final OrderType orderType, @RequestParam(defaultValue = "ROADMAP") final MapType mapType,
-                                           @RequestParam(defaultValue = "TINY") final MapMarkerSize mapMarkerSize,
-                                           @RequestParam(defaultValue = "YELLOW") final MapMarkerColour mapMarkerColour) {
+                                           @RequestParam(required = false) final OrderType orderType, @RequestParam(defaultValue = "ROADMAP", required = true) final MapType mapType,
+                                           @RequestParam(defaultValue = "TINY", required = true) final MapMarkerSize mapMarkerSize,
+                                           @RequestParam(defaultValue = "YELLOW", required = true) final MapMarkerColour mapMarkerColour) {
         LOGGER.info("Exporting (HTML); Addresses for Sale [{}] with Order Type [{}]", saleYear, orderType);
 
         addCommonModelAttributes(model);

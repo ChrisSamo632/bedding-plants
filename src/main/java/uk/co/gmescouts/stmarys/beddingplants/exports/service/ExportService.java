@@ -213,7 +213,7 @@ public final class ExportService {
         final byte[] csv;
         try (ByteArrayOutputStream baos = prepareCsvOutputStream();
              PrintWriter pw = new PrintWriter(baos, false, CSV_CHARSET);
-             CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.builder().setHeader(headers.toArray(new String[0])).build())) {
+             CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.builder().setHeader(headers.toArray(new String[0])).get())) {
 
             // get the orders
             final Set<Order> orders = ordersService.getSaleCustomerOrders(saleYear, orderType, sorts);
@@ -261,7 +261,7 @@ public final class ExportService {
                      "#", "Name", "c/o", "Type", "Day", "Hour / Address", "Email Address", "Telephone", "# Plants",
                      String.format("Plant Price / %c", POUND_SIGN), String.format("Discount / %c", POUND_SIGN),
                      String.format("Paid / %c", POUND_SIGN), String.format("To Pay / %c", POUND_SIGN)
-             ).build())) {
+             ).get())) {
 
             // get the orders
             final Set<Order> orders = ordersService.getSaleCustomerOrders(saleYear, orderType, sorts);
@@ -305,7 +305,7 @@ public final class ExportService {
              PrintWriter pw = new PrintWriter(baos, false, CSV_CHARSET);
              CSVPrinter csvPrinter = new CSVPrinter(pw, CSVFormat.EXCEL.builder().setHeader(
                      "House Name/Number", "Street", "Town", "City", "Postcode", "Address", "Last Order Year", "Has Email Address"
-             ).build())) {
+             ).get())) {
 
             // get the sales
             final Map<Address, AddressSummary> addressSummaries = new TreeMap<>(); // sort using the Address#compareTo definition
