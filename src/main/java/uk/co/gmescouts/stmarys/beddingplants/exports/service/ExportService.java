@@ -112,7 +112,7 @@ public final class ExportService {
     public byte[] exportSaleCustomersToPdf(@NotNull final Integer saleYear, final OrderType orderType, @NotNull final String sorts)
             throws IOException {
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Exporting Customer Orders for Sale [{}] and Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+            LOGGER.info("Exporting Customer Orders (to PDF) for Sale [{}] and Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
         }
 
         // set up the URL
@@ -194,7 +194,7 @@ public final class ExportService {
     public byte[] exportSaleCustomersToCsv(@NotNull final Integer saleYear, final OrderType orderType, @NotNull final String sorts)
             throws IOException {
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Exporting Customer Orders for Sale [{}] and Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+            LOGGER.info("Exporting Customer Orders (to CSV) for Sale [{}] and Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
         }
 
         // get the plants
