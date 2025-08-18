@@ -27,6 +27,6 @@ jobs:
     permissions: write-all
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Maven Dependency Tree Dependency Submission
         uses: advanced-security/maven-dependency-submission-action@b275d12641ac2d2108b2cbb7598b154ad2f2cee8 #v5.0.0
