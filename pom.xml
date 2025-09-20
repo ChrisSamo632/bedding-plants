@@ -131,7 +131,7 @@
         <dependency>
             <groupId>org.springframework.security.oauth.boot</groupId>
             <artifactId>spring-security-oauth2-autoconfigure</artifactId>
-            <version>3.4.3</version>
+            <version>3.5.5</version>
         </dependency>
         <dependency>
            <groupId>org.springframework.security.oauth</groupId>
@@ -280,6 +280,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
+            <version>3.18.0</version>
         </dependency>
 
         <!-- Testing -->
@@ -289,10 +290,19 @@
             <scope>test</scope>
             <exclusions>
                 <exclusion>
-                    <artifactId>xmlunit-core</artifactId>
                     <groupId>org.xmlunit</groupId>
+                    <artifactId>xmlunit-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-core</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>6.2.11</version>
         </dependency>
         <dependency>
             <artifactId>xmlunit-core</artifactId>
