@@ -1,6 +1,7 @@
 [![Semgrep](https://github.com/ChrisSamo632/bedding-plants/actions/workflows/semgrep.yml/badge.svg)](https://github.com/ChrisSamo632/bedding-plants/actions/workflows/semgrep.yml)
 [![CodeQL](https://github.com/ChrisSamo632/bedding-plants/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/ChrisSamo632/bedding-plants/actions/workflows/codeql-analysis.yml)
 [![pmd](https://github.com/ChrisSamo632/bedding-plants/actions/workflows/pmd.yml/badge.svg)](https://github.com/ChrisSamo632/bedding-plants/actions/workflows/pmd.yml)
+[![Qodana Code Quality](https://github.com/ChrisSamo632/bedding-plants/actions/workflows/qodana_code_quality.yml/badge.svg)](https://github.com/ChrisSamo632/bedding-plants/actions/workflows/qodana_code_quality.yml)
 
 # Bedding Plants
 

@@ -104,7 +104,7 @@ class Export {
                                                                              @RequestParam(defaultValue = "type:DESC,deliveryDay:ASC,collectionHour:ASC,num:ASC") final String sorts)
             throws IOException {
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Exporting (CSV) Order details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
+            LOGGER.info("Exporting (CSV) Payment details for Sale [{}] with Order Type [{}] sorted by [{}]", saleYear, orderType, sorts);
         }
 
         // get the CSV content
