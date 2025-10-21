@@ -54,7 +54,7 @@ class Customers {
         }
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Number of Customers [{}]", customerSummaries.size());
+            LOGGER.debug("Number of Customer summaries [{}]", customerSummaries.size());
         }
 
         return customerSummaries;

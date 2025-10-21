@@ -135,11 +135,11 @@ public class GeolocationService {
             }
         } catch (IllegalStateException | ApiException | IOException e) {
             if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn(String.format("Unable to geocode address [%s]: %s", geolocatableAddress, e.getMessage()), e);
+                LOGGER.warn("Unable to geocode address [{}]: {}", geolocatableAddress, e.getMessage(), e);
             }
         } catch (final InterruptedException ie) {
             if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn(String.format("Thread interrupted whilst geocoding address [%s]: %s", geolocatableAddress, ie.getMessage()), ie);
+                LOGGER.warn("Thread interrupted whilst geocoding address [{}]: {}", geolocatableAddress, ie.getMessage(), ie);
             }
             Thread.currentThread().interrupt();
         }
