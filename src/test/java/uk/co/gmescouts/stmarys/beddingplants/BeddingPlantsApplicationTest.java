@@ -1,7 +1,7 @@
 package uk.co.gmescouts.stmarys.beddingplants;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.client.AutoConfigureWebClient;
+import org.springframework.boot.webclient.test.autoconfigure.AutoConfigureWebClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 
