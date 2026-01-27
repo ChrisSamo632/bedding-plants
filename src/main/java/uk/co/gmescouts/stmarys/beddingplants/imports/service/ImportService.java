@@ -266,6 +266,7 @@ public class ImportService {
                 .collectionSlot(collectionSlot)
                 .collectionHour(StringUtils.isNotBlank(excelOrder.getCollectionHour()) ? Integer.parseInt(excelOrder.getCollectionHour()) : null)
                 .courtesyOfName(excelOrder.getCourtesyOf())
+                .survey(excelOrder.getSurvey())
                 .notes(excelOrder.getNotes())
                 .paid(StringUtils.isNotBlank(excelOrder.getPaid()) ? Double.valueOf(excelOrder.getPaid()) : null)
                 .discount(StringUtils.isNotBlank(excelOrder.getDiscount()) ? Double.valueOf(excelOrder.getDiscount()) : null)

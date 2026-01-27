@@ -128,6 +128,8 @@ public class Order implements PlantSummary {
 
     private String courtesyOfName;
 
+    private String survey;
+
     private String notes;
 
     private Double discount;

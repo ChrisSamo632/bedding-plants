@@ -58,6 +58,9 @@ public class ExcelOrder {
 	@ExcelCellName("Telephone")
 	private String telephone;
 
+	@ExcelCellName("Survey")
+	private String survey;
+
 	@ExcelCellName("Notes")
 	private String notes;
 

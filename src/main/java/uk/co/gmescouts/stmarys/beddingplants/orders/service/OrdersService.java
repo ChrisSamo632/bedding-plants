@@ -75,6 +75,7 @@ public class OrdersService {
             existingOrder.setDeliveryRoute(order.getDeliveryRoute());
 
             existingOrder.setCourtesyOfName(order.getCourtesyOfName());
+            existingOrder.setSurvey(order.getSurvey());
             existingOrder.setNotes(order.getNotes());
             existingOrder.setPaid(order.getPaid());
 
