@@ -19,7 +19,7 @@ public class ExcelOrder {
 	@ExcelCellName("Surname")
 	private String surname;
 
-	@ExcelCellName("Collect (C) / Deliver (D)")
+	@ExcelCellName(value="", expression="Collect \\(C\\) ?/ ?Deliver \\(D\\)")
 	private String collectDeliver;
 
 	@ExcelCellName("Delivery Day")
