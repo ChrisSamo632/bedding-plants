@@ -89,10 +89,6 @@
             <artifactId>spring-boot-starter-logging</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-                <exclusion>
                     <artifactId>logback-core</artifactId>
                     <groupId>ch.qos.logback</groupId>
                 </exclusion>
@@ -101,11 +97,6 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.5.38</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
             <version>1.5.38</version>
         </dependency>
         <dependency>
