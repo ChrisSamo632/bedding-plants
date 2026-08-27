@@ -22,7 +22,8 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
-      - name: 'Qodana Scan'
+
+      - name: Qodana Scan
         uses: JetBrains/qodana-action@b588768b6e7e6da579e518bc584f79de0d243692
         env:
           QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
@@ -36,3 +37,8 @@ jobs:
           upload-result: true
           # quick-fixes available in Ultimate and Ultimate Plus plans
           push-fixes: 'none'
+
+      - name: Qodana Quality Report
+        uses: github/codeql-action/upload-sarif@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd
+        with:
+          sarif_file: ${{ runner.temp }}/qodana/results/qodana.sarif.json
