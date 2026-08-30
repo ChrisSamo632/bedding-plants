@@ -161,7 +161,7 @@ class Export {
         // get the image
         final byte[] mapImg = exportService.exportGeolocatedSaleAddressesToImage(saleYear, orderType, mapImageFormat, mapType);
 
-        if (mapImg == null) {
+        if (mapImg == null || mapImg.length == 0) {
             return ResponseEntity.noContent().build();
         }
 

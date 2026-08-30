@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Geolocation;
 import uk.co.gmescouts.stmarys.beddingplants.exports.model.GeolocatedPoint;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.configuration.GeolocationConfiguration;
@@ -36,6 +37,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Validated
 public class GeolocationService {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeolocationService.class);
 
@@ -51,7 +53,7 @@ public class GeolocationService {
             LOGGER.info("Generating Google Map Image of Format [{}] and Type [{}] for [{}] Points", mapImageFormat, mapType, points.size());
         }
 
-        byte[] imgData = null;
+        byte[] imgData = new byte[0];
 
         if (!points.isEmpty()) {
             // generate Markers from points (defaultto tiny red markers)

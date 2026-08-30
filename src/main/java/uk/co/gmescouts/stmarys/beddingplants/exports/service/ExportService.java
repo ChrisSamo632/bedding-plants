@@ -390,7 +390,7 @@ public final class ExportService {
         final Set<GeolocatedPoint> geolocatedPoints = getGeolocatedSaleAddressesAsPoints(saleYear, orderType);
 
         // generate the image
-        byte[] mapImg = null;
+        byte[] mapImg = new byte[0];
         if (CollectionUtils.isNotEmpty(geolocatedPoints)) {
             // get the image containing the Geolocated Points
             mapImg = geolocationService.plotPointsOnMapImage(geolocatedPoints, mapImageFormat, mapType);
