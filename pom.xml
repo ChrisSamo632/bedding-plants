@@ -155,6 +155,7 @@
         <dependency>
             <groupId>tools.jackson.datatype</groupId>
             <artifactId>jackson-datatype-hibernate7</artifactId>
+            <version>3.2.2</version>
         </dependency>
 
         <!-- Database (h2) -->
