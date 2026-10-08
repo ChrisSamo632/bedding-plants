@@ -100,12 +100,12 @@
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-core</artifactId>
-            <version>1.6.3</version>
+            <version>1.6.5</version>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.6.3</version>
+            <version>1.6.5</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -242,7 +242,7 @@
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itext-core</artifactId>
-            <version>9.7.1</version>
+            <version>9.8.0</version>
             <type>pom</type>
             <exclusions>
                 <exclusion>
@@ -255,7 +255,7 @@
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>html2pdf</artifactId>
-            <version>6.3.3</version>
+            <version>6.3.4</version>
         </dependency>
 
         <!-- CSV -->
