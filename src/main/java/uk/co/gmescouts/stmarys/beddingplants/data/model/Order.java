@@ -53,6 +53,7 @@ public class Order implements PlantSummary {
         // intentionally blank, only needed for Hibernate
     }
 
+    @SuppressWarnings("null")
     @Override
     @JsonIgnore
     @Transient
@@ -76,6 +77,7 @@ public class Order implements PlantSummary {
         return amount;
     }
 
+    @SuppressWarnings("null")
     @Override
     @JsonIgnore
     @Transient
@@ -93,6 +95,7 @@ public class Order implements PlantSummary {
         return toCurrencyDisplay(this.getPrice());
     }
 
+    @SuppressWarnings("null")
     @Override
     @JsonIgnore
     @Transient

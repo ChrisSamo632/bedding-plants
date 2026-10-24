@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import uk.co.gmescouts.stmarys.beddingplants.data.OrderRepository;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderType;
@@ -14,6 +15,7 @@ import java.util.Arrays;
 import java.util.Set;
 
 @Service
+@Validated
 public class OrdersService {
     @Resource
     private OrderRepository orderRepository;
@@ -23,7 +25,8 @@ public class OrdersService {
     public Set<Order> getSaleCustomerOrders(@NotNull final Integer saleYear, final OrderType orderType, final String sorts) {
         LOGGER.info("Get Customer Orders for Sale [{}]", saleYear);
 
-        final Sort sort = calculateSort(sorts, Sort.by(Sort.Direction.ASC, "num"));
+        @SuppressWarnings("null")
+        final Sort sort = calculateSort(sorts, Sort.by(Sort.Direction.ASC, Order::getNum));
         Set<Order> orders;
         if (orderType == null) {
             orders = orderRepository.findByCustomerSaleSaleYear(saleYear, sort);
@@ -88,14 +91,17 @@ public class OrdersService {
         return updated;
     }
 
+    @SuppressWarnings("null")
     public static Double calculateOrdersCostTotal(@NotNull final Set<Order> orders) {
         return orders.stream().mapToDouble(Order::getCost).sum();
     }
 
+    @SuppressWarnings("null")
     public static Double calculateOrdersIncomeTotal(@NotNull final Set<Order> orders) {
         return orders.stream().mapToDouble(Order::getPrice).sum();
     }
 
+    @SuppressWarnings("null")
     private static Sort calculateSort(final String sorts, final Sort defaultSort) {
         return Arrays.stream(sorts.split(","))
                 .map(s -> s.split(":"))

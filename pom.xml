@@ -432,14 +432,14 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <includes>
-                    <include>application*.properties</include>
+                    <include>application*.yaml</include>
                 </includes>
                 <filtering>true</filtering>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
                 <excludes>
-                    <exclude>application*.properties</exclude>
+                    <exclude>application*.yaml</exclude>
                 </excludes>
             </resource>
         </resources>
@@ -447,14 +447,14 @@
             <testResource>
                 <directory>src/test/resources</directory>
                 <includes>
-                    <include>application*.properties</include>
+                    <include>application*.yaml</include>
                 </includes>
                 <filtering>true</filtering>
             </testResource>
             <testResource>
                 <directory>src/test/resources</directory>
                 <excludes>
-                    <exclude>application*.properties</exclude>
+                    <exclude>application*.yaml</exclude>
                 </excludes>
             </testResource>
         </testResources>

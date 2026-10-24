@@ -47,6 +47,7 @@ public class Sale {
     @NotNull
     private Double deliveryCharge;
 
+    @SuppressWarnings("null")
     @NonNull
     @Builder.Default
     @OrderBy("num")
@@ -54,6 +55,7 @@ public class Sale {
     @ToString.Exclude
     private Set<DeliveryRoute> deliveryRoutes = new TreeSet<>(Comparator.comparing(DeliveryRoute::getNum));
 
+    @SuppressWarnings("null")
     @NonNull
     @Builder.Default
     @OrderBy("surname, forename")
@@ -61,6 +63,7 @@ public class Sale {
     @ToString.Exclude
     private Set<Customer> customers = new TreeSet<>(Comparator.comparing(Customer::getName));
 
+    @SuppressWarnings("null")
     @NonNull
     @Builder.Default
     @OrderBy("num")

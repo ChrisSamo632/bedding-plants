@@ -125,7 +125,7 @@ public class Address implements Comparable<Address> {
     @Access(AccessType.FIELD)
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "address")
     @ToString.Exclude
-    private Set<Customer> customers = new HashSet<>(); // FIXME: new TreeSet<>(Comparator.comparing(Customer::getForename));
+    private Set<Customer> customers = new HashSet<>();
 
     @Embedded
     private Geolocation geolocation;

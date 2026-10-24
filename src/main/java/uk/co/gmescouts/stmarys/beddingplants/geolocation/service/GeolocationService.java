@@ -56,18 +56,20 @@ public class GeolocationService {
         byte[] imgData = new byte[0];
 
         if (!points.isEmpty()) {
-            // generate Markers from points (defaultto tiny red markers)
+            // generate Markers from points (default to tiny red markers)
             final Markers markers = new Markers();
             markers.size(MarkersSize.tiny);
             markers.color("red");
 
             // set Marker Size to be whatever appears most frequently in the Geolocated Points
+            @SuppressWarnings("null")
             final Map<MapMarkerSize, Long> sizeCounts = points.stream().map(GeolocatedPoint::getMapMarkerSize)
                     .collect(Collectors.groupingBy(s -> s, Collectors.counting()));
             final Optional<Entry<MapMarkerSize, Long>> mapMarkerSize = sizeCounts.entrySet().stream().max(Entry.comparingByValue());
             mapMarkerSize.ifPresent(mapMarkerSizeLongEntry -> markers.size(mapMarkerSizeLongEntry.getKey().getGoogleStaticMapsMarkerSize()));
 
             // set Marker Colour to be whatever appears most frequently in the Geolocated Points
+            @SuppressWarnings("null")
             final Map<MapMarkerColour, Long> colourCounts = points.stream().map(GeolocatedPoint::getMapMarkerColour)
                     .collect(Collectors.groupingBy(c -> c, Collectors.counting()));
             final Optional<Entry<MapMarkerColour, Long>> mapMarkerColour = colourCounts.entrySet().stream()

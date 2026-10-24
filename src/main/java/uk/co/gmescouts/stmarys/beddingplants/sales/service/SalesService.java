@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import uk.co.gmescouts.stmarys.beddingplants.data.SaleRepository;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Customer;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Set;
 
 @Service
+@Validated
 public class SalesService {
     private static final Logger LOGGER = LoggerFactory.getLogger(SalesService.class);
 
@@ -57,13 +59,14 @@ public class SalesService {
         return saleRepository.findBySaleYear(year);
     }
 
+    @SuppressWarnings("null")
     public List<Sale> findAllSales() {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Finding all Sales");
         }
 
         // find and sort by Year
-        return saleRepository.findAll(Sort.by(Sort.Order.desc("saleYear")));
+        return saleRepository.findAll(Sort.by(Sort.Order.desc(Sale::getSaleYear)));
     }
 
     public SaleSummary summariseSale(@NotNull final Sale sale) {
@@ -72,13 +75,17 @@ public class SalesService {
 
         // count Customers and calculate details about their Orders
         final int customerCount = sale.getCustomers().size();
+        @SuppressWarnings("null")
         final int orderCount = sale.getCustomers().stream().map(Customer::getOrders).mapToInt(Set::size).sum();
         // rounded to 2 d.p.
+        @SuppressWarnings("null")
         final double orderCostTotal = Math.round(
                 sale.getCustomers().stream().map(Customer::getOrders).mapToDouble(OrdersService::calculateOrdersCostTotal).sum() * 100.0) / 100.0;
         // rounded to 2 d.p.
+        @SuppressWarnings("null")
         final double orderIncomeTotal = Math.round(
                 sale.getCustomers().stream().map(Customer::getOrders).mapToDouble(OrdersService::calculateOrdersIncomeTotal).sum() * 100.0) / 100.0;
+        @SuppressWarnings("null")
         final int orderPlantTotal = sale.getCustomers().stream().map(Customer::getOrders).flatMapToInt(orders -> orders.stream().mapToInt(Order::getCount)).sum();
 
         return SaleSummary.builder().year(sale.getSaleYear()).vat(sale.getVat()).deliveryCharge(sale.getDeliveryCharge()).plantCount(plantCount).customerCount(customerCount)

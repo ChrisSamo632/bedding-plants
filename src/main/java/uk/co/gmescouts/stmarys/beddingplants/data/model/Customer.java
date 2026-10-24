@@ -43,7 +43,7 @@ public class Customer {
         return String.format("%s-%04d", this.getName().toUpperCase(Locale.ROOT), sale.getSaleYear());
     }
 
-    @SuppressWarnings({"EmptyMethod", "unused"})
+    @SuppressWarnings({"EmptyMethod"})
     public void setId(final String id) {
         // intentionally blank, for Entity/Jackson construction only
     }
@@ -76,6 +76,7 @@ public class Customer {
     @ManyToOne
     private Sale sale;
 
+    @SuppressWarnings("null")
     @NonNull
     @Builder.Default
     @Access(AccessType.FIELD)

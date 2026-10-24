@@ -1,89 +1,99 @@
 {
   "properties": [
     {
-      "name": "beddingplants.import.orderImportsName",
+      "name": "spring.h2.console.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Whether the H2 database web console is enabled"
+    },
+    {
+      "name": "spring.h2.console.path",
+      "type": "java.lang.String",
+      "description": "Path at which the H2 database web console is available"
+    },
+    {
+      "name": "beddingplants.import.order-imports-name",
       "type": "java.lang.String",
       "description": "Name of Order Imports Worksheet within Excel Workbook"
     },
     {
-      "name": "beddingplants.import.plantImportsName",
+      "name": "beddingplants.import.plant-imports-name",
       "type": "java.lang.String",
       "description": "Name of Plant Imports Worksheet within Excel Workbook"
     },
     {
-      "name": "beddingplants.import.defaultCity",
+      "name": "beddingplants.import.default-city",
       "type": "java.lang.String",
       "description": "City to use in Addresses if not specified in the import spreadsheet (where it's optional)"
     },
     {
-      "name": "beddingplants.geolocation.googleApiKey",
+      "name": "beddingplants.geolocation.google-api-key",
       "type": "java.lang.String",
       "description": "Google API-Key for use with the BeddingPlants application"
     },
     {
-      "name": "beddingplants.geolocation.googleMapsImgScale",
+      "name": "beddingplants.geolocation.google-maps-img-scale",
       "type": "java.lang.Integer",
       "description": "Google Maps Image scale"
     },
     {
-      "name": "beddingplants.geolocation.googleMapsImgWidth",
+      "name": "beddingplants.geolocation.google-maps-img-width",
       "type": "java.lang.Integer",
       "description": "Google Maps Image width"
     },
     {
-      "name": "beddingplants.geolocation.googleMapsImgHeight",
+      "name": "beddingplants.geolocation.google-maps-img-height",
       "type": "java.lang.Integer",
       "description": "Google Maps Image height"
     },
     {
-      "name": "beddingplants.geolocation.googleMapsImgLanguage",
+      "name": "beddingplants.geolocation.google-maps-img-language",
       "type": "java.lang.String",
       "description": "Google Maps Image language"
     },
     {
-      "name": "beddingplants.export.scoutHutLat",
+      "name": "beddingplants.export.scout-hut-lat",
       "type": "java.lang.Float",
       "description": "Scout Hut latitude"
     },
     {
-      "name": "beddingplants.export.scoutHutLng",
+      "name": "beddingplants.export.scout-hut-lng",
       "type": "java.lang.Float",
       "description": "Scout Hut longitude"
     },
     {
-      "name": "beddingplants.export.defaultZoom",
+      "name": "beddingplants.export.default-zoom",
       "type": "java.lang.Integer",
       "description": "Default Google Maps zoom level"
     },
     {
-      "name": "beddingplants.export.viewportMaxLat",
+      "name": "beddingplants.export.viewport-max-lat",
       "type": "java.lang.Float",
       "description": "Default viewport maximum latitude"
     },
     {
-      "name": "beddingplants.export.viewportMinLat",
+      "name": "beddingplants.export.viewport-min-lat",
       "type": "java.lang.Float",
       "description": "Default viewport minimum latitude"
     },
     {
-      "name": "beddingplants.export.viewportMaxLng",
+      "name": "beddingplants.export.viewport-max-lng",
       "type": "java.lang.Float",
       "description": "Default viewport maximum longitude"
     },
     {
-      "name": "beddingplants.export.viewportMinLng",
+      "name": "beddingplants.export.viewport-min-lng",
       "type": "java.lang.Float",
       "description": "Default viewport minimum longitude"
     },
     {
-      "name": "beddingplants.deliveries.maxRoutePlantCount",
+      "name": "beddingplants.deliveries.max-route-plant-count",
       "type": "java.lang.Integer",
-      "description": "Maximum number of Plants within a Delivery Route (can exceed but should not be significantly greater)"
+      "description": "Maximum number of plants allowed on a generated delivery route"
     },
     {
-      "name": "beddingplants.deliveries.maxRouteRadiusKm",
+      "name": "beddingplants.deliveries.max-route-radius-km",
       "type": "java.lang.Float",
-      "description": "Maximum area radius for Orders within a Delivery Route (can exceed but should not be significantly greater)"
+      "description": "Maximum pairwise road distance in kilometres between stops on a generated delivery route"
     }
   ]
 }

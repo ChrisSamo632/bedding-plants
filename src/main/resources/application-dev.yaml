@@ -1,0 +1,37 @@
+debug: true
+trace: false
+
+logging:
+  level:
+    "[uk.co.gmescouts.stmarys.beddingplants]": DEBUG
+    "[org.thymeleaf]": DEBUG
+
+spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+  jpa:
+    show-sql: true
+  datasource:
+    url: jdbc:h2:./data/sales;DB_CLOSE_ON_EXIT=FALSE;CIPHER=AES;FILE_LOCK=FS
+    password: "${BEDDING_PLANTS_DB_PASSWORD:}"
+  thymeleaf:
+    cache: false
+    mode: HTML
+    encoding: UTF-8
+    prefix: file:src/main/resources/templates/
+  web:
+    resources:
+      static-locations: file:src/main/resources/static/
+      cache:
+        period: 0
+  devtools:
+    restart:
+      enabled: true
+      log-condition-evaluation-delta: true
+      poll-interval: 1s
+      quiet-period: 400ms
+
+springdoc:
+  show-actuator: true

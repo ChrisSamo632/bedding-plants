@@ -40,6 +40,7 @@ class Sales {
     @Resource
     private SalesService salesService;
 
+    @SuppressWarnings("null")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = SALE_SUMMARY)
     public List<SaleSummary> getSaleSummary() {
         if (LOGGER.isInfoEnabled()) {

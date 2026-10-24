@@ -51,6 +51,7 @@ public class DeliveryRoute implements PlantSummary {
         // intentionally blank, only needed for Hibernate
     }
 
+    @SuppressWarnings("null")
     @Override
     @JsonIgnore
     @Transient
@@ -58,6 +59,7 @@ public class DeliveryRoute implements PlantSummary {
         return this.orders.stream().mapToInt(Order::getCount).sum();
     }
 
+    @SuppressWarnings("null")
     @Override
     @JsonIgnore
     @Transient
@@ -66,6 +68,7 @@ public class DeliveryRoute implements PlantSummary {
         return this.orders.stream().mapToDouble(Order::getPrice).sum();
     }
 
+    @SuppressWarnings("null")
     @Override
     @JsonIgnore
     @Transient
@@ -89,9 +92,7 @@ public class DeliveryRoute implements PlantSummary {
     @ManyToOne
     private Sale sale;
 
-    // TODO: store image of the DeliveryRoute points plotted on a map?
-    // private byte[] mapImage;
-
+    @SuppressWarnings("null")
     @Builder.Default
     @OrderBy("num")
     @Access(AccessType.FIELD)
