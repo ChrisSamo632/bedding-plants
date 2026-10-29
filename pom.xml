@@ -16,7 +16,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.1</version>
+        <version>4.1.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -53,8 +53,8 @@
 
         <jvm.memory.args>-Xmx1g -Xms1g</jvm.memory.args>
 
-        <jackson-2-bom.version>2.22.3</jackson-2-bom.version>
-        <jackson-bom.version>3.2.3</jackson-bom.version>
+        <jackson-2-bom.version>2.22.4</jackson-2-bom.version>
+        <jackson-bom.version>3.2.4</jackson-bom.version>
     </properties>
 
     <profiles>
@@ -161,6 +161,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.hibernate.validator</groupId>
+                    <artifactId>hibernate-validator</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>9.1.5.Final</version>
         </dependency>
 
         <!-- TODO: enable OAuth2 security:
