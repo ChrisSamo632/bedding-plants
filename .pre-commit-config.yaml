@@ -41,11 +41,27 @@ repos:
         require_serial: true # shellcheck can detect sourcing this way
         files: ^run-local\.sh$
 
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint
+
+  - repo: local
+    hooks:
+      - id: spotless-apply
+        name: Format Java (Spotless)
+        description: Apply Spotless formatting rules; the commit is stopped if files change
+        entry: ./mvnw -B -ntp -q spotless:apply
+        language: system
+        pass_filenames: false
+        files: ^src/.*\.java$
+
   - repo: local
     hooks:
       - id: maven-build-and-test
-        name: Maven build and test
+        name: Maven build, test, lint and SAST
+        description: Runs verify - format check, tests, PMD and SpotBugs/FindSecBugs
         entry: ./mvnw -B -ntp verify
         language: system
         pass_filenames: false
-        files: ^(pom\.xml|src/.*)$
+        files: ^(pom\.xml|spotbugs-exclude\.xml|src/.*)$

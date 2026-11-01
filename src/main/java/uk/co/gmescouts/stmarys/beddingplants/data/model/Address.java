@@ -11,14 +11,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 
@@ -28,13 +20,6 @@ import java.util.Set;
 
 @Entity
 @Table(name = "addresses")
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class Address implements Comparable<Address> {
     @JsonIgnore
     @Id
@@ -105,7 +90,7 @@ public class Address implements Comparable<Address> {
     @JsonIgnore
     @Transient
     public boolean isGeolocated() {
-        return this.geolocation != null && StringUtils.isNotBlank(this.geolocation.getFormattedAddress());
+        return this.geolocation != null && StringUtils.isNotBlank(this.geolocation.formattedAddress());
     }
 
     private String houseNameNumber;
@@ -118,13 +103,10 @@ public class Address implements Comparable<Address> {
 
     private String postcode;
 
-    @NonNull
     @JsonIgnore
-    @Builder.Default
     @OrderBy("surname, forename")
     @Access(AccessType.FIELD)
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "address")
-    @ToString.Exclude
     private Set<Customer> customers = new HashSet<>();
 
     @Embedded
@@ -165,5 +147,66 @@ public class Address implements Comparable<Address> {
     @Override
     public int hashCode() {
         return Objects.hash(houseNameNumber, street, town, city, postcode);
+    }
+
+    public String getHouseNameNumber() {
+        return houseNameNumber;
+    }
+
+    public void setHouseNameNumber(final String houseNameNumber) {
+        this.houseNameNumber = houseNameNumber;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(final String street) {
+        this.street = street;
+    }
+
+    public String getTown() {
+        return town;
+    }
+
+    public void setTown(final String town) {
+        this.town = town;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(final String city) {
+        this.city = city;
+    }
+
+    public String getPostcode() {
+        return postcode;
+    }
+
+    public void setPostcode(final String postcode) {
+        this.postcode = postcode;
+    }
+
+    public Set<Customer> getCustomers() {
+        return customers;
+    }
+
+    public void setCustomers(final Set<Customer> customers) {
+        this.customers = Objects.requireNonNull(customers, "customers");
+    }
+
+    public Geolocation getGeolocation() {
+        return geolocation;
+    }
+
+    public void setGeolocation(final Geolocation geolocation) {
+        this.geolocation = geolocation;
+    }
+
+    @Override
+    public String toString() {
+        return "Address(" + "houseNameNumber=" + houseNameNumber + ", " + "street=" + street + ", " + "town=" + town + ", " + "city=" + city + ", " + "postcode=" + postcode + ", " + "geolocation=" + geolocation + ")";
     }
 }

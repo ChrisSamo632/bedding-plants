@@ -13,7 +13,7 @@ import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderItem;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderType;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Plant;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
-import uk.co.gmescouts.stmarys.beddingplants.deliveries.configuration.DeliveriesConfiguration;
+import uk.co.gmescouts.stmarys.beddingplants.deliveries.configuration.DeliveriesProperties;
 import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
 
 import java.util.HashSet;
@@ -24,14 +24,13 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class DeliveriesServiceTest {
     private static final int SALE_YEAR = 2026;
 
-    private final DeliveriesConfiguration configuration = new DeliveriesConfiguration();
+    private final DeliveriesProperties configuration = new DeliveriesProperties(2, 1.0f);
     private final DeliveryRouteRepository routeRepository = mock(DeliveryRouteRepository.class);
     private final SalesService salesService = mock(SalesService.class);
     private final RoadDistanceService roadDistanceService = mock(RoadDistanceService.class);
@@ -40,13 +39,10 @@ class DeliveriesServiceTest {
 
     @BeforeEach
     void setUp() {
-        configuration.setMaxRoutePlantCount(2);
-        configuration.setMaxRouteRadiusKm(1.0f);
-        sale = Sale.builder().saleYear(SALE_YEAR).vat(20.0).deliveryCharge(2.5).build();
+        sale = new Sale(SALE_YEAR, 20.0, 2.5);
         deliveriesService = new DeliveriesService(configuration, routeRepository, salesService, roadDistanceService);
         when(salesService.findSaleByYear(SALE_YEAR)).thenReturn(sale);
         when(routeRepository.findDeliveryRouteBySaleSaleYear(SALE_YEAR)).thenAnswer(invocation -> new HashSet<>(sale.getDeliveryRoutes()));
-        when(routeRepository.saveAll(any())).thenAnswer(invocation -> invocation.getArgument(0));
     }
 
     @Test
@@ -87,7 +83,7 @@ class DeliveriesServiceTest {
     void preservesExistingAssignmentsAndRepeatedGenerationIsIdempotent() {
         final Order manuallyAssignedOrder = addOrder(1, DeliveryDay.SATURDAY, 1, 53.48, -2.14);
         final Order unassignedOrder = addOrder(2, DeliveryDay.SATURDAY, 1, 53.4801, -2.1401);
-        final DeliveryRoute manualRoute = DeliveryRoute.builder().num(10L).deliveryDay(DeliveryDay.SATURDAY).sale(sale).build();
+        final DeliveryRoute manualRoute = new DeliveryRoute(10L, DeliveryDay.SATURDAY);
         manualRoute.addOrder(manuallyAssignedOrder);
         sale.addDeliveryRoute(manualRoute);
         when(roadDistanceService.getRoadDistanceMatrix(any())).thenReturn(new double[][]{{0.0}});
@@ -100,13 +96,14 @@ class DeliveriesServiceTest {
         assertEquals(11L, unassignedOrder.getDeliveryRoute().getNum());
         assertSame(manualRoute, manuallyAssignedOrder.getDeliveryRoute());
         verify(roadDistanceService, never()).getRoadDistanceMatrix(any());
-        verify(routeRepository, times(1)).saveAll(any());
     }
 
     @Test
     void returnsRoutesInRequestedOrder() {
-        final DeliveryRoute saturday = DeliveryRoute.builder().num(2L).deliveryDay(DeliveryDay.SATURDAY).sale(sale).build();
-        final DeliveryRoute friday = DeliveryRoute.builder().num(3L).deliveryDay(DeliveryDay.FRIDAY).sale(sale).build();
+        final DeliveryRoute saturday = new DeliveryRoute(2L, DeliveryDay.SATURDAY);
+        final DeliveryRoute friday = new DeliveryRoute(3L, DeliveryDay.FRIDAY);
+        saturday.setSale(sale);
+        friday.setSale(sale);
         when(routeRepository.findDeliveryRouteBySaleSaleYear(SALE_YEAR)).thenReturn(Set.of(saturday, friday));
 
         final Set<DeliveryRoute> routes = deliveriesService.getDeliveryRoutesBySaleYear(SALE_YEAR, "day:DESC,num:ASC");
@@ -117,17 +114,18 @@ class DeliveriesServiceTest {
 
     private Order addOrder(final int orderNumber, final DeliveryDay deliveryDay, final int plantCount,
                            final Double latitude, final Double longitude) {
-        final Address address = Address.builder().street("Test Street").town("Manchester").build();
+        final Address address = new Address();
+        address.setStreet("Test Street");
+        address.setTown("Manchester");
         if (latitude != null && longitude != null) {
             address.setGeolocation(new Geolocation("Test Address", latitude, longitude));
         }
-        final Customer customer = Customer.builder().forename("Customer").surname(Integer.toString(orderNumber)).build();
+        final Customer customer = new Customer("Customer", Integer.toString(orderNumber));
         address.addCustomer(customer);
         sale.addCustomer(customer);
 
-        final Order order = Order.builder().num(orderNumber).type(OrderType.DELIVER).deliveryDay(deliveryDay).build();
-        order.addOrderItem(OrderItem.builder().plant(Plant.builder().num(1).name("Plant").variety("Variety").price(1.0).cost(1.0).build())
-                .count(plantCount).build());
+        final Order order = new Order(orderNumber, deliveryDay, OrderType.DELIVER);
+        order.addOrderItem(new OrderItem(new Plant(1, "Plant", "Variety", 1.0, 1.0), plantCount));
         customer.addOrder(order);
         return order;
     }

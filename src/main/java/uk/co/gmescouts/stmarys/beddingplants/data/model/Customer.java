@@ -12,14 +12,6 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 import java.util.Comparator;
 import java.util.Locale;
@@ -29,17 +21,13 @@ import java.util.TreeSet;
 
 @Entity
 @Table(name = "customers")
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class Customer {
     @JsonIgnore
     @Id
     public String getId() {
+        if (sale == null) {
+            throw new IllegalStateException("Customer must be linked to a Sale before its id can be determined");
+        }
         return String.format("%s-%04d", this.getName().toUpperCase(Locale.ROOT), sale.getSaleYear());
     }
 
@@ -54,11 +42,9 @@ public class Customer {
         return String.format("%s %s", forename, surname);
     }
 
-    @NonNull
     @NotNull
     private String forename;
 
-    @NonNull
     @NotNull
     private String surname;
 
@@ -77,12 +63,9 @@ public class Customer {
     private Sale sale;
 
     @SuppressWarnings("null")
-    @NonNull
-    @Builder.Default
     @Access(AccessType.FIELD)
     @OrderBy("num")
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "customer")
-    @ToString.Exclude
     private Set<Order> orders = new TreeSet<>(Comparator.comparingInt(Order::getNum));
 
     public void addOrder(final Order order) {
@@ -110,5 +93,75 @@ public class Customer {
     @Override
     public int hashCode() {
         return Objects.hash(forename, surname, sale);
+    }
+
+    public Customer() {
+        // required by JPA and Jackson
+    }
+
+    public Customer(final String forename, final String surname) {
+        this.forename = Objects.requireNonNull(forename, "forename");
+        this.surname = Objects.requireNonNull(surname, "surname");
+    }
+
+    public String getForename() {
+        return forename;
+    }
+
+    public void setForename(final String forename) {
+        this.forename = Objects.requireNonNull(forename, "forename");
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(final String surname) {
+        this.surname = Objects.requireNonNull(surname, "surname");
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public void setAddress(final Address address) {
+        this.address = address;
+    }
+
+    public String getEmailAddress() {
+        return emailAddress;
+    }
+
+    public void setEmailAddress(final String emailAddress) {
+        this.emailAddress = emailAddress;
+    }
+
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(final String telephone) {
+        this.telephone = telephone;
+    }
+
+    public Sale getSale() {
+        return sale;
+    }
+
+    public void setSale(final Sale sale) {
+        this.sale = sale;
+    }
+
+    public Set<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(final Set<Order> orders) {
+        this.orders = Objects.requireNonNull(orders, "orders");
+    }
+
+    @Override
+    public String toString() {
+        return "Customer(" + "forename=" + forename + ", " + "surname=" + surname + ", " + "address=" + address + ", " + "emailAddress=" + emailAddress + ", " + "telephone=" + telephone + ", " + "sale=" + sale + ")";
     }
 }

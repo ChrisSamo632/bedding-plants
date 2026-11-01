@@ -1,18 +1,9 @@
 package uk.co.gmescouts.stmarys.beddingplants.deliveries.configuration;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
-@ConfigurationProperties(prefix = "beddingplants.deliveries")
 @Configuration
+@EnableConfigurationProperties(DeliveriesProperties.class)
 public class DeliveriesConfiguration {
-	@Getter
-	@Setter
-	private int maxRoutePlantCount;
-
-	@Getter
-	@Setter
-	private float maxRouteRadiusKm;
 }

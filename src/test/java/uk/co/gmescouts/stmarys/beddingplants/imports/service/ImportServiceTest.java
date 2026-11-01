@@ -6,6 +6,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
 import uk.co.gmescouts.stmarys.beddingplants.imports.configuration.ImportConfiguration;
+import uk.co.gmescouts.stmarys.beddingplants.imports.configuration.ImportProperties;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
 import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
 
@@ -25,7 +26,7 @@ import static org.mockito.Mockito.when;
 
 class ImportServiceTest {
 	private final ImportConfiguration featureConfiguration = new ImportConfiguration();
-	private final ImportService feature = new ImportService(featureConfiguration.getPoijiOptionsBuilder(), featureConfiguration, mock(SalesService.class), mock(AddressRepository.class));
+	private final ImportService feature = new ImportService(featureConfiguration.getPoijiOptionsBuilder(), new ImportProperties(null, null, null), mock(SalesService.class), mock(AddressRepository.class));
 
 	@Test
 	final void testNormaliseTelephoneNumber() {
@@ -65,10 +66,9 @@ class ImportServiceTest {
 		}
 
 		final ImportConfiguration configuration = new ImportConfiguration();
-		configuration.setOrderImportsName("Order_Imports");
-		configuration.setPlantImportsName("Plant_Imports");
+		final ImportProperties properties = new ImportProperties("Order_Imports", "Plant_Imports", null);
 		final SalesService salesService = mock(SalesService.class);
-		final ImportService service = new ImportService(configuration.getPoijiOptionsBuilder(), configuration, salesService, mock(AddressRepository.class));
+		final ImportService service = new ImportService(configuration.getPoijiOptionsBuilder(), properties, salesService, mock(AddressRepository.class));
 		final MockMultipartFile file = new MockMultipartFile("file", "orders.xlsx",
 				"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", workbookContent);
 
@@ -79,9 +79,7 @@ class ImportServiceTest {
 	@Test
 	void repeatedSaleImportDoesNotDuplicatePlantsCustomersOrOrders() throws IOException {
 		final ImportConfiguration configuration = new ImportConfiguration();
-		configuration.setOrderImportsName("Order_Imports");
-		configuration.setPlantImportsName("Plant_Imports");
-		configuration.setDefaultCity("Manchester");
+		final ImportProperties properties = new ImportProperties("Order_Imports", "Plant_Imports", "Manchester");
 		final SalesService salesService = mock(SalesService.class);
 		final AtomicReference<Sale> persistedSale = new AtomicReference<>();
 		when(salesService.findSaleByYear(2026)).thenAnswer(invocation -> persistedSale.get());
@@ -90,7 +88,7 @@ class ImportServiceTest {
 			persistedSale.set(sale);
 			return sale;
 		});
-		final ImportService service = new ImportService(configuration.getPoijiOptionsBuilder(), configuration, salesService, mock(AddressRepository.class));
+		final ImportService service = new ImportService(configuration.getPoijiOptionsBuilder(), properties, salesService, mock(AddressRepository.class));
 		final MockMultipartFile file = new MockMultipartFile("file", "orders.xlsx",
 				"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", validWorkbook());
 

@@ -61,10 +61,38 @@ pip install pre-commit
 pre-commit install
 ```
 
-Each commit runs file hygiene checks, secret scanning (gitleaks), shellcheck, and
-(when `pom.xml` or `src/` change) `./mvnw verify`, which builds and tests the API.
+Each commit runs file hygiene checks, secret scanning (gitleaks), shellcheck,
+GitHub Actions linting (actionlint), Java formatting (Spotless) and, when `pom.xml`
+or `src/` change, `./mvnw verify`, which builds, tests, lints (PMD) and runs SAST
+(SpotBugs with FindSecBugs) on the API.
 Run everything manually with `pre-commit run --all-files`; skip the slow build in an
 emergency with `SKIP=maven-build-and-test git commit`.
+
+## Code Quality
+
+`./mvnw verify` (also run by the **Build** GitHub workflow on every push and pull
+request) fails on any finding from:
+
+| Concern    | Tool                          | Notes                                                              |
+|------------|-------------------------------|--------------------------------------------------------------------|
+| Formatting | Spotless                      | Unused imports, trailing whitespace, final newline; fix with `./mvnw spotless:apply` |
+| Linting    | PMD (`quickstart` ruleset)    | Same ruleset as the PMD workflow                                   |
+| SAST       | SpotBugs + FindSecBugs        | Medium threshold; documented suppressions in `spotbugs-exclude.xml` |
+
+CodeQL, Semgrep, Qodana and dependency review continue to run as separate workflows.
+
+VS Code uses the same rules: `.editorconfig` and `.vscode/settings.json` apply the
+Spotless whitespace and import rules on save, `.vscode/extensions.json` recommends the
+extensions, and `.vscode/tasks.json` has tasks that run the exact Maven goals above
+(format, PMD, SpotBugs, verify, site).
+
+## Site Reports
+
+`./mvnw verify site` generates the project site in `target/site/index.html` (the Build
+workflow uploads it as the `site` artifact). It includes project information and
+dependencies, test results (Surefire), JaCoCo coverage, cross-referenced source, Javadoc,
+PMD and CPD (copy/paste) lint, SpotBugs/FindSecBugs findings, and dependency/plugin
+update reports. Run `verify` first so the coverage data exists.
 
 ## Swagger UI
 

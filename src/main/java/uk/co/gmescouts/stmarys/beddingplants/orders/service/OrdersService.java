@@ -9,10 +9,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import uk.co.gmescouts.stmarys.beddingplants.data.OrderRepository;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
+import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderItem;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderType;
+import uk.co.gmescouts.stmarys.beddingplants.data.model.Plant;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Validated
@@ -82,13 +86,40 @@ public class OrdersService {
             existingOrder.setNotes(order.getNotes());
             existingOrder.setPaid(order.getPaid());
 
-            existingOrder.setOrderItems(order.getOrderItems());
+            syncOrderItems(existingOrder, order.getOrderItems());
 
             orderRepository.save(existingOrder);
             updated = true;
         }
 
         return updated;
+    }
+
+    // incoming items come from JSON without their Order link, so match them to the existing Order and Sale Plants by Plant number
+    private static void syncOrderItems(final Order existingOrder, final Set<OrderItem> incomingItems) {
+        if (incomingItems == null) {
+            return;
+        }
+
+        @SuppressWarnings("null")
+        final Map<Integer, Integer> countsByPlantNumber = incomingItems.stream()
+                .collect(Collectors.toMap(item -> item.getPlant().getNum(), OrderItem::getCount, Integer::sum));
+
+        existingOrder.getOrderItems().removeIf(item -> !countsByPlantNumber.containsKey(item.getPlant().getNum()));
+        existingOrder.getOrderItems().forEach(item -> item.setCount(countsByPlantNumber.remove(item.getPlant().getNum())));
+
+        @SuppressWarnings("null")
+        final Map<Integer, Plant> salePlants = existingOrder.getCustomer().getSale().getPlants().stream()
+                .collect(Collectors.toMap(Plant::getNum, plant -> plant));
+        countsByPlantNumber.forEach((plantNumber, count) -> {
+            final Plant plant = salePlants.get(plantNumber);
+            if (plant == null) {
+                throw new IllegalArgumentException(String.format("Plant [%d] does not exist in the Sale", plantNumber));
+            }
+            final OrderItem orderItem = new OrderItem(plant, count);
+            orderItem.setOrder(existingOrder);
+            existingOrder.getOrderItems().add(orderItem);
+        });
     }
 
     @SuppressWarnings("null")

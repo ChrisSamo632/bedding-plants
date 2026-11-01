@@ -1,22 +1,18 @@
 package uk.co.gmescouts.stmarys.beddingplants.exports.model;
 
-import lombok.Data;
-import lombok.NonNull;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapMarkerColour;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapMarkerSize;
 
-@Data
-public class GeolocatedPoint {
-	@NonNull
-	private Double lat;
+import java.util.Objects;
 
-	@NonNull
-	private Double lng;
+public record GeolocatedPoint(Double lat, Double lng, String description, MapMarkerSize mapMarkerSize, MapMarkerColour mapMarkerColour) {
+	public GeolocatedPoint {
+		Objects.requireNonNull(lat, "lat");
+		Objects.requireNonNull(lng, "lng");
+		Objects.requireNonNull(description, "description");
+	}
 
-	@NonNull
-	private String description;
-
-	private MapMarkerSize mapMarkerSize;
-
-	private MapMarkerColour mapMarkerColour;
+	public GeolocatedPoint(final Double lat, final Double lng, final String description) {
+		this(lat, lng, description, null, null);
+	}
 }

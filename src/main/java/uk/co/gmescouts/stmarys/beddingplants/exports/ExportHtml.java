@@ -16,11 +16,11 @@ import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderType;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Plant;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
-import uk.co.gmescouts.stmarys.beddingplants.deliveries.configuration.DeliveriesConfiguration;
+import uk.co.gmescouts.stmarys.beddingplants.deliveries.configuration.DeliveriesProperties;
 import uk.co.gmescouts.stmarys.beddingplants.deliveries.service.DeliveriesService;
-import uk.co.gmescouts.stmarys.beddingplants.exports.configuration.ExportConfiguration;
+import uk.co.gmescouts.stmarys.beddingplants.exports.configuration.ExportProperties;
 import uk.co.gmescouts.stmarys.beddingplants.exports.service.ExportService;
-import uk.co.gmescouts.stmarys.beddingplants.geolocation.configuration.GeolocationConfiguration;
+import uk.co.gmescouts.stmarys.beddingplants.geolocation.configuration.GeolocationProperties;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapMarkerColour;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapMarkerSize;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapType;
@@ -51,33 +51,33 @@ public class ExportHtml {
     }
 
     private final String appName;
-    private final GeolocationConfiguration geolocationConfiguration;
-    private final ExportConfiguration exportConfiguration;
+    private final GeolocationProperties geolocationProperties;
+    private final ExportProperties exportProperties;
     private final ExportService exportService;
     private final SalesService salesService;
     private final OrdersService ordersService;
     private final PlantsService plantsService;
     private final DeliveriesService deliveriesService;
-    private final DeliveriesConfiguration deliveriesConfiguration;
+    private final DeliveriesProperties deliveriesProperties;
 
     public ExportHtml(@Value("${spring.application.name}") final String appName,
-                      final GeolocationConfiguration geolocationConfiguration,
-                      final ExportConfiguration exportConfiguration,
+                      final GeolocationProperties geolocationProperties,
+                      final ExportProperties exportProperties,
                       final ExportService exportService,
                       final SalesService salesService,
                       final OrdersService ordersService,
                       final PlantsService plantsService,
                       final DeliveriesService deliveriesService,
-                      final DeliveriesConfiguration deliveriesConfiguration) {
+                      final DeliveriesProperties deliveriesProperties) {
         this.appName = appName;
-        this.geolocationConfiguration = geolocationConfiguration;
-        this.exportConfiguration = exportConfiguration;
+        this.geolocationProperties = geolocationProperties;
+        this.exportProperties = exportProperties;
         this.exportService = exportService;
         this.salesService = salesService;
         this.ordersService = ordersService;
         this.plantsService = plantsService;
         this.deliveriesService = deliveriesService;
-        this.deliveriesConfiguration = deliveriesConfiguration;
+        this.deliveriesProperties = deliveriesProperties;
     }
 
     @SuppressWarnings("SameReturnValue")
@@ -120,7 +120,7 @@ public class ExportHtml {
         model.addAttribute("saleYear", saleYear);
         model.addAttribute("routes", deliveryRoutes);
         model.addAttribute("unassignedOrders", deliveriesService.getUnassignedDeliveryOrders(saleYear));
-        model.addAttribute("maxRoutePlantCount", deliveriesConfiguration.getMaxRoutePlantCount());
+        model.addAttribute("maxRoutePlantCount", deliveriesProperties.maxRoutePlantCount());
 
         // use the orders template
         return "routes";
@@ -137,7 +137,7 @@ public class ExportHtml {
         addCommonModelAttributes(model);
 
         // Google API key to call map service
-        model.addAttribute("googleApiKey", geolocationConfiguration.getGoogleApiKey());
+        model.addAttribute("googleApiKey", geolocationProperties.googleApiKey());
 
         // geolocated Addresses to be plotted on the Map
         model.addAttribute("geolocatedPoints", exportService.getGeolocatedSaleAddressesAsPoints(saleYear, orderType));
@@ -146,15 +146,15 @@ public class ExportHtml {
         model.addAttribute("mapTypeId", mapType.getGoogleMapsMapTypeId());
 
         // Scout Hut location (default Map centre)
-        model.addAttribute("scoutHutLat", exportConfiguration.getScoutHutLat());
-        model.addAttribute("scoutHutLng", exportConfiguration.getScoutHutLng());
+        model.addAttribute("scoutHutLat", exportProperties.scoutHutLat());
+        model.addAttribute("scoutHutLng", exportProperties.scoutHutLng());
 
         // default Map viewport settings (boundaries and zoom level)
-        model.addAttribute("defaultZoom", exportConfiguration.getDefaultZoom());
-        model.addAttribute("viewportMaxLat", exportConfiguration.getViewportMaxLat());
-        model.addAttribute("viewportMinLat", exportConfiguration.getViewportMinLat());
-        model.addAttribute("viewportMaxLng", exportConfiguration.getViewportMaxLng());
-        model.addAttribute("viewportMinLng", exportConfiguration.getViewportMinLng());
+        model.addAttribute("defaultZoom", exportProperties.defaultZoom());
+        model.addAttribute("viewportMaxLat", exportProperties.viewportMaxLat());
+        model.addAttribute("viewportMinLat", exportProperties.viewportMinLat());
+        model.addAttribute("viewportMaxLng", exportProperties.viewportMaxLng());
+        model.addAttribute("viewportMinLng", exportProperties.viewportMinLng());
 
         return "addresses";
     }

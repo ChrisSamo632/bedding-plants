@@ -13,7 +13,7 @@ import uk.co.gmescouts.stmarys.beddingplants.data.model.Geolocation;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Order;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderType;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
-import uk.co.gmescouts.stmarys.beddingplants.deliveries.configuration.DeliveriesConfiguration;
+import uk.co.gmescouts.stmarys.beddingplants.deliveries.configuration.DeliveriesProperties;
 import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
 
 import java.util.ArrayList;
@@ -38,16 +38,16 @@ public class DeliveriesService {
     private static final Comparator<DeliveryRoute> DEFAULT_ROUTE_COMPARATOR =
             Comparator.comparing(DeliveryRoute::getDeliveryDay).thenComparing(DeliveryRoute::getNum);
 
-    private final DeliveriesConfiguration deliveriesConfiguration;
+    private final DeliveriesProperties deliveriesProperties;
     private final DeliveryRouteRepository deliveryRouteRepository;
     private final SalesService salesService;
     private final RoadDistanceService roadDistanceService;
 
-    public DeliveriesService(final DeliveriesConfiguration deliveriesConfiguration,
+    public DeliveriesService(final DeliveriesProperties deliveriesProperties,
                              final DeliveryRouteRepository deliveryRouteRepository,
                              final SalesService salesService,
                              final RoadDistanceService roadDistanceService) {
-        this.deliveriesConfiguration = deliveriesConfiguration;
+        this.deliveriesProperties = deliveriesProperties;
         this.deliveryRouteRepository = deliveryRouteRepository;
         this.salesService = salesService;
         this.roadDistanceService = roadDistanceService;
@@ -59,7 +59,7 @@ public class DeliveriesService {
 
     public Set<DeliveryRoute> getDeliveryRoutesBySaleYear(@NotNull final Integer saleYear, @NotNull final String sorts) {
         final Set<DeliveryRoute> routes = deliveryRouteRepository.findDeliveryRouteBySaleSaleYear(saleYear);
-        final TreeSet<DeliveryRoute> sortedRoutes = new TreeSet<>(routeComparator(sorts));
+        final Set<DeliveryRoute> sortedRoutes = new TreeSet<>(routeComparator(sorts));
         sortedRoutes.addAll(routes);
         return sortedRoutes;
     }
@@ -84,9 +84,9 @@ public class DeliveriesService {
         final Map<DeliveryDay, List<Order>> ordersByDay = eligibleOrders.stream()
                 .collect(Collectors.groupingBy(Order::getDeliveryDay, () -> new EnumMap<>(DeliveryDay.class), Collectors.toList()));
 
-        long nextRouteNumber = existingRoutes.stream().mapToLong(route -> route.getNum()).max().orElse(0L) + 1L;
+        long nextRouteNumber = existingRoutes.stream().mapToLong(DeliveryRoute::getNum).max().orElse(0L) + 1L;
         final List<DeliveryRoute> newRoutes = new ArrayList<>();
-        final double maxRadiusMeters = deliveriesConfiguration.getMaxRouteRadiusKm() * 1000.0;
+        final double maxRadiusMeters = deliveriesProperties.maxRouteRadiusKm() * 1000.0;
 
         for (final DeliveryDay deliveryDay : DeliveryDay.values()) {
             final List<Order> dayOrders = ordersByDay.getOrDefault(deliveryDay, List.of()).stream()
@@ -112,7 +112,7 @@ public class DeliveriesService {
 
                 for (final int candidateIndex : new ArrayList<>(remaining)) {
                     final Order candidate = dayOrders.get(candidateIndex);
-                    if (routePlantCount + candidate.getCount() > deliveriesConfiguration.getMaxRoutePlantCount()) {
+                    if (routePlantCount + candidate.getCount() > deliveriesProperties.maxRoutePlantCount()) {
                         continue;
                     }
 
@@ -125,21 +125,17 @@ public class DeliveriesService {
                     }
                 }
 
-                final DeliveryRoute route = DeliveryRoute.builder()
-                        .num(nextRouteNumber++)
-                        .deliveryDay(deliveryDay)
-                        .sale(sale)
-                        .build();
+                final long routeNumber = nextRouteNumber;
+                nextRouteNumber++;
+                final DeliveryRoute route = new DeliveryRoute(routeNumber, deliveryDay);
+                route.setSale(sale);
                 routeOrderIndexes.stream().map(dayOrders::get).forEach(route::addOrder);
                 sale.addDeliveryRoute(route);
                 newRoutes.add(route);
             }
         }
 
-        if (!newRoutes.isEmpty()) {
-            deliveryRouteRepository.saveAll(newRoutes);
-        }
-
+        // new routes are persisted by cascade from the managed Sale; saving them separately merges duplicates
         final Set<DeliveryRoute> allRoutes = new HashSet<>(existingRoutes);
         allRoutes.addAll(newRoutes);
         return sortedRouteSet(allRoutes, DEFAULT_ROUTE_COMPARATOR);
@@ -159,7 +155,7 @@ public class DeliveriesService {
     }
 
     private boolean canPlanRouteFor(final Order order) {
-        if (order.getCount() > deliveriesConfiguration.getMaxRoutePlantCount()) {
+        if (order.getCount() > deliveriesProperties.maxRoutePlantCount()) {
             return false;
         }
         if (order.getCustomer().getAddress() == null) {
@@ -167,8 +163,8 @@ public class DeliveriesService {
         }
 
         final Geolocation geolocation = order.getCustomer().getAddress().getGeolocation();
-        return geolocation != null && geolocation.getLatitude() != null && geolocation.getLongitude() != null
-                && Double.isFinite(geolocation.getLatitude()) && Double.isFinite(geolocation.getLongitude());
+        return geolocation != null && geolocation.latitude() != null && geolocation.longitude() != null
+                && Double.isFinite(geolocation.latitude()) && Double.isFinite(geolocation.longitude());
     }
 
     private boolean withinRadius(final double[][] distances, final int firstIndex, final int secondIndex, final double maxRadiusMeters) {
@@ -200,7 +196,7 @@ public class DeliveriesService {
     }
 
     private Set<DeliveryRoute> sortedRouteSet(final Set<DeliveryRoute> routes, final Comparator<DeliveryRoute> comparator) {
-        final TreeSet<DeliveryRoute> sortedRoutes = new TreeSet<>(comparator);
+        final Set<DeliveryRoute> sortedRoutes = new TreeSet<>(comparator);
         sortedRoutes.addAll(routes);
         return sortedRoutes;
     }

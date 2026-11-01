@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter xmlns="https://github.com/spotbugs/filter/3.0.0">
+    <!-- Spring beans are wired by the container with shared collaborators, and entities/records
+         accessors intentionally expose their state, so representation-exposure reports are noise. -->
+    <Match>
+        <Bug code="EI,EI2"/>
+    </Match>
+
+    <!-- Parameterised slf4j logging of request values; revisit if log output is ever consumed unescaped. -->
+    <Match>
+        <Bug code="SECCRLFLOG"/>
+    </Match>
+
+    <!-- Entities validate required fields in their constructors; finalizer attacks are not a concern here (finalization is deprecated for removal). -->
+    <Match>
+        <Class name="~uk\.co\.gmescouts\.stmarys\.beddingplants\.data\.model\..*"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+
+    <!-- REST controllers expose and accept JPA entities directly by design (no DTO layer yet). -->
+    <Match>
+        <Class name="~uk\.co\.gmescouts\.stmarys\.beddingplants\..*\.(Customers|Deliveries|Export|Orders|Plants|Sales)"/>
+        <Bug code="SECELEAK,SECEMA,SECSPRING"/>
+    </Match>
+</FindBugsFilter>

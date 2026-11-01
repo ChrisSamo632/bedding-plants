@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Geolocation;
 import uk.co.gmescouts.stmarys.beddingplants.exports.model.GeolocatedPoint;
-import uk.co.gmescouts.stmarys.beddingplants.geolocation.configuration.GeolocationConfiguration;
+import uk.co.gmescouts.stmarys.beddingplants.geolocation.configuration.GeolocationProperties;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapImageFormat;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapMarkerColour;
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.model.MapMarkerSize;
@@ -45,7 +45,7 @@ public class GeolocationService {
     private GeoApiContext geoApiContext;
 
     @Resource
-    private GeolocationConfiguration geolocationConfiguration;
+    private GeolocationProperties geolocationProperties;
 
     public byte[] plotPointsOnMapImage(@NotNull final Set<GeolocatedPoint> points, @NotNull final MapImageFormat mapImageFormat,
                                        @NotNull final MapType mapType) throws ApiException, InterruptedException, IOException {
@@ -63,14 +63,14 @@ public class GeolocationService {
 
             // set Marker Size to be whatever appears most frequently in the Geolocated Points
             @SuppressWarnings("null")
-            final Map<MapMarkerSize, Long> sizeCounts = points.stream().map(GeolocatedPoint::getMapMarkerSize)
+            final Map<MapMarkerSize, Long> sizeCounts = points.stream().map(GeolocatedPoint::mapMarkerSize)
                     .collect(Collectors.groupingBy(s -> s, Collectors.counting()));
             final Optional<Entry<MapMarkerSize, Long>> mapMarkerSize = sizeCounts.entrySet().stream().max(Entry.comparingByValue());
             mapMarkerSize.ifPresent(mapMarkerSizeLongEntry -> markers.size(mapMarkerSizeLongEntry.getKey().getGoogleStaticMapsMarkerSize()));
 
             // set Marker Colour to be whatever appears most frequently in the Geolocated Points
             @SuppressWarnings("null")
-            final Map<MapMarkerColour, Long> colourCounts = points.stream().map(GeolocatedPoint::getMapMarkerColour)
+            final Map<MapMarkerColour, Long> colourCounts = points.stream().map(GeolocatedPoint::mapMarkerColour)
                     .collect(Collectors.groupingBy(c -> c, Collectors.counting()));
             final Optional<Entry<MapMarkerColour, Long>> mapMarkerColour = colourCounts.entrySet().stream()
                     .max(Entry.comparingByValue());
@@ -80,14 +80,14 @@ public class GeolocationService {
             points.stream().filter(Objects::nonNull).map(GeolocationService::convertGeolocatedPointToLatLng).forEach(markers::addLocation);
 
             // size of image (from config)
-            final Size size = new Size(geolocationConfiguration.getGoogleMapsImgWidth(), geolocationConfiguration.getGoogleMapsImgHeight());
+            final Size size = new Size(geolocationProperties.googleMapsImgWidth(), geolocationProperties.googleMapsImgHeight());
 
             // create the image (waiting for the return)
             final ImageResult img = StaticMapsApi.newRequest(geoApiContext, size)//
-                    .scale(geolocationConfiguration.getGoogleMapsImgScale()) //
+                    .scale(geolocationProperties.googleMapsImgScale()) //
                     .maptype(mapType.getGoogleStaticMapsMapType())//
                     .format(mapImageFormat.getGoogleStaticMapsImageFormat())//
-                    .language(geolocationConfiguration.getGoogleMapsImgLanguage())//
+                    .language(geolocationProperties.googleMapsImgLanguage())//
                     .markers(markers)//
                     .await();
 
@@ -102,7 +102,7 @@ public class GeolocationService {
             LOGGER.info("Gelocating Address [{}]", geolocatableAddress);
         }
 
-        final Geolocation geolocation = new Geolocation();
+        Geolocation geolocation = new Geolocation(null, null, null);
         try {
             final GeocodingResult[] results = GeocodingApi.geocode(geoApiContext, geolocatableAddress).await();
             if (LOGGER.isDebugEnabled()) {
@@ -131,10 +131,8 @@ public class GeolocationService {
 
                 // set the Geolocation on the Address, assuming something found (otherwise Address not updated)
                 if (StringUtils.isNotBlank(selectedResult.formattedAddress)) {
-                    geolocation.setFormattedAddress(selectedResult.formattedAddress);
-
-                    geolocation.setLatitude(selectedResult.geometry.location.lat);
-                    geolocation.setLongitude(selectedResult.geometry.location.lng);
+                    geolocation = new Geolocation(selectedResult.formattedAddress, selectedResult.geometry.location.lat,
+                            selectedResult.geometry.location.lng);
                 }
             }
         } catch (IllegalStateException | ApiException | IOException e) {
@@ -153,8 +151,8 @@ public class GeolocationService {
 
     private static LatLng convertGeolocatedPointToLatLng(@NotNull final GeolocatedPoint geolocatedPoint) {
         final LatLng latLng = new LatLng();
-        latLng.lat = geolocatedPoint.getLat();
-        latLng.lng = geolocatedPoint.getLng();
+        latLng.lat = geolocatedPoint.lat();
+        latLng.lng = geolocatedPoint.lng();
 
         return latLng;
     }

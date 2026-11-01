@@ -70,10 +70,6 @@ class Export {
         // get the PDF content
         final byte[] pdf = exportService.exportSaleCustomersToPdf(saleYear, orderType, sorts);
 
-        if (pdf == null) {
-            return ResponseEntity.noContent().build();
-        }
-
         return ResponseEntity.ok().headers(getNoCacheHeaders(String.format("attachment; filename=\"sale_orders_%s.pdf\"", saleYear)))
                 .contentLength(pdf.length).contentType(MediaType.APPLICATION_OCTET_STREAM).body(new ByteArrayResource(pdf));
     }
@@ -90,10 +86,6 @@ class Export {
         // get the CSV content
         final byte[] csv = exportService.exportSaleCustomersToCsv(saleYear, orderType, sorts);
 
-        if (csv == null) {
-            return ResponseEntity.noContent().build();
-        }
-
         return ResponseEntity.ok().headers(getNoCacheHeaders(String.format("attachment; filename=\"sale_orders_%s.csv\"", saleYear)))
                 .contentLength(csv.length).contentType(MEDIA_TYPE_TEXT_CSV).body(new ByteArrayResource(csv));
     }
@@ -109,10 +101,6 @@ class Export {
 
         // get the CSV content
         final byte[] csv = exportService.exportSaleCustomerPaymentsToCsv(saleYear, orderType, sorts);
-
-        if (csv == null) {
-            return ResponseEntity.noContent().build();
-        }
 
         return ResponseEntity.ok().headers(getNoCacheHeaders(String.format("attachment; filename=\"sale_order_payments_%s.csv\"", saleYear)))
                 .contentLength(csv.length).contentType(MEDIA_TYPE_TEXT_CSV).body(new ByteArrayResource(csv));
@@ -138,10 +126,6 @@ class Export {
 
         // get the Addresses
         final byte[] csv = exportService.exportAddressesToCsv();
-
-        if (csv == null) {
-            return ResponseEntity.noContent().build();
-        }
 
         return ResponseEntity.ok().headers(getNoCacheHeaders("attachment; filename=\"address_sales.csv\""))
                 .contentLength(csv.length).contentType(MEDIA_TYPE_TEXT_CSV).body(new ByteArrayResource(csv));
@@ -181,10 +165,6 @@ class Export {
 
         // get the PDF content
         final byte[] pdf = exportService.exportSaleDeliveryRoutesToPdf(saleYear, sorts);
-
-        if (pdf == null) {
-            return ResponseEntity.noContent().build();
-        }
 
         return ResponseEntity.ok().headers(getNoCacheHeaders(String.format("attachment; filename=\"sale_delivery_routes_%s.pdf\"", saleYear)))
                 .contentLength(pdf.length).contentType(MediaType.APPLICATION_OCTET_STREAM).body(new ByteArrayResource(pdf));

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+
 set -euo pipefail
 
 if [[ -z "${GOOGLE_MAPS_API_KEY:-}" ]]; then

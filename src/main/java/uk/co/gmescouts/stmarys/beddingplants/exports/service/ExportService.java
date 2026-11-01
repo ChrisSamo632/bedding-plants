@@ -9,7 +9,6 @@ import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.WriterProperties;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -17,6 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.RestClient;
@@ -43,6 +43,7 @@ import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -72,7 +73,7 @@ public class ExportService {
     private final PlantsService plantsService;
     private final SalesService salesService;
     private final AddressRepository addressRepository;
-    private final RestClient restClient;
+    private final RestClient restClient = RestClient.create();
     private final boolean httpsEnabled;
     private final int port;
     private final String baseUri;
@@ -82,7 +83,6 @@ public class ExportService {
                          final PlantsService plantsService,
                          final SalesService salesService,
                          final AddressRepository addressRepository,
-                         final RestClient restClient,
                          @Value("${server.ssl.enabled:false}") final boolean httpsEnabled,
                          @Value("${server.port}") final int port,
                          @Value("${server.servlet.context-path}") final String baseUri) {
@@ -91,7 +91,6 @@ public class ExportService {
         this.plantsService = plantsService;
         this.salesService = salesService;
         this.addressRepository = addressRepository;
-        this.restClient = restClient;
         this.httpsEnabled = httpsEnabled;
         this.port = port;
         this.baseUri = baseUri;
@@ -118,7 +117,7 @@ public class ExportService {
             sb.append("&orderType=").append(orderType);
         }
 
-        return executeSaleHtmlExport(saleYear, String.format("%s%s?%s", baseUri, ExportHtml.EXPORT_CUSTOMER_ORDERS_HTML, sb), PageSize.A4);
+        return executeSaleHtmlExport(saleYear, String.format("%s/export%s?%s", baseUri, ExportHtml.EXPORT_CUSTOMER_ORDERS_HTML, sb), PageSize.A4);
     }
 
     public byte[] exportSaleDeliveryRoutesToPdf(@NotNull final Integer saleYear, @NotNull final String sorts) throws IOException {
@@ -126,18 +125,20 @@ public class ExportService {
             LOGGER.info("Exporting Delivery Routes for Sale [{}] sorted by [{}]", saleYear, sorts);
         }
 
-        return executeSaleHtmlExport(saleYear, String.format("%s%s?%s", baseUri, ExportHtml.EXPORT_DELIVERY_ROUTES_HTML, "sorts=" + sorts), PageSize.A4.rotate());
+        return executeSaleHtmlExport(saleYear, String.format("%s/export%s?%s", baseUri, ExportHtml.EXPORT_DELIVERY_ROUTES_HTML, "sorts=" + sorts), PageSize.A4.rotate());
     }
 
     private byte[] executeSaleHtmlExport(@NotNull final Integer saleYear, @NotNull final String exportHtmlUrl, @NotNull final PageSize pageSize) throws IOException {
         final String exportHostUrl = getExportHostUrl();
 
+        // the HTML is served by this application, so call back using its own host, with the Sale year filled in
+        final URI htmlUri = URI.create(exportHostUrl + exportHtmlUrl.replace("{saleYear}", saleYear.toString()));
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Calling HTML Export URL [{}]", exportHtmlUrl);
+            LOGGER.debug("Calling HTML Export URL [{}]", htmlUri);
         }
 
         // get the HTML via external call
-        final String html = restClient.get().uri(exportHtmlUrl).retrieve().body(String.class);
+        final String html = restClient.get().uri(htmlUri).accept(MediaType.TEXT_HTML).retrieve().body(String.class);
 
         // convert HTML to PDF
         byte[] pdf;
@@ -151,8 +152,9 @@ public class ExportService {
         writerProperties.setCompressionLevel(CompressionConstants.BEST_COMPRESSION);
 
         // converter
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            final PdfDocument pdfDocument = new PdfDocument(new PdfWriter(baos, writerProperties));
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PdfDocument pdfDocument = new PdfDocument(new PdfWriter(baos, writerProperties))) {
+
             pdfDocument.setDefaultPageSize(pageSize);
             HtmlConverter.convertToPdf(html, pdfDocument, converterProperties);
             pdf = baos.toByteArray();
@@ -313,11 +315,8 @@ public class ExportService {
                 sale.getCustomers().stream().filter(c -> Objects.nonNull(c.getAddress())).forEach(c -> {
                     final Address address = c.getAddress();
                     final boolean hasEmailAddress = StringUtils.isNotBlank(c.getEmailAddress());
-                    if (addressSummaries.containsKey(address)) {
-                        addressSummaries.get(address).setEmailAddressPresent(hasEmailAddress);
-                    } else {
-                        addressSummaries.put(c.getAddress(), new AddressSummary(saleYear, hasEmailAddress));
-                    }
+                    addressSummaries.merge(address, new AddressSummary(saleYear, hasEmailAddress),
+                            (existing, latest) -> new AddressSummary(existing.lastSaleYear(), latest.emailAddressPresent()));
                 });
             }
 
@@ -332,8 +331,8 @@ public class ExportService {
                         valueOrEmpty(address.getCity()),
                         valueOrEmpty(address.getPostcode()),
                         valueOrEmpty(address.getGeolocatableAddress()),
-                        Integer.toString(addressSummary.getLastSaleYear()),
-                        Boolean.toString(addressSummary.isEmailAddressPresent())
+                        Integer.toString(addressSummary.lastSaleYear()),
+                        Boolean.toString(addressSummary.emailAddressPresent())
                 ));
             }
 
@@ -444,8 +443,11 @@ public class ExportService {
             LOGGER.info("Converting Address [{}] to Geolocated Point", address);
         }
 
-        final GeolocatedPoint geolocatedPoint = new GeolocatedPoint(address.getGeolocation().getLatitude(), address.getGeolocation().getLongitude(),
-                address.getGeolocatableAddress());
+        final String description = address.getGeolocatableAddress();
+        final Double lat = address.getGeolocation().latitude();
+        final Double lng = address.getGeolocation().longitude();
+        final MapMarkerSize markerSize;
+        final MapMarkerColour markerColour;
 
         // only consider Orders from the requested Sale Year (and Order Type, if specified) as Customers can repeat across Years
         final List<Order> orders = address.getCustomers().stream().filter(customer -> customer.getSale() != null
@@ -458,9 +460,9 @@ public class ExportService {
             LOGGER.debug("Number of Orders associated with this Address [{}]", numOrders);
         }
         if (numOrders == 1) {
-            geolocatedPoint.setMapMarkerSize(MapMarkerSize.NORMAL);
+            markerSize = MapMarkerSize.NORMAL;
         } else {
-            geolocatedPoint.setMapMarkerSize(MapMarkerSize.MID);
+            markerSize = MapMarkerSize.MID;
         }
 
         // determine colour of marker based on order type
@@ -470,10 +472,12 @@ public class ExportService {
             LOGGER.debug("Address contains a Delivery [{}]", delivery);
         }
         if (delivery) {
-            geolocatedPoint.setMapMarkerColour(MapMarkerColour.RED);
+            markerColour = MapMarkerColour.RED;
         } else {
-            geolocatedPoint.setMapMarkerColour(MapMarkerColour.GREEN);
+            markerColour = MapMarkerColour.GREEN;
         }
+
+        final GeolocatedPoint geolocatedPoint = new GeolocatedPoint(lat, lng, description, markerSize, markerColour);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Generated Geolocated Point [{}]", geolocatedPoint);
         }
@@ -489,16 +493,12 @@ public class ExportService {
             }
 
             final Geolocation geolocation = geolocationService.geolocateGeolocatableAddress(geolocatableAddress);
-            if (geolocation != null && StringUtils.isNoneBlank(geolocation.getFormattedAddress())) {
+            if (geolocation != null && StringUtils.isNoneBlank(geolocation.formattedAddress())) {
                 address.setGeolocation(geolocation);
             }
         }
     }
 
-    @lombok.Data
-    @AllArgsConstructor
-    private static class AddressSummary {
-        Integer lastSaleYear;
-        boolean emailAddressPresent;
+    private record AddressSummary(Integer lastSaleYear, boolean emailAddressPresent) {
     }
 }

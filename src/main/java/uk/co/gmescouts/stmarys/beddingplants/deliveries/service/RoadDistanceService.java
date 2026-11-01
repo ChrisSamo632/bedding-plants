@@ -67,12 +67,12 @@ public class RoadDistanceService {
         }
         if (element.status != DistanceMatrixElementStatus.OK || element.distance == null) {
             throw new IllegalStateException(String.format("Unable to calculate road distance between [%s] and [%s]: %s",
-                    origin.getFormattedAddress(), destination.getFormattedAddress(), element.status));
+                    origin.formattedAddress(), destination.formattedAddress(), element.status));
         }
         return element.distance.inMeters;
     }
 
     private LatLng[] toLatLng(final List<Geolocation> locations) {
-        return locations.stream().map(location -> new LatLng(location.getLatitude(), location.getLongitude())).toArray(LatLng[]::new);
+        return locations.stream().map(location -> new LatLng(location.latitude(), location.longitude())).toArray(LatLng[]::new);
     }
 }

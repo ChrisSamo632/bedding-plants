@@ -19,7 +19,7 @@ div.route {
 * Route Details
 */
 div.routes div {
-    text-align: center;
+	text-align: center;
 }
 
 /*
@@ -33,14 +33,15 @@ table.orders {
 }
 
 table.orders tbody tr {
-    height: 100px;
+	height: 100px;
 }
 
 table.orders td.wrap {
-    word-wrap: break-word;
+	word-wrap: break-word;
 }
 
-table.orders td.detail, table.orders td.price {
+table.orders td.detail,
+table.orders td.price {
 	border-color: lightgray;
 	border-style: solid;
 }
@@ -59,7 +60,7 @@ table.orders td.price {
 }
 
 table.orders tfoot tr td.label {
-    text-align: right;
+	text-align: right;
 }
 
 table.orders td.amount {

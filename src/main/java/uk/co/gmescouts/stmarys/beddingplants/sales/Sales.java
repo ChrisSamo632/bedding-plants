@@ -51,7 +51,7 @@ class Sales {
         final List<SaleSummary> saleSummaries;
         if (!sales.isEmpty()) {
             saleSummaries = sales.stream().map(salesService::summariseSale)
-                    .sorted(Comparator.comparingInt(SaleSummary::getYear)).toList();
+                    .sorted(Comparator.comparingInt(SaleSummary::year)).toList();
         } else {
             saleSummaries = Collections.emptyList();
         }

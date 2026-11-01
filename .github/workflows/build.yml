@@ -1,0 +1,48 @@
+name: Build
+
+on:
+  push:
+    branches: [ master, main ]
+  workflow_dispatch: { }
+  pull_request: { }
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  # `verify` runs, in order: Spotless format check, compile, unit/integration tests,
+  # PMD lint and SpotBugs + FindSecBugs SAST. Any finding fails the build.
+  verify:
+    name: Format, lint, SAST, build and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Set up JDK 25
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad
+        with:
+          java-version: "25"
+          distribution: corretto
+          cache: maven
+      - name: Verify
+        run: ./mvnw -B -ntp verify
+      - name: Generate site reports
+        run: ./mvnw -B -ntp site
+      - name: Upload site reports
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: site
+          path: target/site/
+      - name: Upload test and analysis reports
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: reports
+          path: |
+            target/surefire-reports/
+            target/pmd.xml
+            target/spotbugsXml.xml
+          if-no-files-found: ignore

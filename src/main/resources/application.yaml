@@ -24,7 +24,8 @@ spring:
     console:
       enabled: false
 server:
-  address: 127.0.0.1
+  address: 0.0.0.0 # expose to all network interfaces out of WSL
+  # address: 127.0.0.1
   port: 8443
   servlet:
     context-path: /bedding-plants

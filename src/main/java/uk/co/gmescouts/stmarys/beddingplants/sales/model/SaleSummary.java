@@ -1,36 +1,18 @@
 package uk.co.gmescouts.stmarys.beddingplants.sales.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.NonNull;
+import java.util.Objects;
 
-@Data
-@Builder
-public class SaleSummary {
-	@NonNull
-	private Integer year;
-
-	@NonNull
-	private Double vat;
-
-	@NonNull
-	private Double deliveryCharge;
-
-	@NonNull
-	private Integer plantCount;
-
-	@NonNull
-	private Integer customerCount;
-
-	@NonNull
-	private Integer orderCount;
-
-	@NonNull
-	private Double orderCostTotal;
-
-	@NonNull
-	private Double orderIncomeTotal;
-
-	@NonNull
-	private Integer orderPlantTotal;
+public record SaleSummary(Integer year, Double vat, Double deliveryCharge, Integer plantCount, Integer customerCount, Integer orderCount,
+		Double orderCostTotal, Double orderIncomeTotal, Integer orderPlantTotal) {
+	public SaleSummary {
+		Objects.requireNonNull(year, "year");
+		Objects.requireNonNull(vat, "vat");
+		Objects.requireNonNull(deliveryCharge, "deliveryCharge");
+		Objects.requireNonNull(plantCount, "plantCount");
+		Objects.requireNonNull(customerCount, "customerCount");
+		Objects.requireNonNull(orderCount, "orderCount");
+		Objects.requireNonNull(orderCostTotal, "orderCostTotal");
+		Objects.requireNonNull(orderIncomeTotal, "orderIncomeTotal");
+		Objects.requireNonNull(orderPlantTotal, "orderPlantTotal");
+	}
 }

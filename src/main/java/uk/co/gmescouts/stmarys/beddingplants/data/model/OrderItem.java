@@ -10,26 +10,11 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 import java.util.Objects;
 
 @Entity
 @Table(name = "orderitems")
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class OrderItem implements PlantSummary, Comparable<OrderItem> {
     @JsonIgnore
     @Id
@@ -64,15 +49,12 @@ public class OrderItem implements PlantSummary, Comparable<OrderItem> {
     @JsonIgnore
     @Access(AccessType.FIELD)
     @ManyToOne
-    @ToString.Exclude
     private Order order;
 
-    @NonNull
     @Access(AccessType.FIELD)
     @ManyToOne
     private Plant plant;
 
-    @NonNull
     @Min(1)
     @NotNull
     private Integer count;
@@ -97,5 +79,44 @@ public class OrderItem implements PlantSummary, Comparable<OrderItem> {
     @Override
     public int compareTo(@org.jetbrains.annotations.NotNull final OrderItem o) {
         return this.getPlant().getNum().compareTo(o.getPlant().getNum());
+    }
+
+    public OrderItem() {
+        // required by JPA and Jackson
+    }
+
+    public OrderItem(final Plant plant, final Integer count) {
+        this.plant = Objects.requireNonNull(plant, "plant");
+        this.count = Objects.requireNonNull(count, "count");
+    }
+
+    public Order getOrder() {
+        return order;
+    }
+
+    public void setOrder(final Order order) {
+        this.order = order;
+    }
+
+    public Plant getPlant() {
+        return plant;
+    }
+
+    public void setPlant(final Plant plant) {
+        this.plant = Objects.requireNonNull(plant, "plant");
+    }
+
+    @Override
+    public Integer getCount() {
+        return count;
+    }
+
+    public void setCount(final Integer count) {
+        this.count = Objects.requireNonNull(count, "count");
+    }
+
+    @Override
+    public String toString() {
+        return "OrderItem(" + "plant=" + plant + ", " + "count=" + count + ")";
     }
 }

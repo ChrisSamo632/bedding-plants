@@ -88,7 +88,7 @@ public class SalesService {
         @SuppressWarnings("null")
         final int orderPlantTotal = sale.getCustomers().stream().map(Customer::getOrders).flatMapToInt(orders -> orders.stream().mapToInt(Order::getCount)).sum();
 
-        return SaleSummary.builder().year(sale.getSaleYear()).vat(sale.getVat()).deliveryCharge(sale.getDeliveryCharge()).plantCount(plantCount).customerCount(customerCount)
-                .orderCount(orderCount).orderCostTotal(orderCostTotal).orderIncomeTotal(orderIncomeTotal).orderPlantTotal(orderPlantTotal).build();
+        return new SaleSummary(sale.getSaleYear(), sale.getVat(), sale.getDeliveryCharge(), plantCount, customerCount, orderCount, orderCostTotal,
+                orderIncomeTotal, orderPlantTotal);
     }
 }

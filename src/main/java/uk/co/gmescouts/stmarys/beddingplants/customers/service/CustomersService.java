@@ -34,6 +34,6 @@ public class CustomersService {
         // rounded to 2 d.p.
         final double ordersIncomeTotal = Math.round(OrdersService.calculateOrdersIncomeTotal(customer.getOrders()) * 100.0) / 100.0;
 
-        return CustomerSummary.builder().orderCount(orderCount).ordersCostTotal(ordersCostTotal).ordersIncomeTotal(ordersIncomeTotal).build();
+        return new CustomerSummary(orderCount, ordersCostTotal, ordersIncomeTotal);
     }
 }
