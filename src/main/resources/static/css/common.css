@@ -8,21 +8,22 @@
 }
 
 @media all {
-    caption {
-        display: none;
-    }
+	caption {
+		display: none;
+	}
 
-    @page {
-        @bottom-right {
-            content: "Page " counter(page) " of " counter(pages);
-        }
-    }
+	@page {
+		@bottom-right {
+			content: "Page " counter(page) " of " counter(pages);
+		}
+	}
 }
 
 /*
 * Page
 */
-html, body {
+html,
+body {
 	height: 100%;
 	margin: 0;
 	padding: 0;
@@ -38,7 +39,8 @@ table {
 	border: none;
 }
 
-table td, table th {
+table td,
+table th {
 	padding: 1px 5px;
 }
 

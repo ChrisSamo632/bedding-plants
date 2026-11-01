@@ -10,27 +10,12 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 import java.util.Objects;
 import java.util.Set;
 
 @Entity
 @Table(name = "plants")
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class Plant implements Comparable<Plant> {
     @JsonIgnore
     @Id
@@ -47,37 +32,31 @@ public class Plant implements Comparable<Plant> {
     @JsonIgnore
     @Access(AccessType.FIELD)
     @ManyToOne
-    @ToString.Exclude
     private Sale sale;
 
-    @NonNull
     @Min(1)
     @NotNull
     private Integer num;
 
-    @NonNull
     @NotNull
     private String name;
 
-    @NonNull
     @NotNull
     private String variety;
 
     private String details;
 
-    @NonNull
     @Min(0)
     @NotNull
     private Double price;
 
-    @NonNull
     @Min(0)
     @NotNull
     private Double cost;
 
     @Access(AccessType.FIELD)
+    @JsonIgnore
     @OneToMany(mappedBy = "plant")
-    @ToString.Exclude
     private Set<OrderItem> orderItems;
 
     @Override
@@ -100,5 +79,86 @@ public class Plant implements Comparable<Plant> {
     @Override
     public int compareTo(@org.jetbrains.annotations.NotNull final Plant o) {
         return this.getNum().compareTo(o.getNum());
+    }
+
+    public Plant() {
+        // required by JPA and Jackson
+    }
+
+    public Plant(final Integer num, final String name, final String variety, final Double price, final Double cost) {
+        this.num = Objects.requireNonNull(num, "num");
+        this.name = Objects.requireNonNull(name, "name");
+        this.variety = Objects.requireNonNull(variety, "variety");
+        this.price = Objects.requireNonNull(price, "price");
+        this.cost = Objects.requireNonNull(cost, "cost");
+    }
+
+    public Sale getSale() {
+        return sale;
+    }
+
+    public void setSale(final Sale sale) {
+        this.sale = sale;
+    }
+
+    public Integer getNum() {
+        return num;
+    }
+
+    public void setNum(final Integer num) {
+        this.num = Objects.requireNonNull(num, "num");
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = Objects.requireNonNull(name, "name");
+    }
+
+    public String getVariety() {
+        return variety;
+    }
+
+    public void setVariety(final String variety) {
+        this.variety = Objects.requireNonNull(variety, "variety");
+    }
+
+    public String getDetails() {
+        return details;
+    }
+
+    public void setDetails(final String details) {
+        this.details = details;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(final Double price) {
+        this.price = Objects.requireNonNull(price, "price");
+    }
+
+    public Double getCost() {
+        return cost;
+    }
+
+    public void setCost(final Double cost) {
+        this.cost = Objects.requireNonNull(cost, "cost");
+    }
+
+    public Set<OrderItem> getOrderItems() {
+        return orderItems;
+    }
+
+    public void setOrderItems(final Set<OrderItem> orderItems) {
+        this.orderItems = orderItems;
+    }
+
+    @Override
+    public String toString() {
+        return "Plant(" + "num=" + num + ", " + "name=" + name + ", " + "variety=" + variety + ", " + "details=" + details + ", " + "price=" + price + ", " + "cost=" + cost + ")";
     }
 }

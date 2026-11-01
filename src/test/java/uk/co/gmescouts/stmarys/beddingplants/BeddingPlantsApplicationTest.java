@@ -12,11 +12,14 @@ import uk.co.gmescouts.stmarys.beddingplants.exports.configuration.ExportConfigu
 import uk.co.gmescouts.stmarys.beddingplants.geolocation.configuration.GeolocationConfiguration;
 import uk.co.gmescouts.stmarys.beddingplants.imports.configuration.ImportConfiguration;
 
-@SpringBootTest(properties = { "classpath:application.properties", "classpath:application-dev.properties" })
+@SpringBootTest(properties = {
+		"spring.datasource.url=jdbc:h2:mem:plants-test;DB_CLOSE_DELAY=-1",
+		"spring.datasource.password=",
+		"beddingplants.geolocation.googleApiKey=test-key"
+})
 @AutoConfigureWebClient
 @ContextConfiguration(classes = { WebMvcConfigure.class, BeddingPlantsConfiguration.class, ImportConfiguration.class,
-		GeolocationConfiguration.class,
-		ExportConfiguration.class, DeliveriesConfiguration.class })
+	GeolocationConfiguration.class, ExportConfiguration.class, DeliveriesConfiguration.class })
 class BeddingPlantsApplicationTest {
 	@SuppressWarnings({ "EmptyMethod", "java:S2699" })
 	@Test

@@ -1,18 +1,11 @@
 package uk.co.gmescouts.stmarys.beddingplants.sales.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.NonNull;
+import java.util.Objects;
 
-@Data
-@Builder
-public class CustomerSummary {
-	@NonNull
-	private Integer orderCount;
-
-	@NonNull
-	private Double ordersCostTotal;
-
-	@NonNull
-	private Double ordersIncomeTotal;
+public record CustomerSummary(Integer orderCount, Double ordersCostTotal, Double ordersIncomeTotal) {
+	public CustomerSummary {
+		Objects.requireNonNull(orderCount, "orderCount");
+		Objects.requireNonNull(ordersCostTotal, "ordersCostTotal");
+		Objects.requireNonNull(ordersIncomeTotal, "ordersIncomeTotal");
+	}
 }

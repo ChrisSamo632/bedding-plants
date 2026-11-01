@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import uk.co.gmescouts.stmarys.beddingplants.data.CustomerRepository;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Customer;
 import uk.co.gmescouts.stmarys.beddingplants.orders.service.OrdersService;
@@ -13,6 +14,7 @@ import uk.co.gmescouts.stmarys.beddingplants.sales.model.CustomerSummary;
 import java.util.Set;
 
 @Service
+@Validated
 public class CustomersService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CustomersService.class);
 
@@ -32,6 +34,6 @@ public class CustomersService {
         // rounded to 2 d.p.
         final double ordersIncomeTotal = Math.round(OrdersService.calculateOrdersIncomeTotal(customer.getOrders()) * 100.0) / 100.0;
 
-        return CustomerSummary.builder().orderCount(orderCount).ordersCostTotal(ordersCostTotal).ordersIncomeTotal(ordersIncomeTotal).build();
+        return new CustomerSummary(orderCount, ordersCostTotal, ordersIncomeTotal);
     }
 }

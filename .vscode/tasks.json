@@ -1,0 +1,50 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "format: spotless apply",
+            "type": "shell",
+            "command": "./mvnw -B -ntp spotless:apply",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "format: spotless check",
+            "type": "shell",
+            "command": "./mvnw -B -ntp spotless:check",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "lint: pmd",
+            "type": "shell",
+            "command": "./mvnw -B -ntp compile pmd:check",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "sast: spotbugs + findsecbugs",
+            "type": "shell",
+            "command": "./mvnw -B -ntp compile spotbugs:check",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "build: verify (format, test, lint, SAST)",
+            "type": "shell",
+            "command": "./mvnw -B -ntp verify",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "site: generate reports",
+            "type": "shell",
+            "command": "./mvnw -B -ntp verify site",
+            "group": "build",
+            "problemMatcher": []
+        }
+    ]
+}

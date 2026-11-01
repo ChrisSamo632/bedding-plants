@@ -1,0 +1,6 @@
+springdoc:
+  packages-to-scan: uk.co.gmescouts.stmarys.beddingplants
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:plants;DB_CLOSE_DELAY=-1

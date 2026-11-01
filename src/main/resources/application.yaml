@@ -1,0 +1,80 @@
+spring:
+  application:
+    name: "@project.name@"
+  profiles:
+    active: "@activatedProfiles@"
+  servlet:
+    multipart:
+      max-file-size: 2MB
+      enabled: true
+  main:
+    banner-mode: "off"
+  datasource:
+    username: bedding_plants
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+  mvc:
+    pathmatch:
+      matching-strategy: ant-path-matcher
+  thymeleaf:
+    enable-spring-el-compiler: true
+  h2:
+    console:
+      enabled: false
+server:
+  address: 0.0.0.0 # expose to all network interfaces out of WSL
+  # address: 127.0.0.1
+  port: 8443
+  servlet:
+    context-path: /bedding-plants
+
+logging:
+  file:
+    name: log/bedding-plants.log
+
+springdoc:
+  show-actuator: false
+  paths-to-match: /**
+  swagger-ui:
+    deep-linking: true
+    display-operation-id: false
+    default-models-expand-depth: 0
+    default-model-expand-depth: 1
+    default-model-rendering: model
+    display-request-duration: true
+    doc-expansion: none
+    filter: false
+    operations-sorter: alpha
+    show-extensions: false
+    tags-sorter: alpha
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+beddingplants:
+  import:
+    order-imports-name: Order_Imports
+    plant-imports-name: Plant_Imports
+    default-city: Manchester
+  export:
+    scout-hut-lat: 53.4786893
+    scout-hut-lng: -2.1429603
+    default-zoom: 18
+    viewport-max-lat: 53.50
+    viewport-min-lat: 53.46
+    viewport-max-lng: -2.12
+    viewport-min-lng: -2.18
+  deliveries:
+    max-route-plant-count: 20
+    max-route-radius-km: 1.0
+  geolocation:
+    google-maps-img-scale: 2
+    google-maps-img-width: 640
+    google-maps-img-height: 435
+    google-maps-img-language: en-GB
+    google-api-key: "${GOOGLE_MAPS_API_KEY:}"

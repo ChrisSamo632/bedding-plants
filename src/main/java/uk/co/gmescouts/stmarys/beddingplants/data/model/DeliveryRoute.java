@@ -15,14 +15,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
 import java.util.Comparator;
 import java.util.Objects;
@@ -31,13 +23,6 @@ import java.util.TreeSet;
 
 @Entity
 @Table(name = "deliveryRoutes")
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class DeliveryRoute implements PlantSummary {
     @JsonIgnore
     @Id
@@ -51,6 +36,7 @@ public class DeliveryRoute implements PlantSummary {
         // intentionally blank, only needed for Hibernate
     }
 
+    @SuppressWarnings("null")
     @Override
     @JsonIgnore
     @Transient
@@ -58,6 +44,7 @@ public class DeliveryRoute implements PlantSummary {
         return this.orders.stream().mapToInt(Order::getCount).sum();
     }
 
+    @SuppressWarnings("null")
     @Override
     @JsonIgnore
     @Transient
@@ -66,6 +53,7 @@ public class DeliveryRoute implements PlantSummary {
         return this.orders.stream().mapToDouble(Order::getPrice).sum();
     }
 
+    @SuppressWarnings("null")
     @Override
     @JsonIgnore
     @Transient
@@ -74,12 +62,10 @@ public class DeliveryRoute implements PlantSummary {
         return this.orders.stream().mapToDouble(Order::getCost).sum();
     }
 
-    @NonNull
     @NotNull
     @Min(1)
     private Long num;
 
-    @NonNull
     @NotNull
     @Enumerated(EnumType.STRING)
     private DeliveryDay deliveryDay;
@@ -89,14 +75,10 @@ public class DeliveryRoute implements PlantSummary {
     @ManyToOne
     private Sale sale;
 
-    // TODO: store image of the DeliveryRoute points plotted on a map?
-    // private byte[] mapImage;
-
-    @Builder.Default
+    @SuppressWarnings("null")
     @OrderBy("num")
     @Access(AccessType.FIELD)
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "deliveryRoute")
-    @ToString.Exclude
     private Set<Order> orders = new TreeSet<>(Comparator.comparingInt(Order::getNum));
 
     public void addOrder(final Order order) {
@@ -124,5 +106,51 @@ public class DeliveryRoute implements PlantSummary {
     @Override
     public int hashCode() {
         return Objects.hash(num, sale);
+    }
+
+    public DeliveryRoute() {
+        // required by JPA and Jackson
+    }
+
+    public DeliveryRoute(final Long num, final DeliveryDay deliveryDay) {
+        this.num = Objects.requireNonNull(num, "num");
+        this.deliveryDay = Objects.requireNonNull(deliveryDay, "deliveryDay");
+    }
+
+    public Long getNum() {
+        return num;
+    }
+
+    public void setNum(final Long num) {
+        this.num = Objects.requireNonNull(num, "num");
+    }
+
+    public DeliveryDay getDeliveryDay() {
+        return deliveryDay;
+    }
+
+    public void setDeliveryDay(final DeliveryDay deliveryDay) {
+        this.deliveryDay = Objects.requireNonNull(deliveryDay, "deliveryDay");
+    }
+
+    public Sale getSale() {
+        return sale;
+    }
+
+    public void setSale(final Sale sale) {
+        this.sale = sale;
+    }
+
+    public Set<Order> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(final Set<Order> orders) {
+        this.orders = orders;
+    }
+
+    @Override
+    public String toString() {
+        return "DeliveryRoute(" + "num=" + num + ", " + "deliveryDay=" + deliveryDay + ", " + "sale=" + sale + ")";
     }
 }

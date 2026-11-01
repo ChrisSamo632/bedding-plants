@@ -1,7 +1,7 @@
 var map = null;
 var bounds = null;
 
-function mapLoadViewer(mapDivId, mapType, north, south, east, west, onTilesLoaded){
+function mapLoadViewer(mapDivId, mapType, north, south, east, west, onTilesLoaded) {
     // setup the Viewer corner points
     var sw = new google.maps.LatLng(south, west);
     var ne = new google.maps.LatLng(north, east);
@@ -34,14 +34,13 @@ function mapLoadViewer(mapDivId, mapType, north, south, east, west, onTilesLoade
 
 function addCircleToMap(lat, lon, r, colour, desc) {
     if (map != null) {
-    	console.log("Adding circle for " + desc);
+        console.log("Adding circle for " + desc);
 
         // setup lat/lon point
         var point = new google.maps.LatLng(lat, lon);
 
         // extend map to include point location if necessary
-        if (bounds == null || bounds == undefined)
-        {
+        if (bounds == null || bounds == undefined) {
             bounds = map.getBounds();
             if (bounds != null && bounds != undefined && !bounds.contains(point)) {
                 bounds.extend(point);
@@ -70,7 +69,7 @@ function addCircleToMap(lat, lon, r, colour, desc) {
             var infoWindow = new google.maps.InfoWindow(infoOptions);
 
             // on-click event for the marker
-            google.maps.event.addListener(circle, 'click', function(){ infoWindow.open(map); });
+            google.maps.event.addListener(circle, 'click', function () { infoWindow.open(map); });
         }
     }
 }

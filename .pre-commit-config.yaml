@@ -1,0 +1,67 @@
+minimum_pre_commit_version: 4.3.0
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-xml
+      - id: check-yaml
+      - id: check-json
+        exclude: ^\.vscode/
+      - id: detect-private-key
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: mixed-line-ending
+        args: [--fix=lf]
+        exclude: ^mvnw\.cmd$
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+
+  - repo: local
+    hooks:
+      - id: betterleaks-system
+        name: Detect hardcoded secrets
+        description: Detect hardcoded secrets using Betterleaks
+        entry: bash -o pipefail -c 'betterleaks stdin --redact'
+        language: system
+        pass_filenames: false
+
+  - repo: local
+    hooks:
+      - id: shellcheck
+        name: shellcheck
+        description: Test shell scripts with shellcheck
+        entry: shellcheck
+        language: python
+        types: [shell]
+        require_serial: true # shellcheck can detect sourcing this way
+        files: ^run-local\.sh$
+
+  - repo: https://github.com/rhysd/actionlint
+    rev: v1.7.12
+    hooks:
+      - id: actionlint
+
+  - repo: local
+    hooks:
+      - id: spotless-apply
+        name: Format Java (Spotless)
+        description: Apply Spotless formatting rules; the commit is stopped if files change
+        entry: ./mvnw -B -ntp -q spotless:apply
+        language: system
+        pass_filenames: false
+        files: ^src/.*\.java$
+
+  - repo: local
+    hooks:
+      - id: maven-build-and-test
+        name: Maven build, test, lint and SAST
+        description: Runs verify - format check, tests, PMD and SpotBugs/FindSecBugs
+        entry: ./mvnw -B -ntp verify
+        language: system
+        pass_filenames: false
+        files: ^(pom\.xml|spotbugs-exclude\.xml|src/.*)$

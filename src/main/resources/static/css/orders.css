@@ -14,7 +14,8 @@ table.customer {
 	margin-bottom: 10pt;
 }
 
-table.customer td.detail, table.customer td.price {
+table.customer td.detail,
+table.customer td.price {
 	border-color: lightgray;
 	border-style: solid;
 }
@@ -35,7 +36,8 @@ table.customer td.price {
 /*
 * Plant Details
 */
-table.plants td, table.plants th {
+table.plants td,
+table.plants th {
 	font-size: 14pt;
 }
 
@@ -47,7 +49,8 @@ table.plants th {
 	color: black;
 }
 
-table.plants td, table.plants th {
+table.plants td,
+table.plants th {
 	border-color: lightgray;
 	border-width: thin;
 	border-style: solid;

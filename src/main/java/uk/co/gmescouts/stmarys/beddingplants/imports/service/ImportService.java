@@ -3,7 +3,6 @@ package uk.co.gmescouts.stmarys.beddingplants.imports.service;
 import com.poiji.bind.Poiji;
 import com.poiji.exception.PoijiExcelType;
 import com.poiji.option.PoijiOptions.PoijiOptionsBuilder;
-import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.apache.commons.lang3.StringUtils;
@@ -13,7 +12,10 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
+import uk.co.gmescouts.stmarys.beddingplants.data.AddressRepository;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Address;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.CollectionSlot;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Customer;
@@ -24,8 +26,7 @@ import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderItem;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.OrderType;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Plant;
 import uk.co.gmescouts.stmarys.beddingplants.data.model.Sale;
-import uk.co.gmescouts.stmarys.beddingplants.deliveries.service.DeliveriesService;
-import uk.co.gmescouts.stmarys.beddingplants.imports.configuration.ImportConfiguration;
+import uk.co.gmescouts.stmarys.beddingplants.imports.configuration.ImportProperties;
 import uk.co.gmescouts.stmarys.beddingplants.imports.model.excel.ExcelOrder;
 import uk.co.gmescouts.stmarys.beddingplants.imports.model.excel.ExcelPlant;
 import uk.co.gmescouts.stmarys.beddingplants.sales.service.SalesService;
@@ -45,18 +46,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
+@Validated
 public class ImportService {
-    @Resource
-    private PoijiOptionsBuilder poijiOptionsBuilder;
-
-    @Resource
-    private ImportConfiguration importConfiguration;
-
-    @Resource
-    private SalesService salesService;
-
-    @Resource
-    private DeliveriesService deliveriesService;
+    private final PoijiOptionsBuilder poijiOptionsBuilder;
+    private final ImportProperties importProperties;
+    private final SalesService salesService;
+    private final AddressRepository addressRepository;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ImportService.class);
 
@@ -78,52 +73,66 @@ public class ImportService {
 
     private static final Map<Method, Method> IMPORT_METHOD_CACHE = new HashMap<>(100, 1);
 
-    private static final Map<Address, Address> IMPORTED_ADDRESS_CACHE = new HashMap<>(500, 1);
+    public ImportService(final PoijiOptionsBuilder poijiOptionsBuilder, final ImportProperties importProperties, final SalesService salesService,
+                         final AddressRepository addressRepository) {
+        this.poijiOptionsBuilder = poijiOptionsBuilder;
+        this.importProperties = importProperties;
+        this.salesService = salesService;
+        this.addressRepository = addressRepository;
+    }
 
+    @Transactional(rollbackFor = Exception.class)
     public Sale importSaleFromExcelFile(final MultipartFile file, final Integer saleYear, final Double vat, final Double deliveryCharge,
                                         final String orderImportsSheetName, final String plantImportsSheetName) throws IOException {
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Importing Sale from file [{}] for Order Year [{}] with VAT [{}] and Delivery Charge [{}]", file.getOriginalFilename(), saleYear, vat, deliveryCharge);
         }
 
-        // check for existing Sale for the specified year
-        Sale sale = salesService.findSaleByYear(saleYear);
-        if (sale == null) {
-            // create new Sale if it doesn't exist
-            sale = salesService.saveSale(Sale.builder().saleYear(saleYear).vat(vat).deliveryCharge(deliveryCharge).build());
+        try (InputStream workbookInput = file.getInputStream(); Workbook workbook = WorkbookFactory.create(workbookInput)) {
+            final List<ExcelPlant> importedPlants = readDataFromExcelFile(file, workbook,
+                    StringUtils.defaultIfBlank(plantImportsSheetName, importProperties.plantImportsName()), ExcelPlant.class);
+            final List<ExcelOrder> importedOrders = readDataFromExcelFile(file, workbook,
+                    StringUtils.defaultIfBlank(orderImportsSheetName, importProperties.orderImportsName()), ExcelOrder.class);
+
+            Sale sale = salesService.findSaleByYear(saleYear);
+            if (sale == null) {
+                sale = new Sale(saleYear, vat, deliveryCharge);
+            }
+
+            // save the Plants first so the Orders' items can reference them; the Customers are then added to the managed Sale
+            // and persisted on flush (merging them would compute OrderItem ids before their Orders are linked)
+            final Sale savedSale = salesService.saveSale(updateSaleWithImportedPlants(importedPlants, sale));
+            return updateSaleWithImportedCustomers(importedOrders, savedSale);
         }
-
-        // import Plants (and add to Sale)
-        sale = updateSaleWithImportedPlantsFromExcel(file, plantImportsSheetName, sale);
-
-        // import Orders (and add to Sale)
-        sale = updateSaleWithImportedCustomersFromExcel(file, orderImportsSheetName, sale);
-
-        // return the Sale
-        return salesService.saveSale(sale);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public Sale importCustomersFromExcel(final MultipartFile file, final String orderImportsSheetName, @NotNull final Integer saleYear)
             throws IOException {
         // get the Sale using the Year
         final Sale sale = salesService.findSaleByYear(saleYear);
-
-        return updateSaleWithImportedCustomersFromExcel(file, orderImportsSheetName, sale);
+        try (InputStream workbookInput = file.getInputStream(); Workbook workbook = WorkbookFactory.create(workbookInput)) {
+            final List<ExcelOrder> importedOrders = readDataFromExcelFile(file, workbook,
+                    StringUtils.defaultIfBlank(orderImportsSheetName, importProperties.orderImportsName()), ExcelOrder.class);
+            return updateSaleWithImportedCustomers(importedOrders, sale);
+        }
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public Sale importPlantsFromExcel(final MultipartFile file, final String plantImportsSheetName, @NotNull final Integer saleYear)
             throws IOException {
         // get the Sale using the Year
         final Sale sale = salesService.findSaleByYear(saleYear);
-
-        // return the updated Sale
-        return updateSaleWithImportedPlantsFromExcel(file, plantImportsSheetName, sale);
+        try (InputStream workbookInput = file.getInputStream(); Workbook workbook = WorkbookFactory.create(workbookInput)) {
+            final List<ExcelPlant> importedPlants = readDataFromExcelFile(file, workbook,
+                    StringUtils.defaultIfBlank(plantImportsSheetName, importProperties.plantImportsName()), ExcelPlant.class);
+            return salesService.saveSale(updateSaleWithImportedPlants(importedPlants, sale));
+        }
     }
 
-    private Sale updateSaleWithImportedCustomersFromExcel(final MultipartFile file, final String orderImportsSheetName, @NotNull final Sale sale)
-            throws IOException {
+    private Sale updateSaleWithImportedCustomers(final List<ExcelOrder> importedOrders, @NotNull final Sale sale) {
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Importing Orders from file [{}] for Sale [{}]", file.getOriginalFilename(), sale.getSaleYear());
+            LOGGER.info("Importing Orders for Sale [{}]", sale.getSaleYear());
         }
 
         // check the Sale contains some Plants
@@ -132,78 +141,48 @@ public class ImportService {
             throw new IllegalArgumentException(String.format("Cannot import Orders for a Sale without Plants [%d]", sale.getSaleYear()));
         }
 
-        // get Workbook from file (ensure we can read it and determine the type)
-        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
+        // per-import Address lookup, pre-seeded with any Addresses already stored
+        @SuppressWarnings("null")
+        final List<ExcelOrder> validOrders = importedOrders.stream().filter(ExcelOrder::isValid).toList();
+        final Map<String, Address> addresses = loadExistingAddresses(validOrders);
 
-            // Order Imports
-            final List<ExcelOrder> importedOrders = readDataFromExcelFile(file.getInputStream(), workbook,
-                    StringUtils.defaultIfBlank(orderImportsSheetName, importConfiguration.getOrderImportsName()), ExcelOrder.class);
-
-            // prepare address cache for import
-            // TODO: surely there's a JPA way of handling this though, right?
-            IMPORTED_ADDRESS_CACHE.clear();
-
-            // convert to Orders
-            final List<Customer> customerOrders = importedOrders.stream().filter(ExcelOrder::isValid).map(order -> createCustomer(order, sale, plants)).toList();
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Imported [{}] valid Customer Orders", customerOrders.size());
-            }
-
-            // merge duplicate Customers and aggregate Orders
-            final Set<Customer> customers = new HashSet<>();
-            customerOrders.forEach(customerOrder -> {
-                // is Customer already present?
-                if (customers.contains(customerOrder)) {
-                    final Customer existingCustomer = customers.stream().filter(customerOrder::equals).findFirst()
-                            .orElseThrow(IllegalStateException::new);
-
-                    // add new Order(s) to existing Customer
-                    customerOrder.getOrders().forEach(existingCustomer::addOrder);
-                } else {
-                    // add new Customer with their Order
-                    customers.add(customerOrder);
-                }
-            });
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Imported [{}] de-duplicated Customers", customers.size());
-            }
-
-            // TODO is the "JPA way" to save the Customers (and the Plants) separately and then "refresh" the Sale instead?
-            // add Customer to Sale
-            // done as a second loop to avoid confusing the Customer#equals when looking for duplicates above
-            customers.forEach(sale::addCustomer);
-
-            // save any Sale updates
-            return salesService.saveSale(sale);
+        // convert to Orders
+        final List<Customer> customerOrders = validOrders.stream().map(order -> createCustomer(order, sale, plants, addresses)).toList();
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Imported [{}] valid Customer Orders", customerOrders.size());
         }
+
+        // merge duplicate Customers and aggregate Orders
+        final Set<Customer> customers = new HashSet<>();
+        customerOrders.forEach(customerOrder -> {
+            if (customers.contains(customerOrder)) {
+                final Customer existingCustomer = customers.stream().filter(customerOrder::equals).findFirst()
+                        .orElseThrow(IllegalStateException::new);
+                customerOrder.getOrders().forEach(existingCustomer::addOrder);
+            } else {
+                customers.add(customerOrder);
+            }
+        });
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Imported [{}] de-duplicated Customers", customers.size());
+        }
+
+        customers.forEach(sale::addCustomer);
+        return sale;
     }
 
-    private Sale updateSaleWithImportedPlantsFromExcel(final MultipartFile file, final String plantImportsSheetName, @NotNull Sale sale)
-            throws IOException {
+    private Sale updateSaleWithImportedPlants(final List<ExcelPlant> importedPlants, @NotNull final Sale sale) {
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Importing Plants from file [{}] for Sale [{}]", file.getOriginalFilename(), sale.getSaleYear());
+            LOGGER.info("Importing Plants for Sale [{}]", sale.getSaleYear());
         }
 
-        // get Workbook from file (ensure we can read it and determine the type)
-        try (Workbook workbook = WorkbookFactory.create(file.getInputStream())) {
-            // Plant Imports
-            final List<ExcelPlant> importedPlants = readDataFromExcelFile(file.getInputStream(), workbook,
-                    StringUtils.defaultIfBlank(plantImportsSheetName, importConfiguration.getPlantImportsName()), ExcelPlant.class);
-
-            // convert to Plants
-            final Set<Plant> plants = importedPlants.stream().filter(ExcelPlant::isValid).map(this::createPlant).collect(Collectors.toSet());
-            if (LOGGER.isInfoEnabled()) {
-                LOGGER.info("Imported [{}] valid Plants", plants.size());
-            }
-
-            // add to Sale
-            plants.forEach(sale::addPlant);
-
-            // save any Sale updates
-            sale = salesService.saveSale(sale);
+        @SuppressWarnings("null")
+        final Set<Plant> plants = importedPlants.stream().filter(ExcelPlant::isValid).map(this::createPlant).collect(Collectors.toSet());
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info("Imported [{}] valid Plants", plants.size());
         }
 
-        // return the updated Sale
+        plants.forEach(sale::addPlant);
         return sale;
     }
 
@@ -212,28 +191,32 @@ public class ImportService {
             LOGGER.trace("Convert imported Plant: [{}]", excelPlant);
         }
 
-        final Double price = StringUtils.isNotBlank(excelPlant.getPrice()) ? Double.parseDouble(excelPlant.getPrice().replaceFirst("£", "")) : 0d;
-        final Double cost = StringUtils.isNotBlank(excelPlant.getCost()) ? Double.parseDouble(excelPlant.getCost().replaceFirst("£", "")) : 0d;
+        final Double price = StringUtils.isNotBlank(excelPlant.price()) ? Double.parseDouble(excelPlant.price().replaceFirst("£", "")) : 0d;
+        final Double cost = StringUtils.isNotBlank(excelPlant.cost()) ? Double.parseDouble(excelPlant.cost().replaceFirst("£", "")) : 0d;
 
-        return Plant.builder().num(Integer.valueOf(excelPlant.getId())).name(excelPlant.getName()).variety(excelPlant.getVariety())
-                .details(excelPlant.getDetails()).price(price).cost(cost).build();
+        final Plant plant = new Plant(Integer.valueOf(excelPlant.id()), excelPlant.name(), excelPlant.variety(), price, cost);
+        plant.setDetails(excelPlant.details());
+        return plant;
     }
 
-    private Customer createCustomer(final ExcelOrder excelOrder, final Sale sale, final Set<Plant> plants) {
+    private Customer createCustomer(final ExcelOrder excelOrder, final Sale sale, final Set<Plant> plants,
+                                  final Map<String, Address> addresses) {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("Convert imported Order: [{}]", excelOrder);
         }
 
-        // create Customer (without Address)
-        final Customer customer = Customer.builder().forename(excelOrder.getForename()).surname(excelOrder.getSurname())
-                .emailAddress(excelOrder.getEmailAddress()).telephone(normaliseTelephoneNumber(excelOrder.getTelephone())).build();
+        // create Customer (without Address), linked to the Sale up front as the Customer id depends on the Sale year
+        final Customer customer = new Customer(excelOrder.forename(), excelOrder.surname());
+        customer.setSale(sale);
+        customer.setEmailAddress(excelOrder.emailAddress());
+        customer.setTelephone(normaliseTelephoneNumber(excelOrder.telephone()));
 
         // add Order
         final Order order = createOrder(excelOrder, sale, plants);
         customer.addOrder(order);
 
         // link Customer with Address (if present)
-        final Address address = createAddress(excelOrder);
+        final Address address = createAddress(excelOrder, addresses);
         if (address != null) {
             address.addCustomer(customer);
         }
@@ -243,47 +226,46 @@ public class ImportService {
 
     private Order createOrder(final ExcelOrder excelOrder, final Sale sale, @NotNull @Size(min = 1) final Set<Plant> plants) {
         // determine DeliveryDay (default is Saturday if not present)
-        final DeliveryDay deliveryDay = StringUtils.isNotBlank(excelOrder.getDeliveryDay())
-                ? DeliveryDay.valueOf(StringUtils.upperCase(excelOrder.getDeliveryDay()))
+        final DeliveryDay deliveryDay = StringUtils.isNotBlank(excelOrder.deliveryDay())
+                ? DeliveryDay.valueOf(StringUtils.upperCase(excelOrder.deliveryDay()))
                 : DeliveryDay.SATURDAY;
 
         // determine CollectionSlot (default is Any if not present)
-        final CollectionSlot collectionSlot = StringUtils.isNotBlank(excelOrder.getCollectionSlot())
-                ? CollectionSlot.valueOf(StringUtils.upperCase(excelOrder.getCollectionSlot()))
+        final CollectionSlot collectionSlot = StringUtils.isNotBlank(excelOrder.collectionSlot())
+                ? CollectionSlot.valueOf(StringUtils.upperCase(excelOrder.collectionSlot()))
                 : CollectionSlot.ANY;
 
-        // Delivery Route (default is none)
-        final DeliveryRoute deliveryRoute = StringUtils.isNotBlank(excelOrder.getDeliveryRoute())
-                ? deliveriesService.getOrCreateDeliveryRoute(Long.parseLong(excelOrder.getDeliveryRoute()), deliveryDay, sale)
+        final DeliveryRoute deliveryRoute = StringUtils.isNotBlank(excelOrder.deliveryRoute())
+                ? getOrCreateImportedDeliveryRoute(Long.parseLong(excelOrder.deliveryRoute()), deliveryDay, sale)
                 : null;
 
         // create Order (without Customer or OrderItems)
-        final Order order = Order.builder()
-                .num(Integer.valueOf(excelOrder.getOrderNumber()))
-                .type(OrderType.valueOf(excelOrder.getCollectDeliver().toUpperCase(Locale.ROOT).charAt(0)))
-                .deliveryDay(deliveryDay)
-                .deliveryRoute(deliveryRoute)
-                .collectionSlot(collectionSlot)
-                .collectionHour(StringUtils.isNotBlank(excelOrder.getCollectionHour()) ? Integer.parseInt(excelOrder.getCollectionHour()) : null)
-                .courtesyOfName(excelOrder.getCourtesyOf())
-                .survey(excelOrder.getSurvey())
-                .notes(excelOrder.getNotes())
-                .paid(StringUtils.isNotBlank(excelOrder.getPaid()) ? Double.valueOf(excelOrder.getPaid()) : null)
-                .discount(StringUtils.isNotBlank(excelOrder.getDiscount()) ? Double.valueOf(excelOrder.getDiscount()) : null)
-                .build();
+        final Order order = new Order(Integer.valueOf(excelOrder.orderNumber()), deliveryDay, OrderType.valueOf(excelOrder.collectDeliver().toUpperCase(Locale.ROOT).charAt(0)));
+        order.setDeliveryRoute(deliveryRoute);
+        order.setCollectionSlot(collectionSlot);
+        order.setCollectionHour(StringUtils.isNotBlank(excelOrder.collectionHour()) ? Integer.parseInt(excelOrder.collectionHour()) : null);
+        order.setCourtesyOfName(excelOrder.courtesyOf());
+        order.setSurvey(excelOrder.survey());
+        order.setNotes(excelOrder.notes());
+        order.setPaid(StringUtils.isNotBlank(excelOrder.paid()) ? Double.valueOf(excelOrder.paid()) : null);
+        order.setDiscount(StringUtils.isNotBlank(excelOrder.discount()) ? Double.valueOf(excelOrder.discount()) : null);
+
+        if (deliveryRoute != null) {
+            deliveryRoute.addOrder(order);
+        }
 
         // determine requested number of each plant and create OrderItems on the Order
         for (final Plant plant : plants) {
             final int plantId = plant.getNum();
             try {
                 // for each available (imported) Plant, check how many the imported order wants
-                final String plantCountStr = (String) excelOrder.getClass().getMethod(String.format("getNumberPlants%d", plantId)).invoke(excelOrder);
+                final String plantCountStr = (String) excelOrder.getClass().getMethod(String.format("numberPlants%d", plantId)).invoke(excelOrder);
 
                 final int numPlants = StringUtils.isNotBlank(plantCountStr) ? Integer.parseInt(plantCountStr) : 0;
 
                 if (numPlants > 0) {
                     // add the OrderItem to the Order
-                    order.addOrderItem(OrderItem.builder().plant(plant).count(numPlants).build());
+                    order.addOrderItem(new OrderItem(plant, numPlants));
                 }
             } catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException |
                      InvocationTargetException e) {
@@ -292,6 +274,23 @@ public class ImportService {
         }
 
         return order;
+    }
+
+    private DeliveryRoute getOrCreateImportedDeliveryRoute(final long routeNumber, final DeliveryDay deliveryDay, final Sale sale) {
+        final DeliveryRoute existingRoute = sale.getDeliveryRoutes().stream()
+                .filter(route -> routeNumber == route.getNum()).findFirst().orElse(null);
+        if (existingRoute != null) {
+            if (existingRoute.getDeliveryDay() != deliveryDay) {
+                throw new IllegalArgumentException(String.format("Delivery route [%d] is assigned to [%s], not [%s]",
+                        routeNumber, existingRoute.getDeliveryDay(), deliveryDay));
+            }
+            return existingRoute;
+        }
+
+        final DeliveryRoute newRoute = new DeliveryRoute(routeNumber, deliveryDay);
+        newRoute.setSale(sale);
+        sale.addDeliveryRoute(newRoute);
+        return newRoute;
     }
 
     String normaliseTelephoneNumber(final String telephone) {
@@ -326,36 +325,51 @@ public class ImportService {
         return normalised;
     }
 
-    private Address createAddress(final ExcelOrder excelOrder) {
-        String street = excelOrder.getStreet();
-        if (StringUtils.isNotBlank(excelOrder.getStreet())) {
+    private Map<String, Address> loadExistingAddresses(final List<ExcelOrder> orders) {
+        @SuppressWarnings("null")
+        final Set<String> ids = orders.stream().map(this::buildAddress).filter(java.util.Objects::nonNull).map(Address::getId)
+                .collect(Collectors.toSet());
+        final Map<String, Address> addresses = new HashMap<>();
+        addressRepository.findAllById(ids).forEach(address -> addresses.put(address.getId(), address));
+        return addresses;
+    }
+
+    private Address createAddress(final ExcelOrder excelOrder, final Map<String, Address> addresses) {
+        final Address address = buildAddress(excelOrder);
+        return address == null ? null : addresses.computeIfAbsent(address.getId(), id -> address);
+    }
+
+    private Address buildAddress(final ExcelOrder excelOrder) {
+        String street = excelOrder.street();
+        if (StringUtils.isNotBlank(excelOrder.street())) {
             street = ADDRESS_CONTRACTIONS.entrySet().stream()
                     // find if any contractions match the end of the imported street
-                    .filter(contraction -> excelOrder.getStreet().toLowerCase(Locale.ROOT).endsWith(contraction.getKey()))
+                    .filter(contraction -> excelOrder.street().toLowerCase(Locale.ROOT).endsWith(contraction.getKey()))
                     // replace the contraction with the full street ending
-                    .map(contraction -> excelOrder.getStreet().replaceFirst(String.format("%s$", contraction.getKey()), contraction.getValue()))
+                    .map(contraction -> excelOrder.street().replaceFirst(String.format("%s$", contraction.getKey()), contraction.getValue()))
                     // there can be only one (or none, in which case stick with the original value)...
                     .findFirst().orElse(street);
         }
 
         // normalise postcode
         final StringBuilder postcodeBuilder = new StringBuilder(10);
-        final String importedPostcode = excelOrder.getPostcode();
+        final String importedPostcode = excelOrder.postcode();
         if (importedPostcode != null) {
             postcodeBuilder.append(importedPostcode.replaceAll("\\s+", ""));
             postcodeBuilder.insert(postcodeBuilder.length() > 3 ? postcodeBuilder.length() - 3 : 0, " ");
         }
 
-        final Address address = Address.builder().houseNameNumber(excelOrder.getHouseNameNumber()).street(street).town(excelOrder.getTown())
-                .postcode(postcodeBuilder.toString()).build();
+        final Address address = new Address();
+        address.setHouseNameNumber(excelOrder.houseNameNumber());
+        address.setStreet(street);
+        address.setTown(excelOrder.town());
+        address.setPostcode(postcodeBuilder.toString());
 
         // if there's something in the Address, add the City for Geolocation and return
         if (address.isGeolocatable()) {
-            address.setCity(StringUtils.defaultIfEmpty(excelOrder.getCity(), importConfiguration.getDefaultCity()));
+            address.setCity(StringUtils.defaultIfEmpty(excelOrder.city(), importProperties.defaultCity()));
 
-            // store Address (if new) for later re-use
-            IMPORTED_ADDRESS_CACHE.putIfAbsent(address, address);
-            return IMPORTED_ADDRESS_CACHE.get(address);
+            return address;
         }
 
         // if Address unusable, don't return anything
@@ -439,6 +453,13 @@ public class ImportService {
         data.forEach(this::normaliseImportedFields);
 
         return data;
+    }
+
+    private <T> List<T> readDataFromExcelFile(final MultipartFile file, final Workbook workbook, final String sheetName, final Class<T> dataType)
+            throws IOException {
+        try (InputStream inputStream = file.getInputStream()) {
+            return readDataFromExcelFile(inputStream, workbook, sheetName, dataType);
+        }
     }
 
     private PoijiExcelType getPoijiExcelType(final Workbook workbook) {

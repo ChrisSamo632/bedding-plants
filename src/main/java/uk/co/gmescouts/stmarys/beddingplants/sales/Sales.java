@@ -40,6 +40,7 @@ class Sales {
     @Resource
     private SalesService salesService;
 
+    @SuppressWarnings("null")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE, value = SALE_SUMMARY)
     public List<SaleSummary> getSaleSummary() {
         if (LOGGER.isInfoEnabled()) {
@@ -50,7 +51,7 @@ class Sales {
         final List<SaleSummary> saleSummaries;
         if (!sales.isEmpty()) {
             saleSummaries = sales.stream().map(salesService::summariseSale)
-                    .sorted(Comparator.comparingInt(SaleSummary::getYear)).toList();
+                    .sorted(Comparator.comparingInt(SaleSummary::year)).toList();
         } else {
             saleSummaries = Collections.emptyList();
         }

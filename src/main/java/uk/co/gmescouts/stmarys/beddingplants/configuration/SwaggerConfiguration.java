@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 class SwaggerConfiguration {
-	// FIXME: enabled security (see pom.xml)
+	// TODO: enabled security (see pom.xml)
     @Bean
     public OpenAPI springShopOpenAPI() {
         return new OpenAPI()

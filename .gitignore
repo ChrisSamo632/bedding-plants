@@ -22,5 +22,7 @@ application-map.properties
 !.mvn/wrapper/maven-wrapper.jar
 
 # VS Code #
-.vscode/
+.vscode/*
 !.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/tasks.json

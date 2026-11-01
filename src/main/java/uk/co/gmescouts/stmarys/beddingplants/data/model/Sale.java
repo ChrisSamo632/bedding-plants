@@ -9,13 +9,6 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import lombok.Setter;
-import lombok.ToString;
 
 import java.util.Comparator;
 import java.util.Objects;
@@ -24,48 +17,33 @@ import java.util.TreeSet;
 
 @Entity
 @Table(name = "sales")
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
-@Builder
-@NoArgsConstructor
 public class Sale {
-    @NonNull
     @NotNull
     @Id
     @Column(unique = true)
     private Integer saleYear;
 
-    @NonNull
     @Min(0)
     @NotNull
     private Double vat;
 
-    @NonNull
     @Min(0)
     @NotNull
     private Double deliveryCharge;
 
-    @NonNull
-    @Builder.Default
+    @SuppressWarnings("null")
     @OrderBy("num")
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "sale")
-    @ToString.Exclude
     private Set<DeliveryRoute> deliveryRoutes = new TreeSet<>(Comparator.comparing(DeliveryRoute::getNum));
 
-    @NonNull
-    @Builder.Default
+    @SuppressWarnings("null")
     @OrderBy("surname, forename")
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "sale")
-    @ToString.Exclude
     private Set<Customer> customers = new TreeSet<>(Comparator.comparing(Customer::getName));
 
-    @NonNull
-    @Builder.Default
+    @SuppressWarnings("null")
     @OrderBy("num")
     @OneToMany(cascade = {CascadeType.ALL}, mappedBy = "sale")
-    @ToString.Exclude
     private Set<Plant> plants = new TreeSet<>(Comparator.comparingInt(Plant::getNum));
 
     public void addCustomer(final Customer customer) {
@@ -113,5 +91,68 @@ public class Sale {
     @Override
     public int hashCode() {
         return Objects.hash(saleYear);
+    }
+
+    public Sale() {
+        // required by JPA and Jackson
+    }
+
+    public Sale(final Integer saleYear, final Double vat, final Double deliveryCharge) {
+        this.saleYear = Objects.requireNonNull(saleYear, "saleYear");
+        this.vat = Objects.requireNonNull(vat, "vat");
+        this.deliveryCharge = Objects.requireNonNull(deliveryCharge, "deliveryCharge");
+    }
+
+    public Integer getSaleYear() {
+        return saleYear;
+    }
+
+    public void setSaleYear(final Integer saleYear) {
+        this.saleYear = Objects.requireNonNull(saleYear, "saleYear");
+    }
+
+    public Double getVat() {
+        return vat;
+    }
+
+    public void setVat(final Double vat) {
+        this.vat = Objects.requireNonNull(vat, "vat");
+    }
+
+    public Double getDeliveryCharge() {
+        return deliveryCharge;
+    }
+
+    public void setDeliveryCharge(final Double deliveryCharge) {
+        this.deliveryCharge = Objects.requireNonNull(deliveryCharge, "deliveryCharge");
+    }
+
+    public Set<DeliveryRoute> getDeliveryRoutes() {
+        return deliveryRoutes;
+    }
+
+    public void setDeliveryRoutes(final Set<DeliveryRoute> deliveryRoutes) {
+        this.deliveryRoutes = Objects.requireNonNull(deliveryRoutes, "deliveryRoutes");
+    }
+
+    public Set<Customer> getCustomers() {
+        return customers;
+    }
+
+    public void setCustomers(final Set<Customer> customers) {
+        this.customers = Objects.requireNonNull(customers, "customers");
+    }
+
+    public Set<Plant> getPlants() {
+        return plants;
+    }
+
+    public void setPlants(final Set<Plant> plants) {
+        this.plants = Objects.requireNonNull(plants, "plants");
+    }
+
+    @Override
+    public String toString() {
+        return "Sale(" + "saleYear=" + saleYear + ", " + "vat=" + vat + ", " + "deliveryCharge=" + deliveryCharge + ")";
     }
 }
